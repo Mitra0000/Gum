@@ -8,6 +8,8 @@ def main():
         os.system("git commit -m '" + name + "'")
     elif command == "uc":
         os.system("git push")
+    elif command == "status":
+       os.system("git status")
     else:
         print("Unknown gum command")
 
