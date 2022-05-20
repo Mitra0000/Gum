@@ -1,5 +1,13 @@
 import os
 import sys
+import subprocess
+
+from format import *
+
+def runCommand(command: str) -> str:
+    process = subprocess.Popen(command.split(), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    out, err = process.communicate()
+    return str(out)
 
 def main():
     command = sys.argv[1]
@@ -9,7 +17,12 @@ def main():
     elif command == "uc":
         os.system("git push")
     elif command == "status":
-       os.system("git status")
+       out = runCommand("git status")
+       index = out.find("working directory)") + 24
+       out = out[index:]
+       index = out.find("\\n\\n")
+       out = out[:index]
+       print(format(out, bold=True, color=Color.Green))
     else:
         print("Unknown gum command")
 
