@@ -1,6 +1,7 @@
 import os
 import sys
 import subprocess
+from xl import *
 
 from format import *
 
@@ -8,6 +9,17 @@ def runCommand(command: str) -> str:
     process = subprocess.Popen(command.split(), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     out, err = process.communicate()
     return str(out)
+
+def buildTreeFromCommits(parentsToCommits, commits):
+    commitList = list(commits)
+    nodes = [Node(i) for i in commitList]
+    for i in parentsToCommits.values():
+        for j in i:
+            commits.remove(j)
+    # Commits now contains the root(s)
+    for i in parentsToCommits:
+        nodes[commitList.index(i)].children.extend([nodes[commitList.index(j)] for j in parentsToCommits[i]])
+    return nodes[commitList.index(commits.pop())]
 
 def main():
     command = sys.argv[1]
@@ -23,6 +35,29 @@ def main():
        index = out.find("\\n\\n")
        out = out[:index]
        print(format(out, bold=True, color=Color.Green))
+    elif command == "xl":
+        out = runCommand("git branch")[2:-1]
+        currentBranch = ""
+        commitToBranch = {}
+        commits = set()
+        parentsToCommits = {}
+        for i in out.split("\\n"):
+            if i == "":
+                continue
+            branch = i[2:]
+            if i.startswith("*"):
+                currentBranch = branch
+            commit = runCommand("git rev-parse " + branch)
+            commits.add(commit)
+            parent = runCommand("git rev-parse " + branch + "^")
+            commits.add(parent)
+            if parent not in parentsToCommits:
+                parentsToCommits[parent] = []
+            parentsToCommits[parent].append(commit)
+            commitToBranch[commit] = branch
+        tree = buildTreeFromCommits(parentsToCommits, commits)
+        xl(tree)
+
     else:
         print("Unknown gum command")
 

@@ -47,18 +47,8 @@ class Traverser:
         for i in children:
             self.preOrderTraversal(i)
 
-if __name__ == '__main__':
-    commitOne = "69aab5d9 cl/449468242 Update release_data.environments field in manifest.bz(...)"
-    commitTwo = "315dd13a Goodbye world"
-    commitThree = "bc04beb7 hello world"
-    commitFour = "7fe55e08 Update goodbye world"
-    commitFive = "d327da2f third commit"
-    commitSix = "fc4d5586 Randomness"
-    root = Node(commitOne)
+def xl(root):
     root.level = 0
-    root.children.extend([Node(commitTwo), Node(commitThree)])
-    root.children[0].children.extend([Node(commitFour), Node(commitFive)])
-    root.children[1].children.extend([Node(commitSix)])
     Node.getTrunk(root)
     root.markNodes()
     traverser = Traverser()
@@ -71,3 +61,12 @@ if __name__ == '__main__':
         elif i + 1 < len(nodes) and nodes[i+1].level == x.level:
             print("| " * x.level + "|")
     print("~")
+
+if __name__ == '__main__':
+    commitOne = "69aab5d9 cl/449468242 Update release_data.environments field in manifest.bz(...)"
+    commitTwo = "315dd13a Goodbye world"
+    commitThree = "bc04beb7 hello world"
+    commitFour = "7fe55e08 Update goodbye world"
+    commitFive = "d327da2f third commit"
+    commitSix = "fc4d5586 Randomness"
+    root = Node(commitOne)
