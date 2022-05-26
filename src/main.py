@@ -21,6 +21,9 @@ def buildTreeFromCommits(parentsToCommits, commits):
         nodes[commitList.index(i)].children.extend([nodes[commitList.index(j)] for j in parentsToCommits[i]])
     return nodes[commitList.index(commits.pop())]
 
+def getCommitFor(reference: str) -> str:
+    return runCommand("git rev-parse --short " + reference)[2:-3]
+
 def main():
     command = sys.argv[1]
     if command == "commit":
@@ -47,16 +50,16 @@ def main():
             branch = i[2:]
             if i.startswith("*"):
                 currentBranch = branch
-            commit = runCommand("git rev-parse " + branch)
+            commit = getCommitFor(branch)
             commits.add(commit)
-            parent = runCommand("git rev-parse " + branch + "^")
+            parent = getCommitFor(branch + "^")
             commits.add(parent)
             if parent not in parentsToCommits:
                 parentsToCommits[parent] = []
             parentsToCommits[parent].append(commit)
             commitToBranch[commit] = branch
         tree = buildTreeFromCommits(parentsToCommits, commits)
-        xl(tree)
+        xl(tree, getCommitFor(currentBranch))
 
     else:
         print("Unknown gum command")

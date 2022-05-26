@@ -8,7 +8,7 @@ class Node:
 
     def __str__(self):
         return str(self.commitHash)
-    
+
     def __hash__(self):
         return hash(self.commitHash)
 
@@ -24,7 +24,7 @@ class Node:
             Node.trunk.add(best)
             best.level = 0
             Node.getTrunk(best)
-    
+
     def markNodes(self):
         if len(self.children) > 0:
             startingLevel = max(self.level, 1)
@@ -43,11 +43,11 @@ class Traverser:
     def preOrderTraversal(self, node):
         self.order.append(node)
         children = sorted(node.children, key=lambda node:node.level, reverse=True)
-        
+
         for i in children:
             self.preOrderTraversal(i)
 
-def xl(root):
+def xl(root, currentHash):
     root.level = 0
     Node.getTrunk(root)
     root.markNodes()
@@ -55,7 +55,10 @@ def xl(root):
     traverser.preOrderTraversal(root)
     nodes = traverser.order[::-1]
     for i, x in enumerate(nodes):
-        print("| " * x.level + "o " + str(x.commitHash))
+        if x.commitHash == currentHash:
+            print("| " * x.level + "@ " + str(x.commitHash))
+        else:
+            print("| " * x.level + "o " + str(x.commitHash))
         if i + 1 < len(nodes) and nodes[i+1].level < x.level:
             print("| " * nodes[i+1].level + "|/")
         elif i + 1 < len(nodes) and nodes[i+1].level == x.level:
