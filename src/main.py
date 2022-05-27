@@ -41,7 +41,7 @@ def main():
             elif line.startswith("D"):
                 output += "GUM: Deleted " + line[2:]
 
-        filePath += "/tmp/gum_commit_message.txt"
+        filePath = "/tmp/gum_commit_message.txt"
 
         with open(filePath, "w") as f:
             f.write(output)
@@ -64,7 +64,7 @@ def main():
         runCommand("git checkout -b " + newBranch)
         runCommand("git branch --set-upstream-to=" + currentBranch)
         runCommand("git add")
-        runCommand("git commit -m \"" + "\n".join(commitMessage) + "\"")
+        os.system("git commit -m '" + "\n".join(commitMessage) + "'")
         # Store the current branch name as x
         # Create a new branch called y
         # Set upstream of y to x
