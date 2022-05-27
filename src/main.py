@@ -68,6 +68,8 @@ def main():
         # Add known changes to y
         # Commit with commitMessage to y
         # runCommand("git commit -m " + "\n".join(commitMessage))
+        if os.path.exists(filePath):
+          os.remove(filePath)
 
     elif command == "uc":
         os.system("git push")
