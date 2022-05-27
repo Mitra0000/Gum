@@ -27,7 +27,7 @@ def getCommitFor(reference: str) -> str:
 def main():
     command = sys.argv[1]
     if command == "commit":
-        output = "\n\n\n\nGUM: Enter a commit message. Lines beginning with 'GUM:' are removed.\nLeave commit message empty to cancel.\nGUM: --\nGUM: user: "
+        output = "\n\n\n\nGUM: Enter a commit message. Lines beginning with 'GUM:' are removed.\nGUM: Leave commit message empty to cancel.\nGUM: --\nGUM: user: "
         output += runCommand("git config user.email") + "\n"
         output += "GUM: branch = " + runCommand("git branch --show-current")
         files = runCommand("git status -s").split("\n")
@@ -50,7 +50,7 @@ def main():
 
         with open(filePath, "w") as f:
             f.write(output)
-        runCommand("nano " + filePath)
+        os.system("nano " + filePath)
 
         commitMessage = []
         with open(filePath, "r") as f:
@@ -62,6 +62,13 @@ def main():
             if line.startswith("GUM:"):
                 continue
             commitMessage.append(line)
+
+        currentBranch = runCommand("git branch --show-current")
+        newBranch = "temp"
+        runCommand("git checkout -b " + newBranch)
+        runCommand("git branch --set-upstream-to=" + currentBranch)
+        runCommand("git add")
+        runCommand("git commit -m \"" + "\n".join(commitMessage) + "\"")
         # Store the current branch name as x
         # Create a new branch called y
         # Set upstream of y to x
@@ -69,7 +76,7 @@ def main():
         # Commit with commitMessage to y
         # runCommand("git commit -m " + "\n".join(commitMessage))
         if os.path.exists(filePath):
-          os.remove(filePath)
+            os.remove(filePath)
 
     elif command == "uc":
         os.system("git push")
