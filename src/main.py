@@ -8,7 +8,7 @@ from format import *
 def runCommand(command: str) -> str:
     process = subprocess.Popen(command.split(), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     out, err = process.communicate()
-    return str(out)
+    return out.decode("utf-8")
 
 def buildTreeFromCommits(parentsToCommits, commits):
     commitList = list(commits)
@@ -27,16 +27,35 @@ def getCommitFor(reference: str) -> str:
 def main():
     command = sys.argv[1]
     if command == "commit":
-        name = sys.argv[2]
-        os.system("git commit -m '" + name + "'")
+        output = "\n\n\n\nGUM: Enter a commit message. Lines beginning with 'GUM:' are removed.\nLeave commit message empty to cancel.\nGUM: --\nGUM: user: "
+        output += runCommand("git config user.email") + "\n"
+        output += "GUM: branch = " + runCommand("git branch --show-current")
+        files = runCommand("git status -s").split("\n")
+        for line in files:
+            if line == "" or line.startswith("?"):
+                continue
+            if line.startswith("A"):
+                output += "GUM: Added " + line[2:]
+            elif line.startswith("M"):
+                output += "GUM: Modified " + line[2:]
+            elif line.startswith("D"):
+                output += "GUM: Deleted " + line[2:]
+        file_path = os.path.realpath(__file__)
+        if "\\" in file_path:
+            file_path = "\\".join(file_path.split("\\")[:-1])
+            file_path += "\\tmp\\commit_message.txt"
+        else:
+            file_path = "/".join(file_path.split("/")[:-1])
+            file_path += "/tmp/commit_message.txt"
+
+        with open(file_path, "w") as f:
+            f.write(output)
+        runCommand("nano " + file_path)
+
     elif command == "uc":
         os.system("git push")
     elif command == "status":
-       out = runCommand("git status")
-       index = out.find("working directory)") + 24
-       out = out[index:]
-       index = out.find("\\n\\n")
-       out = out[:index]
+       out = runCommand("git status -s")
        print(format(out, bold=True, color=Color.Green))
     elif command == "xl":
         out = runCommand("git branch")[2:-1]
