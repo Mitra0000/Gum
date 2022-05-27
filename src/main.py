@@ -51,8 +51,6 @@ def main():
 
         with open(filePath, "w") as f:
             f.write(output)
-        process = subprocess.Popen("nano " + filePath,stdin=None,stdout=None, shell=True)
-        process.wait()
 
         os.system("nano " + filePath)
         commitMessage = []
