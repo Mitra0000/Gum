@@ -40,14 +40,8 @@ def main():
                 output += "GUM: Modified " + line[2:]
             elif line.startswith("D"):
                 output += "GUM: Deleted " + line[2:]
-        filePath = "" #os.path.realpath(__file__)
-        if "\\" in filePath:
-            filePath += os.path.realpath(__file__)
-            filePath = "\\".join(filePath.split("\\")[:-1])
-            filePath += "\\tmp\\gum_commit_message.txt"
-        else:
-            #filePath = "/".join(filePath.split("/")[:-1])
-            filePath += "/tmp/gum_commit_message.txt"
+
+        filePath += "/tmp/gum_commit_message.txt"
 
         with open(filePath, "w") as f:
             f.write(output)
@@ -56,15 +50,15 @@ def main():
         commitMessage = []
         with open(filePath, "r") as f:
             content = f.read()
-            lines = f.readlines()
-        #if content == output:
-        #    return
-        print(lines)
+        if content == output:
+            return
+
+        lines = content.split("\n")
         for line in lines:
             if line.startswith("GUM:") or line == ""  or line == "\n":
                 continue
             commitMessage.append(line)
-        print(commitMessage)
+
         currentBranch = runCommand("git branch --show-current")
         newBranch = "temp"
         runCommand("git checkout -b " + newBranch)
@@ -77,8 +71,8 @@ def main():
         # Add known changes to y
         # Commit with commitMessage to y
         # runCommand("git commit -m " + "\n".join(commitMessage))
-        #if os.path.exists(filePath):
-        #    os.remove(filePath)
+        if os.path.exists(filePath):
+            os.remove(filePath)
 
     elif command == "uc":
         os.system("git push")
