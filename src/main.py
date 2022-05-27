@@ -56,13 +56,14 @@ def main():
         with open(filePath, "r") as f:
             content = f.read()
             lines = f.readlines()
-        if content == output:
-            return
+        #if content == output:
+        #    return
+        print(lines)
         for line in lines:
             if line.startswith("GUM:"):
                 continue
             commitMessage.append(line)
-
+        print(commitMessage)
         currentBranch = runCommand("git branch --show-current")
         newBranch = "temp"
         runCommand("git checkout -b " + newBranch)
@@ -75,8 +76,8 @@ def main():
         # Add known changes to y
         # Commit with commitMessage to y
         # runCommand("git commit -m " + "\n".join(commitMessage))
-        if os.path.exists(filePath):
-            os.remove(filePath)
+        #if os.path.exists(filePath):
+        #    os.remove(filePath)
 
     elif command == "uc":
         os.system("git push")
