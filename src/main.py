@@ -52,8 +52,12 @@ def main():
             f.write(output)
         process = subprocess.Popen("nano " + filePath,stdin=None,stdout=None, shell=True)
         process.wait()
+        print("Waited for process")
+        time.sleep(5)
+        print("First wait")
         # os.system("nano " + filePath)
-
+        time.sleep(5)
+        print("Next sleep")
         commitMessage = []
         with open(filePath, "r") as f:
             content = f.read()
