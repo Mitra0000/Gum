@@ -40,24 +40,21 @@ def main():
                 output += "GUM: Modified " + line[2:]
             elif line.startswith("D"):
                 output += "GUM: Deleted " + line[2:]
-        filePath = os.path.realpath(__file__)
+        filePath = "" #os.path.realpath(__file__)
         if "\\" in filePath:
+            filePath += os.path.realpath(__file__)
             filePath = "\\".join(filePath.split("\\")[:-1])
-            filePath += "\\tmp\\commit_message.txt"
+            filePath += "\\tmp\\gum_commit_message.txt"
         else:
-            filePath = "/".join(filePath.split("/")[:-1])
-            filePath += "/tmp/commit_message.txt"
+            #filePath = "/".join(filePath.split("/")[:-1])
+            filePath += "/tmp/gum_commit_message.txt"
 
         with open(filePath, "w") as f:
             f.write(output)
         process = subprocess.Popen("nano " + filePath,stdin=None,stdout=None, shell=True)
         process.wait()
-        print("Waited for process")
-        time.sleep(5)
-        print("First wait")
-        # os.system("nano " + filePath)
-        time.sleep(5)
-        print("Next sleep")
+
+        os.system("nano " + filePath)
         commitMessage = []
         with open(filePath, "r") as f:
             content = f.read()
@@ -66,7 +63,7 @@ def main():
         #    return
         print(lines)
         for line in lines:
-            if line.startswith("GUM:"):
+            if line.startswith("GUM:") or line == ""  or line == "\n":
                 continue
             commitMessage.append(line)
         print(commitMessage)
