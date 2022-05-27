@@ -40,17 +40,34 @@ def main():
                 output += "GUM: Modified " + line[2:]
             elif line.startswith("D"):
                 output += "GUM: Deleted " + line[2:]
-        file_path = os.path.realpath(__file__)
-        if "\\" in file_path:
-            file_path = "\\".join(file_path.split("\\")[:-1])
-            file_path += "\\tmp\\commit_message.txt"
+        filePath = os.path.realpath(__file__)
+        if "\\" in filePath:
+            filePath = "\\".join(filePath.split("\\")[:-1])
+            filePath += "\\tmp\\commit_message.txt"
         else:
-            file_path = "/".join(file_path.split("/")[:-1])
-            file_path += "/tmp/commit_message.txt"
+            filePath = "/".join(filePath.split("/")[:-1])
+            filePath += "/tmp/commit_message.txt"
 
-        with open(file_path, "w") as f:
+        with open(filePath, "w") as f:
             f.write(output)
-        runCommand("nano " + file_path)
+        runCommand("nano " + filePath)
+
+        commitMessage = []
+        with open(filePath, "r") as f:
+            content = f.read()
+            lines = f.readlines()
+        if content == output:
+            return
+        for line in lines:
+            if line.startswith("GUM:"):
+                continue
+            commitMessage.append(line)
+        # Store the current branch name as x
+        # Create a new branch called y
+        # Set upstream of y to x
+        # Add known changes to y
+        # Commit with commitMessage to y
+        # runCommand("git commit -m " + "\n".join(commitMessage))
 
     elif command == "uc":
         os.system("git push")
