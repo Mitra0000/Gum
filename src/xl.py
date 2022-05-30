@@ -57,10 +57,11 @@ def xl(root, currentHash):
     traverser.preOrderTraversal(root)
     nodes = traverser.order[::-1]
     for i, x in enumerate(nodes):
+        message = str(x.commitHash) + " " + runCommand("git log " + x.commitHash + " -1 --pretty=format:%s")
         if x.commitHash == currentHash:
-            print("| " * x.level + "@ " + str(x.commitHash) + " " + runCommand("git log " + x.commitHash + " -1 --pretty=format:%s"))
+            print("| " * x.level + "@ " + message)
         else:
-            print("| " * x.level + "o " + str(x.commitHash))
+            print("| " * x.level + "o " + message)
         if i + 1 < len(nodes) and nodes[i+1].level < x.level:
             print("| " * nodes[i+1].level + "|/")
         elif i + 1 < len(nodes) and nodes[i+1].level == x.level:
