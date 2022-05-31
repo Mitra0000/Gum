@@ -47,4 +47,7 @@ class CommitManager:
             if line.startswith("GUM:") or line == ""  or line == "\n":
                 continue
             commitMessage.append(line)
+        
+        if os.path.exists(filePath):
+            os.remove(filePath)
         return "\n".join(commitMessage)

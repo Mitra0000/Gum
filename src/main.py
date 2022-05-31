@@ -15,10 +15,10 @@ def main():
             return
 
         currentBranch = BranchManager.getCurrentBranch()
-        newBranch = "temp"
+        newBranch = BranchManager.getNextBranch()
         runCommand("git checkout -b " + newBranch)
         runCommand("git branch --set-upstream-to=" + currentBranch)
-        runCommand("git add")
+        runCommand("git add -A")
         runCommand("git commit -m '" + commitMessage + "'")
         # Store the current branch name as x
         # Create a new branch called y
@@ -26,8 +26,6 @@ def main():
         # Add known changes to y
         # Commit with commitMessage to y
         # runCommand("git commit -m " + "\n".join(commitMessage))
-        if os.path.exists(filePath):
-            os.remove(filePath)
 
     elif command == "uc":
         os.system("git push")
