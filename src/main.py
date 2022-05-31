@@ -19,7 +19,7 @@ def main():
         runCommand("git checkout -b " + newBranch)
         runCommand("git branch --set-upstream-to=" + currentBranch)
         runCommand("git add -A")
-        runCommand("git commit -m '" + commitMessage + "'")
+        os.system("git commit -m '" + commitMessage + "'")
         # Store the current branch name as x
         # Create a new branch called y
         # Set upstream of y to x
