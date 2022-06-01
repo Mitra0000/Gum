@@ -54,7 +54,7 @@ class CommitManager:
         return "\n".join(commitMessage)
     
     @classmethod
-    def getBranchForCommit(commitHash: str) -> str:
+    def getBranchForCommit(cls, commitHash: str) -> str:
         for branch in BranchManager.getAllBranches():
             if BranchManager.getCommitForBranch(branch) == commitHash:
                 return branch

@@ -29,6 +29,7 @@ def main():
         # Need to look at rebasing dependent branches after amending.
         # runCommand("git add -A")
         # runCommand("git commit --amend --no-edit")
+        print("Amend not implemented.")
     elif command == "prune":
         if len(sys.argv) <= 2:
             print("Please specify a hash to prune.")
@@ -51,7 +52,7 @@ def main():
         if branchName is None:
             print("Could not find specified commit hash.")
             return
-        runCommand("git checkout " + branch)
+        runCommand("git checkout " + branchName)
         print("Updated to " + commitHash)
     elif command == "xl":
         branches = BranchManager.getAllBranches()
