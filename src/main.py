@@ -25,19 +25,34 @@ def main():
         # Set upstream of y to x
         # Add known changes to y
         # Commit with commitMessage to y
-
+    elif command == "amend":
+        # Need to look at rebasing dependent branches after amending.
+        # runCommand("git add -A")
+        # runCommand("git commit --amend --no-edit")
+    elif command == "prune":
+        if len(sys.argv) <= 2:
+            print("Please specify a hash to prune.")
+        commitHash = sys.argv[2]
+        branchName = CommitManager.getBranchForCommit(commitHash)
+        if branchName is None:
+            print("Could not find specified commit hash.")
+            return
+        runCommand("git branch -D " + branchName)
     elif command == "uc":
         os.system("git push")
     elif command == "status":
        out = runCommand("git status -s")
-       print(format(out, bold=True, color=Color.Green))
+       print(format(out, bold=True))
     elif command == "update":
+        if len(sys.argv) <= 2:
+            print("Please specify a hash to update to.")
         commitHash = sys.argv[2]
-        for branch in BranchManager.getAllBranches():
-            if BranchManager.getCommitForBranch(branch) == commitHash:
-                runCommand("git checkout " + branch)
-                print("Updated to " + commitHash)
-                break
+        branchName = CommitManager.getBranchForCommit(commitHash)
+        if branchName is None:
+            print("Could not find specified commit hash.")
+            return
+        runCommand("git checkout " + branch)
+        print("Updated to " + commitHash)
     elif command == "xl":
         branches = BranchManager.getAllBranches()
         currentBranch = branches[-1]

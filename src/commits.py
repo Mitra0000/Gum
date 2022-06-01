@@ -1,5 +1,6 @@
 import os
 
+from branches import BranchManager
 from xl import *
 
 class CommitManager:
@@ -51,3 +52,10 @@ class CommitManager:
         if os.path.exists(filePath):
             os.remove(filePath)
         return "\n".join(commitMessage)
+    
+    @classmethod
+    def getBranchForCommit(commitHash: str) -> str:
+        for branch in BranchManager.getAllBranches():
+            if BranchManager.getCommitForBranch(branch) == commitHash:
+                return branch
+        return None
