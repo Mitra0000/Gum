@@ -25,7 +25,6 @@ def main():
         # Set upstream of y to x
         # Add known changes to y
         # Commit with commitMessage to y
-        # runCommand("git commit -m " + "\n".join(commitMessage))
 
     elif command == "uc":
         os.system("git push")

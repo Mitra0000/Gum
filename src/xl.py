@@ -43,7 +43,8 @@ class Traverser:
         self.order = []
 
     def preOrderTraversal(self, node):
-        self.order.append(node)
+        if node.commitHash != "":
+            self.order.append(node)
         children = sorted(node.children, key=lambda node:node.level, reverse=True)
 
         for i in children:
@@ -66,6 +67,8 @@ def xl(root, currentHash):
             print("| " * nodes[i+1].level + "|/")
         elif i + 1 < len(nodes) and nodes[i+1].level == x.level:
             print("| " * x.level + "|")
+        elif i + 1 < len(nodes) and nodes[i+1].level > x.level:
+            print("| " * (x.level + 1))
     print("~")
 
 if __name__ == '__main__':
