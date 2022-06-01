@@ -31,6 +31,13 @@ def main():
     elif command == "status":
        out = runCommand("git status -s")
        print(format(out, bold=True, color=Color.Green))
+    elif command == "update":
+        commitHash = sys.argv[2]
+        for branch in BranchManager.getAllBranches():
+            if BranchManager.getCommitForBranch(branch) == commitHash:
+                runCommand("git checkout " + branch)
+                print("Updated to " + commitHash)
+                break
     elif command == "xl":
         branches = BranchManager.getAllBranches()
         currentBranch = branches[-1]
