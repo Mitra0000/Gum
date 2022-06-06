@@ -14,7 +14,7 @@ class Trie(object):
 
         for char in word:
             if char in node.children:
-                node.counter += 1
+                node.children[char].counter += 1
                 node = node.children[char]
             else:
                 new_node = TrieNode(char)

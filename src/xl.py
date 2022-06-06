@@ -74,12 +74,4 @@ def xl(root, currentHash):
         elif i + 1 < len(nodes) and nodes[i+1].level > x.level:
             print("| " * (x.level + 1))
     print("~")
-
-if __name__ == '__main__':
-    commitOne = "69aab5d9 cl/449468242 Update release_data.environments field in manifest.bz(...)"
-    commitTwo = "315dd13a Goodbye world"
-    commitThree = "bc04beb7 hello world"
-    commitFour = "7fe55e08 Update goodbye world"
-    commitFive = "d327da2f third commit"
-    commitSix = "fc4d5586 Randomness"
-    root = Node(commitOne)
+    
