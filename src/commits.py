@@ -14,7 +14,7 @@ class CommitManager:
         for i in parentsToCommits:
             commitsToNodes[i].children.extend([commitsToNodes[j] for j in parentsToCommits[i]])
         if len(commits) > 1:
-            heads = sorted(list(commits), key=cls.getDateFromCommit)
+            heads = sorted(list(commits), key=cls.getDateForCommit)
             for parent, child in zip(heads, heads[1:]):
                 commitsToNodes[parent].children.append(commitsToNodes[child])
             return commitsToNodes[heads[0]]
