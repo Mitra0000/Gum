@@ -64,6 +64,7 @@ def xl(root, currentHash):
             print("| " * x.level + "@ " + message)
         else:
             print("| " * x.level + "o " + message)
+        print("| " * (x.level + 1) + runCommand("git show --no-patch --no-notes " + x.commitHash + " --pretty=format:%ce"))
         if i + 1 < len(nodes) and nodes[i+1].level < x.level:
             print("| " * nodes[i+1].level + "|/")
         elif i + 1 < len(nodes) and nodes[i+1].level == x.level:
