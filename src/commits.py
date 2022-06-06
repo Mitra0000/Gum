@@ -13,7 +13,11 @@ class CommitManager:
         # Commits now contains the root(s)
         for i in parentsToCommits:
             commitsToNodes[i].children.extend([commitsToNodes[j] for j in parentsToCommits[i]])
-        print(len(commits))
+        if len(commits) > 1:
+            heads = sorted(list(commits), key=cls.getDateFromCommit)
+            for parent, child in zip(heads, heads[1:]):
+                commitsToNodes[parent].children.append(commitsToNodes[child])
+            return commitsToNodes[heads[0]]
         return commitsToNodes[commits.pop()]
     
     @classmethod
@@ -59,3 +63,7 @@ class CommitManager:
             if BranchManager.getCommitForBranch(branch) == commitHash:
                 return branch
         return None
+    
+    @classmethod
+    def getDateForCommit(cls, commitHash: str) -> str:
+        return "".join(runCommand("git show --no-patch --no-notes 3e19d57 --pretty=format:%ci").split()[:-1])
