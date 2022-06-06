@@ -59,12 +59,14 @@ def xl(root, currentHash):
     nodes = traverser.order[::-1]
     uniqueHashes = getUniqueCommitPrefixes([n.commitHash for n in nodes])
     for i, x in enumerate(nodes):
-        message = formatText(uniqueHashes[x.commitHash][0], underline=True) + uniqueHashes[x.commitHash][1] + " " + runCommand("git log " + x.commitHash + " -1 --pretty=format:%s")
+        message = formatText(uniqueHashes[x.commitHash][0], underline=True, color=Color.Yellow)
+        message += formatText(uniqueHashes[x.commitHash][1], color=Color.Yellow) + " " 
+        message += runCommand("git log " + x.commitHash + " -1 --pretty=format:%s")
         if x.commitHash == currentHash:
             print("| " * x.level + "@ " + message)
         else:
             print("| " * x.level + "o " + message)
-        print("| " * (x.level + 1) + runCommand("git show --no-patch --no-notes " + x.commitHash + " --pretty=format:%ce"))
+        print("| " * (x.level + 1) + formatText(runCommand("git show --no-patch --no-notes " + x.commitHash + " --format=Author:%x20%ce")[:-1], color=Color.Blue))
         if i + 1 < len(nodes) and nodes[i+1].level < x.level:
             print("| " * nodes[i+1].level + "|/")
         elif i + 1 < len(nodes) and nodes[i+1].level == x.level:
