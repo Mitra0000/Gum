@@ -58,7 +58,6 @@ def xl(root, currentHash):
     traverser.preOrderTraversal(root)
     nodes = traverser.order[::-1]
     uniqueHashes = getUniqueCommitPrefixes([n.commitHash for n in nodes])
-    print(uniqueHashes)
     for i, x in enumerate(nodes):
         message = formatText(uniqueHashes[x.commitHash][0], underline=True) + uniqueHashes[x.commitHash][1] + " " + runCommand("git log " + x.commitHash + " -1 --pretty=format:%s")
         if x.commitHash == currentHash:

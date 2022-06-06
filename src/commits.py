@@ -6,15 +6,15 @@ from xl import *
 class CommitManager:
     @classmethod
     def buildTreeFromCommits(cls, parentsToCommits, commits):
-        commitList = list(commits)
-        nodes = [Node(i) for i in commitList]
+        commitsToNodes = {i: Node(i) for i in commits}
         for i in parentsToCommits.values():
             for j in i:
                 commits.remove(j)
         # Commits now contains the root(s)
         for i in parentsToCommits:
-            nodes[commitList.index(i)].children.extend([nodes[commitList.index(j)] for j in parentsToCommits[i]])
-        return nodes[commitList.index(commits.pop())]
+            commitsToNodes[i].children.extend([commitsToNodes[j] for j in parentsToCommits[i]])
+        print(len(commits))
+        return commitsToNodes[commits.pop()]
     
     @classmethod
     def createCommitMessage(cls):
