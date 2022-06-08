@@ -22,7 +22,7 @@ def main():
                 runCommand(f"git branch -D {branch}")
         runCommand("git pull --rebase")
     elif command == "test":
-        print(CommitManager.getUniqueCommitNames([BranchManager.getCommitForBranch(b) for b in BranchManager.getAllBranches()]))
+        BranchManager.getUrlsForBranches()
     elif command == "commit":
         commitMessage = CommitManager.createCommitMessage()
         if commitMessage is None:

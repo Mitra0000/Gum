@@ -48,6 +48,12 @@ class BranchManager:
     @classmethod
     def getCommitForBranch(cls, reference: str) -> str:
         return runCommand(f"git rev-parse --short {reference}")[:-1]
+    
+    @classmethod
+    def getUrlsForBranches(cls):
+        output = runCommand("git cl status")
+        output = output.split("\n")
+        print(output)
 
     @classmethod
     def isBranchOwned(cls, reference: str) -> str:
