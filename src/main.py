@@ -55,6 +55,9 @@ def main():
         if len(sys.argv) <= 2:
             print("Please specify a hash to prune.")
         commitHash = sys.argv[2]
+        commit = CommitManager.getCommitForPrefix(commitHash)
+        if commit != None:
+            commitHash = commit
         branchName = CommitManager.getBranchForCommit(commitHash)
         if branchName is None:
             print("Could not find specified commit hash.")
