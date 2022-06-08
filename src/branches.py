@@ -47,11 +47,11 @@ class BranchManager:
     
     @classmethod
     def getCommitForBranch(cls, reference: str) -> str:
-        return runCommand("git rev-parse --short " + reference)[:-1]
+        return runCommand(f"git rev-parse --short {reference}")[:-1]
 
     @classmethod
     def isBranchOwned(cls, reference: str) -> str:
-        return runCommand("git show --no-patch --no-notes " + reference + " --format=%ce")[:-1] == runCommand("git config user.email")[:-1]
+        return runCommand(f"git show --no-patch --no-notes {reference} --format=%ce")[:-1] == runCommand("git config user.email")[:-1]
 
 class Node:
     trunk = set()

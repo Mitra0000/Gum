@@ -40,7 +40,7 @@ class CommitManager:
         with open(filePath, "w") as f:
             f.write(output)
 
-        os.system("nano " + filePath)
+        os.system(f"nano {filePath}")
         commitMessage = []
         with open(filePath, "r") as f:
             content = f.read()
@@ -73,8 +73,8 @@ class CommitManager:
     
     @classmethod
     def getDateForCommit(cls, commitHash: str) -> str:
-        return "".join(runCommand("git show --no-patch --no-notes 3e19d57 --pretty=format:%ci").split()[:-1])
+        return "".join(runCommand(f"git show --no-patch --no-notes {commitHash} --pretty=format:%ci").split()[:-1])
     
     @classmethod
     def getEmailForCommit(cls, commitHash: str) -> str:
-        return runCommand("git show --no-patch --no-notes " + commitHash + " --format=%ce")[:-1]
+        return runCommand(f"git show --no-patch --no-notes {commitHash} --format=%ce")[:-1]

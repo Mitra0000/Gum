@@ -13,13 +13,13 @@ def main():
         if len(sys.argv) == 2:
             os.system("git add -A")
         else:
-            os.system("git add " + sys.argv[2])
+            os.system(f"git add {sys.argv[2]}")
     elif command == "init":
         runCommand("git branch -D head")
         runCommand("git checkout -b head")
         for branch in BranchManager.getAllBranches():
             if branch != "head":
-                runCommand("git branch -D " + branch)
+                runCommand(f"git branch -D {branch}")
         runCommand("git pull --rebase")
     elif command == "test":
         print(CommitManager.getUniqueCommitNames([BranchManager.getCommitForBranch(b) for b in BranchManager.getAllBranches()]))
@@ -30,15 +30,15 @@ def main():
         currentBranch = BranchManager.getCurrentBranch()
         newBranch = BranchManager.getNextBranch()
         if BranchManager.isBranchOwned(currentBranch):
-            # runCommand("git new-branch --upstream_current " + newBranch) # Only works on Chromium.
-            runCommand("git checkout -b " + newBranch)
-            runCommand("git branch --set-upstream-to=" + currentBranch)
+            # runCommand(f"git new-branch --upstream_current {newBranch}") # Only works on Chromium.
+            runCommand(f"git checkout -b {newBranch}")
+            runCommand(f"git branch --set-upstream-to={currentBranch}")
         else:
             # If we're currently on an unowned node we don't want to set an upstream so that we can upload to Gerrit.
-            runCommand("git checkout -b " + newBranch + " " + BranchManager.getCommitForBranch(currentBranch))
+            runCommand(f"git checkout -b {newBranch} {BranchManager.getCommitForBranch(currentBranch)}")
             runCommand("git branch --set-upstream-to=origin/main")
         runCommand("git add -u")
-        os.system("git commit -m '" + commitMessage + "'")
+        os.system(f"git commit -m '{commitMessage}'")
         # Store the current branch name as x
         # Create a new branch called y
         # Set upstream of y to x
@@ -58,7 +58,7 @@ def main():
         if branchName is None:
             print("Could not find specified commit hash.")
             return
-        runCommand("git branch -D " + branchName)
+        runCommand(f"git branch -D {branchName}")
     elif command == "uc":
         os.system("git push")
     elif command == "status":
@@ -75,8 +75,8 @@ def main():
         if branchName is None:
             print("Could not find specified commit hash.")
             return
-        runCommand("git checkout " + branchName)
-        print("Updated to " + commitHash)
+        runCommand(f"git checkout {branchName}")
+        print(f"Updated to {commitHash}")
     elif command == "xl":
         branches = BranchManager.getAllBranches()
         currentBranch = branches[-1]
@@ -86,7 +86,7 @@ def main():
             commit = BranchManager.getCommitForBranch(branch)
             commits.add(commit)
             if branch != "head":
-                parent = BranchManager.getCommitForBranch(branch + "^")
+                parent = BranchManager.getCommitForBranch(f"{branch}^")
                 if parent not in parentsToCommits:
                     parentsToCommits[parent] = set()
                 parentsToCommits[parent].add(commit)

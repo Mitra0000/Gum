@@ -26,7 +26,7 @@ def xl(root, currentHash):
     for i, x in enumerate(nodes):
         message = formatText(uniqueHashes[x.commitHash][0], underline=True, color=Color.Yellow)
         message += formatText(uniqueHashes[x.commitHash][1], color=Color.Yellow) + " " 
-        message += runCommand("git log " + x.commitHash + " -1 --pretty=format:%s")
+        message += runCommand(f"git log {x.commitHash} -1 --pretty=format:%s")
         if x.commitHash == currentHash:
             print("| " * x.level + "@ " + message)
         else:

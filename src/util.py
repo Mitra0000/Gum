@@ -23,7 +23,7 @@ def formatText(*args, bold: bool = False, underline: bool = False, color: str = 
     for i in args:
         output += i + " "
     output = output[:-1]
-    output += TextDecorators.ENDC + Color.Reset
+    output += f"{TextDecorators.ENDC}{Color.Reset}"
     return output
 
 def runCommand(command: str) -> str:
