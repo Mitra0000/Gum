@@ -14,6 +14,13 @@ def main():
             os.system("git add -A")
         else:
             os.system("git add " + sys.argv[2])
+    elif command == "init":
+        runCommand("git branch -D head")
+        runCommand("git checkout -b head")
+        for branch in BranchManager.getAllBranches():
+            if branch != "head":
+                runCommand("git branch -D " + branch)
+        runCommand("git pull --rebase")
     elif command == "test":
         print(CommitManager.getUniqueCommitNames([BranchManager.getCommitForBranch(b) for b in BranchManager.getAllBranches()]))
     elif command == "commit":
@@ -70,11 +77,11 @@ def main():
         for branch in branches:
             commit = BranchManager.getCommitForBranch(branch)
             commits.add(commit)
-            parent = BranchManager.getCommitForBranch(branch + "^")
-            commits.add(parent)
-            if parent not in parentsToCommits:
-                parentsToCommits[parent] = set()
-            parentsToCommits[parent].add(commit)
+            if branch != "head":
+                parent = BranchManager.getCommitForBranch(branch + "^")
+                if parent not in parentsToCommits:
+                    parentsToCommits[parent] = set()
+                parentsToCommits[parent].add(commit)
         tree = CommitManager.buildTreeFromCommits(parentsToCommits, commits)
         xl(tree, BranchManager.getCommitForBranch(currentBranch))
 
