@@ -29,9 +29,14 @@ def main():
             return
         currentBranch = BranchManager.getCurrentBranch()
         newBranch = BranchManager.getNextBranch()
-        # runCommand("git new-branch --upstream_current " + newBranch) # Only works on Chromium.
-        runCommand("git checkout -b " + newBranch)
-        runCommand("git branch --set-upstream-to=" + currentBranch)
+        if BranchManager.isBranchOwned(currentBranch):
+            # runCommand("git new-branch --upstream_current " + newBranch) # Only works on Chromium.
+            runCommand("git checkout -b " + newBranch)
+            runCommand("git branch --set-upstream-to=" + currentBranch)
+        else:
+            # If we're currently on an unowned node we don't want to set an upstream so that we can upload to Gerrit.
+            runCommand("git checkout -b " + newBranch + " " + BranchManager.getCommitForBranch(currentBranch))
+            runCommand("git branch --set-upstream-to=origin/main")
         runCommand("git add -u")
         os.system("git commit -m '" + commitMessage + "'")
         # Store the current branch name as x
