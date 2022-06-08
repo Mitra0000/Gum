@@ -1,7 +1,6 @@
 import os
 
-from branches import BranchManager
-from xl import *
+from branches import *
 
 class CommitManager:
     @classmethod
@@ -67,3 +66,7 @@ class CommitManager:
     @classmethod
     def getDateForCommit(cls, commitHash: str) -> str:
         return "".join(runCommand("git show --no-patch --no-notes 3e19d57 --pretty=format:%ci").split()[:-1])
+    
+    @classmethod
+    def getEmailForCommit(cls, commitHash: str) -> str:
+        return runCommand("git show --no-patch --no-notes " + commitHash + " --format=%ce")[:-1]
