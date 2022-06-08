@@ -1,6 +1,7 @@
 import os
 
 from branches import *
+from util import *
 
 class CommitManager:
     @classmethod
@@ -56,6 +57,13 @@ class CommitManager:
             os.remove(filePath)
         return "\n".join(commitMessage)
     
+    @classmethod
+    def getCommitForPrefix(cls, prefix: str) -> str:
+        results = getPrefixesForCommits([BranchManager.getCommitForBranch(b) for b in BranchManager.getAllBranches()])
+        if prefix not in results:
+            return None
+        return prefix + results[prefix]
+
     @classmethod
     def getBranchForCommit(cls, commitHash: str) -> str:
         for branch in BranchManager.getAllBranches():

@@ -31,6 +31,13 @@ def runCommand(command: str) -> str:
     out, err = process.communicate()
     return out.decode("utf-8")
 
+def getPrefixesForCommits(commits):
+    """ Returns a dictionary populated as follows. { prefix: suffix }"""
+    trie = Trie()
+    for commit in commits:
+        trie.insert(commit)
+    return trie.query()
+
 def getUniqueCommitPrefixes(commits):
     trie = Trie()
     for commit in commits:
