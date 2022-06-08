@@ -17,6 +17,7 @@ def main():
     elif command == "init":
         runCommand("git branch -D head")
         runCommand("git checkout -b head")
+        runCommand("git branch --set-upstream-to=origin/main head")
         for branch in BranchManager.getAllBranches():
             if branch != "head":
                 runCommand(f"git branch -D {branch}")
