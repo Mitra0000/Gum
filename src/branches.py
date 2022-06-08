@@ -29,6 +29,13 @@ class BranchManager:
         filename = os.path.join(os.path.dirname(os.path.abspath(__file__)), "nextBranch.txt")
         with open(filename, "r") as f:
             branch = f.read()
+        branches = cls.getAllBranches()
+        for b in branches:
+            if b == "head":
+                continue
+            if b >= branch:
+                branch = cls._getNextBranchNameFrom(b)
+
         nextBranch = cls._getNextBranchNameFrom(branch)
         with open(filename, "w") as f:
             f.write(nextBranch)
