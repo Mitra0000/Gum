@@ -1,4 +1,4 @@
-from branches import Node
+from branches import *
 from commits import CommitManager
 from util import *
 
@@ -23,18 +23,26 @@ def xl(root, currentHash):
     traverser.preOrderTraversal(root)
     nodes = traverser.order[::-1]
     uniqueHashes = getUniqueCommitPrefixes([n.commitHash for n in nodes])
+    clNumbers = BranchManager.getUrlsForBranches()
     for i, x in enumerate(nodes):
         message = formatText(uniqueHashes[x.commitHash][0], underline=True, color=Color.Yellow)
         message += formatText(uniqueHashes[x.commitHash][1], color=Color.Yellow) + " " 
         message += runCommand(f"git log {x.commitHash} -1 --pretty=format:%s")
+        # Print the commit message.
         if x.commitHash == currentHash:
             print("| " * x.level + "@ " + message)
         else:
             print("| " * x.level + "o " + message)
+        
+        if x.commitHash in clNumbers and clNumbers[x.commitHash] != "None":
+            print("| " * (x.level + 1) + clNumbers[x.commitHash])
+
+        # Print the author of the change.
         if x.isOwned:
             print("| " * (x.level + 1) + formatText("Author: You", color=Color.Blue))
         else:
             print("| " * (x.level + 1) + formatText("Author: ", color=Color.Blue) + CommitManager.getEmailForCommit(x.commitHash))
+
         if i + 1 < len(nodes) and nodes[i+1].level < x.level:
             print("| " * nodes[i+1].level + "|/")
         elif i + 1 < len(nodes) and nodes[i+1].level == x.level:

@@ -51,9 +51,19 @@ class BranchManager:
     
     @classmethod
     def getUrlsForBranches(cls):
-        output = runCommand("git cl status")
-        output = output.split("\n")
-        print(output)
+        branchesToUrls = {}
+        output = runCommand("git cl status -f --no-branch-color")
+        output = output.split("\n")[1:]
+        for i in range(len(output)):
+            if output[i] == "":
+                break
+
+            data = output[i].strip()
+            if data.startswith("*"):
+                data = data[2:]
+            data = data.split()
+            branchesToUrls[cls.getCommitForBranch(data[0])] = data[2]
+        return branchesToUrls
 
     @classmethod
     def isBranchOwned(cls, reference: str) -> str:
