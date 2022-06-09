@@ -18,6 +18,12 @@ class Color:
     White = "\u001b[37m"
     Reset = "\u001b[0m"
 
+class CommandRunner:
+    def run(self, command: str) -> str:
+        process = subprocess.Popen(command.split(), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        out, err = process.communicate()
+        return out.decode("utf-8")
+
 def formatText(*args, bold: bool = False, underline: bool = False, color: str = Color.White):
     output = (TextDecorators.BOLD if bold else "") + (TextDecorators.UNDERLINE if underline else "") + color
     for i in args:
@@ -25,11 +31,6 @@ def formatText(*args, bold: bool = False, underline: bool = False, color: str = 
     output = output[:-1]
     output += f"{TextDecorators.ENDC}{Color.Reset}"
     return output
-
-def runCommand(command: str) -> str:
-    process = subprocess.Popen(command.split(), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    out, err = process.communicate()
-    return out.decode("utf-8")
 
 def getPrefixesForCommits(commits):
     """ Returns a dictionary populated as follows. { prefix: suffix }"""

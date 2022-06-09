@@ -15,7 +15,7 @@ class Traverser:
         for i in children:
             self.preOrderTraversal(i)
 
-def xl(root, currentHash):
+def xl(root: Node, currentHash: str, runner: CommandRunner, branchManager: BranchManager, commitManager):
     root.level = 0
     Node.getTrunk(root)
     root.markNodes()
@@ -23,11 +23,11 @@ def xl(root, currentHash):
     traverser.preOrderTraversal(root)
     nodes = traverser.order[::-1]
     uniqueHashes = getUniqueCommitPrefixes([n.commitHash for n in nodes])
-    clNumbers = BranchManager.getUrlsForBranches()
+    clNumbers = branchManager.getUrlsForBranches()
     for i, x in enumerate(nodes):
         message = formatText(uniqueHashes[x.commitHash][0], underline=True, color=Color.Yellow)
         message += formatText(uniqueHashes[x.commitHash][1], color=Color.Yellow) + " " 
-        message += runCommand(f"git log {x.commitHash} -1 --pretty=format:%s")
+        message += runner.run(f"git log {x.commitHash} -1 --pretty=format:%s")
         # Print the commit message.
         if x.commitHash == currentHash:
             print("| " * x.level + "@ " + message)
@@ -41,7 +41,7 @@ def xl(root, currentHash):
         if x.isOwned:
             print("| " * (x.level + 1) + formatText("Author: You", color=Color.Blue))
         else:
-            print("| " * (x.level + 1) + formatText("Author: ", color=Color.Blue) + CommitManager.getEmailForCommit(x.commitHash))
+            print("| " * (x.level + 1) + formatText("Author: ", color=Color.Blue) + commitManager.getEmailForCommit(x.commitHash))
 
         if i + 1 < len(nodes) and nodes[i+1].level < x.level:
             print("| " * nodes[i+1].level + "|/")

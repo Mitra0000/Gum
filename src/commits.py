@@ -4,9 +4,12 @@ from branches import *
 from util import *
 
 class CommitManager:
-    @classmethod
-    def buildTreeFromCommits(cls, parentsToCommits, commits):
-        commitsToNodes = {i: Node(i) for i in commits}
+    def __init__(self, commandRunner: CommandRunner, branchManager: BranchManager):
+        self.runner = commandRunner
+        self.branchManager = branchManager
+    
+    def buildTreeFromCommits(self, parentsToCommits, commits):
+        commitsToNodes = {i: Node(i, self.branchManager.isBranchOwned(i)) for i in commits}
         for i in parentsToCommits.values():
             for j in i:
                 commits.remove(j)
@@ -14,17 +17,17 @@ class CommitManager:
         for i in parentsToCommits:
             commitsToNodes[i].children.extend([commitsToNodes[j] for j in parentsToCommits[i]])
         if len(commits) > 1:
-            heads = sorted(list(commits), key=cls.getDateForCommit)
+            heads = sorted(list(commits), key=self.getDateForCommit)
             for parent, child in zip(heads, heads[1:]):
                 commitsToNodes[parent].children.append(commitsToNodes[child])
             return commitsToNodes[heads[0]]
         return commitsToNodes[commits.pop()]
     
-    @classmethod
-    def createCommitMessage(cls):
+    
+    def createCommitMessage(self):
         output = "\n\n\n\nGUM: Enter a commit message. Lines beginning with 'GUM:' are removed.\nGUM: Leave commit message empty to cancel.\nGUM: --\nGUM: user: "
-        output += runCommand("git config user.email") + "\n"
-        files = runCommand("git status -s").split("\n")
+        output += self.runner.run("git config user.email") + "\n"
+        files = self.runner.run("git status -s").split("\n")
         for line in files:
             if line == "" or line.startswith("?"):
                 continue
@@ -57,24 +60,24 @@ class CommitManager:
             os.remove(filePath)
         return "\n".join(commitMessage)
     
-    @classmethod
-    def getCommitForPrefix(cls, prefix: str) -> str:
-        results = getPrefixesForCommits([BranchManager.getCommitForBranch(b) for b in BranchManager.getAllBranches()])
+    
+    def getCommitForPrefix(self, prefix: str) -> str:
+        results = getPrefixesForCommits([self.branchManager.getCommitForBranch(b) for b in self.branchManager.getAllBranches()])
         if prefix not in results:
             return None
         return prefix + results[prefix]
 
-    @classmethod
-    def getBranchForCommit(cls, commitHash: str) -> str:
-        for branch in BranchManager.getAllBranches():
-            if BranchManager.getCommitForBranch(branch) == commitHash:
+    
+    def getBranchForCommit(self, commitHash: str) -> str:
+        for branch in self.branchManager.getAllBranches():
+            if self.branchManager.getCommitForBranch(branch) == commitHash:
                 return branch
         return None
     
-    @classmethod
-    def getDateForCommit(cls, commitHash: str) -> str:
-        return "".join(runCommand(f"git show --no-patch --no-notes {commitHash} --pretty=format:%ci").split()[:-1])
     
-    @classmethod
-    def getEmailForCommit(cls, commitHash: str) -> str:
-        return runCommand(f"git show --no-patch --no-notes {commitHash} --format=%ce")[:-1]
+    def getDateForCommit(self, commitHash: str) -> str:
+        return "".join(self.runner.run(f"git show --no-patch --no-notes {commitHash} --pretty=format:%ci").split()[:-1])
+    
+    
+    def getEmailForCommit(self, commitHash: str) -> str:
+        return self.runner.run(f"git show --no-patch --no-notes {commitHash} --format=%ce")[:-1]
