@@ -1,11 +1,9 @@
-import os
-import subprocess
 import sys
 
-from branches import BranchManager
+from branches import *
 from commits import CommitManager
+from traverser import Traverser
 from util import *
-from xl import *
 
 class CommandParser:
     def __init__(self, commandRunner: CommandRunner):
@@ -17,9 +15,9 @@ class CommandParser:
         command = args[0]
         if command == "add":
             if len(args) == 1:
-                os.system("git add -A")
+                self.runner.runInProcess("git add -A")
             else:
-                os.system(f"git add {args[1]}")
+                self.runner.runInProcess(f"git add {args[1]}")
         elif command == "init":
             self.runner.run("git branch -D head")
             self.runner.run("git checkout -b head")
@@ -45,7 +43,7 @@ class CommandParser:
                 self.runner.run(f"git checkout -b {newBranch} {self.branchManager.getCommitForBranch(currentBranch)}")
                 self.runner.run("git branch --set-upstream-to=origin/main")
             self.runner.run("git add -u")
-            os.system(f"git commit -m '{commitMessage}'")
+            self.runner.runInProcess(f"git commit -m '{commitMessage}'")
             # Store the current branch name as x
             # Create a new branch called y
             # Set upstream of y to x
@@ -70,7 +68,7 @@ class CommandParser:
                 return
             self.runner.run(f"git branch -D {branchName}")
         elif command == "uc":
-            os.system("git push")
+            self.runner.runInProcess("git push")
         elif command == "status":
             out = self.runner.run("git status -s")
             print(formatText(out, bold=True))
@@ -101,10 +99,47 @@ class CommandParser:
                         parentsToCommits[parent] = set()
                     parentsToCommits[parent].add(commit)
             tree = self.commitManager.buildTreeFromCommits(parentsToCommits, commits)
-            xl(tree, self.branchManager.getCommitForBranch(currentBranch), self.runner, self.branchManager, self.commitManager)
+            self.xl(tree, self.branchManager.getCommitForBranch(currentBranch))
 
         else:
             print("Unknown gum command")
+
+    def xl(self, root: Node, currentHash: str):
+        root.level = 0
+        Node.getTrunk(root)
+        root.markNodes()
+        traverser = Traverser()
+        traverser.preOrderTraversal(root)
+        nodes = traverser.order[::-1]
+        uniqueHashes = getUniqueCommitPrefixes([n.commitHash for n in nodes])
+        clNumbers = self.branchManager.getUrlsForBranches()
+        for i, x in enumerate(nodes):
+            message = formatText(uniqueHashes[x.commitHash][0], underline=True, color=Color.Yellow)
+            message += formatText(uniqueHashes[x.commitHash][1], color=Color.Yellow) + " " 
+            message += self.runner.run(f"git log {x.commitHash} -1 --pretty=format:%s")
+            # Print the commit message.
+            if x.commitHash == currentHash:
+                print("| " * x.level + "@ " + message)
+            else:
+                print("| " * x.level + "o " + message)
+            
+            if x.commitHash in clNumbers and clNumbers[x.commitHash] != "None":
+                print("| " * (x.level + 1) + clNumbers[x.commitHash])
+
+            # Print the author of the change.
+            if x.isOwned:
+                print("| " * (x.level + 1) + formatText("Author: You", color=Color.Blue))
+            else:
+                print("| " * (x.level + 1) + formatText("Author: ", color=Color.Blue) + self.commitManager.getEmailForCommit(x.commitHash))
+
+            if i + 1 < len(nodes) and nodes[i+1].level < x.level:
+                print("| " * nodes[i+1].level + "|/")
+            elif i + 1 < len(nodes) and nodes[i+1].level == x.level:
+                print("| " * x.level + "|")
+            elif i + 1 < len(nodes) and nodes[i+1].level > x.level:
+                print("| " * (x.level + 1))
+        print("~")
+    
 
 if __name__ == '__main__':
     parser = CommandParser(CommandRunner())
