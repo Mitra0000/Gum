@@ -2,7 +2,13 @@ from test_command_runner import *
 
 from main import *
 
-def getParser():
-    repository = MockRepository()
-    commandRunner = TestCommandRunner(repository)
-    return CommandParser(commandRunner)
+class TestHelper:
+    def __init__(self):
+        self.resetRepository()
+    
+    def resetRepository(self):
+        self.repository = MockRepository()
+        self.commandRunner = TestCommandRunner(self.repository)
+        self.parser = CommandParser(self.commandRunner)
+        self.commitManager = self.parser.commitManager
+        self.branchManager = self.parser.branchManager

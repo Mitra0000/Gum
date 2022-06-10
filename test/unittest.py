@@ -25,3 +25,6 @@ class UnitTest(ABC):
             method(self)
             self.after()
         UnitTest.methods = []
+    
+def assertEquals(actual, expected):
+    assert actual == expected, f"Expected: {expected} but was actually {actual}."

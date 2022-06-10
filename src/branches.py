@@ -20,7 +20,8 @@ class BranchManager:
             if branch == "":
                 continue
             output.append(branch[2:])
-        output.append(current)
+        if current != "":
+            output.append(current)
         return output
     
     
@@ -39,13 +40,13 @@ class BranchManager:
             if b >= branch:
                 branch = self._getNextBranchNameFrom(b)
 
-        nextBranch = self._getNextBranchNameFrom(branch)
+        nextBranch = self.getNextBranchNameFrom(branch)
         with open(filename, "w") as f:
             f.write(nextBranch)
         return branch
     
     
-    def _getNextBranchNameFrom(self, branchName):
+    def getNextBranchNameFrom(self, branchName):
         alphabet = "abcdefghijklmnopqrstuvwxyz"
         branchName = list(branchName)
         for i in range(len(branchName) - 1, -1, -1):

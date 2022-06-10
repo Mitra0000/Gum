@@ -27,11 +27,11 @@ class CommandParser:
                     self.runner.run(f"git branch -D {branch}")
             self.runner.run("git pull --rebase")
         elif command == "test":
-            print(self.branchManager.getUrlsForBranches())
+            return self.branchManager.getUrlsForBranches()
         elif command == "commit":
             commitMessage = self.commitManager.createCommitMessage()
             if commitMessage is None:
-                return
+                return ""
             currentBranch = self.branchManager.getCurrentBranch()
             newBranch = self.branchManager.getNextBranch()
             if self.branchManager.isBranchOwned(currentBranch):
@@ -54,42 +54,40 @@ class CommandParser:
             # Use git rebase-update to rebase a dependent branch.
             # self.runner.run("git add -A")
             # self.runner.run("git commit --amend --no-edit")
-            print("Amend not implemented.")
+            return "Amend not implemented."
         elif command == "prune":
             if len(args) == 1:
-                print("Please specify a hash to prune.")
+                return "Please specify a hash to prune."
             commitHash = args[1]
             commit = self.commitManager.getCommitForPrefix(commitHash)
             if commit != None:
                 commitHash = commit
             branchName = self.commitManager.getBranchForCommit(commitHash)
             if branchName is None:
-                print("Could not find specified commit hash.")
-                return
+                return "Could not find specified commit hash."
             self.runner.run(f"git branch -D {branchName}")
         elif command == "uc":
             self.runner.runInProcess("git push")
         elif command == "status":
             out = self.runner.run("git status -s")
-            print(formatText(out, bold=True))
+            return formatText(out, bold=True)
         elif command == "update":
             if len(args) == 1:
-                print("Please specify a hash to update to.")
+                return "Please specify a hash to update to."
             commitHash = args[1]
             commit = self.commitManager.getCommitForPrefix(commitHash)
             if commit != None:
                 commitHash = commit
             branchName = self.commitManager.getBranchForCommit(commitHash)
             if branchName is None:
-                print("Could not find specified commit hash.")
-                return
+                return "Could not find specified commit hash."
             self.runner.run(f"git checkout {branchName}")
-            print(f"Updated to {commitHash}")
+            return f"Updated to {commitHash}"
         elif command == "xl":
             tree = self.setupXl()
-            print(self.xl(tree, self.branchManager.getCommitForBranch(self.branchManager.getCurrentBranch())))
+            return self.xl(tree, self.branchManager.getCommitForBranch(self.branchManager.getCurrentBranch()))
         else:
-            print("Unknown gum command")
+            return "Unknown gum command"
         
     def setupXl(self):
         branches = self.branchManager.getAllBranches()
@@ -148,4 +146,4 @@ class CommandParser:
 
 if __name__ == '__main__':
     parser = CommandParser(CommandRunner())
-    parser.parse(sys.argv[1:])
+    print(parser.parse(sys.argv[1:]))

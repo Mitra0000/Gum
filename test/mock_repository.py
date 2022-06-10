@@ -31,6 +31,7 @@ class CommitTree:
         self.getNode(parent).children.add(newBranch)
         self.branches.add(branchName)
         self.branchesToCommits[branchName] = newBranch
+        self.updateCurrentBranchTo(branchName)
         return f"Created new branch '{branchName}'. Set to track {parent}."
     
     def createCommit(self, branchName, commitMessage):
