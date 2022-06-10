@@ -1,6 +1,14 @@
 import test_helper
+from unittest import UnitTest
 
 # Unit tests for the BranchManager class.
-def setup():
-    parser = test_helper.getParser()
-    branchManager = parser.branchManager
+class CommitManagerTest(UnitTest):
+    def setup(self):
+        parser = test_helper.getParser()
+        self.branchManager = parser.branchManager
+    
+    def before(self):
+        pass
+    
+    def after(self):
+        pass

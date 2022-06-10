@@ -3,16 +3,16 @@ from abc import ABC, abstractmethod
 class UnitTest(ABC):
     methods = []
 
-    @abstractmethod
     def setup(self):
+        """ Method called before all tests. """
         pass
 
-    @abstractmethod
     def before(self):
+        """ Method called before each test. """
         pass
 
-    @abstractmethod
     def after(self):
+        """ Method called after each test. """
         pass
 
     def Test(func):
