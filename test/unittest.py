@@ -24,3 +24,4 @@ class UnitTest(ABC):
             self.before()
             method(self)
             self.after()
+        UnitTest.methods = []
