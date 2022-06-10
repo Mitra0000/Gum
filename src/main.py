@@ -86,23 +86,25 @@ class CommandParser:
             self.runner.run(f"git checkout {branchName}")
             print(f"Updated to {commitHash}")
         elif command == "xl":
-            branches = self.branchManager.getAllBranches()
-            currentBranch = branches[-1]
-            commits = set()
-            parentsToCommits = {}
-            for branch in branches:
-                commit = self.branchManager.getCommitForBranch(branch)
-                commits.add(commit)
-                if branch != "head":
-                    parent = self.branchManager.getCommitForBranch(f"{branch}^")
-                    if parent not in parentsToCommits:
-                        parentsToCommits[parent] = set()
-                    parentsToCommits[parent].add(commit)
-            tree = self.commitManager.buildTreeFromCommits(parentsToCommits, commits)
-            self.xl(tree, self.branchManager.getCommitForBranch(currentBranch))
-
+            tree = self.setupXl()
+            print(self.xl(tree, self.branchManager.getCommitForBranch(self.branchManager.getCurrentBranch())))
         else:
             print("Unknown gum command")
+        
+    def setupXl(self):
+        branches = self.branchManager.getAllBranches()
+        commits = set()
+        parentsToCommits = {}
+        for branch in branches:
+            commit = self.branchManager.getCommitForBranch(branch)
+            commits.add(commit)
+            if branch != "head":
+                parent = self.branchManager.getCommitForBranch(f"{branch}^")
+                if parent not in parentsToCommits:
+                    parentsToCommits[parent] = set()
+                parentsToCommits[parent].add(commit)
+        return self.commitManager.buildTreeFromCommits(parentsToCommits, commits)
+
 
     def xl(self, root: Node, currentHash: str):
         root.level = 0
@@ -113,32 +115,35 @@ class CommandParser:
         nodes = traverser.order[::-1]
         uniqueHashes = getUniqueCommitPrefixes([n.commitHash for n in nodes])
         clNumbers = self.branchManager.getUrlsForBranches()
+        output = ""
+
         for i, x in enumerate(nodes):
             message = formatText(uniqueHashes[x.commitHash][0], underline=True, color=Color.Yellow)
             message += formatText(uniqueHashes[x.commitHash][1], color=Color.Yellow) + " " 
             message += self.runner.run(f"git log {x.commitHash} -1 --pretty=format:%s")
             # Print the commit message.
             if x.commitHash == currentHash:
-                print("| " * x.level + "@ " + message)
+                output += "| " * x.level + f"@ {message}\n"
             else:
-                print("| " * x.level + "o " + message)
+                output += "| " * x.level + f"o {message}\n"
             
             if x.commitHash in clNumbers and clNumbers[x.commitHash] != "None":
-                print("| " * (x.level + 1) + clNumbers[x.commitHash])
+                output += "| " * (x.level + 1) + clNumbers[x.commitHash] + "\n"
 
             # Print the author of the change.
             if x.isOwned:
-                print("| " * (x.level + 1) + formatText("Author: You", color=Color.Blue))
+                output += "| " * (x.level + 1) + formatText("Author: You", color=Color.Blue) + "\n"
             else:
-                print("| " * (x.level + 1) + formatText("Author: ", color=Color.Blue) + self.commitManager.getEmailForCommit(x.commitHash))
+                output += "| " * (x.level + 1) + formatText("Author: ", color=Color.Blue) + self.commitManager.getEmailForCommit(x.commitHash) + "\n"
 
             if i + 1 < len(nodes) and nodes[i+1].level < x.level:
-                print("| " * nodes[i+1].level + "|/")
+                output += "| " * nodes[i+1].level + "|/\n"
             elif i + 1 < len(nodes) and nodes[i+1].level == x.level:
-                print("| " * x.level + "|")
+                output += "| " * x.level + "|\n"
             elif i + 1 < len(nodes) and nodes[i+1].level > x.level:
-                print("| " * (x.level + 1))
-        print("~")
+                output += "| " * (x.level + 1) + "\n"
+        output += "~"
+        return output
     
 
 if __name__ == '__main__':

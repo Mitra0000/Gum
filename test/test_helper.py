@@ -1,15 +1,8 @@
-import sys
-import os
-
-from test_runner import *
+from test_command_runner import *
 
 from main import *
-from util import *
 
-def main():
-    commandRunner = TestRunner()
-    commandParser = CommandParser(commandRunner)
-    commandParser.parse(["add"])
-
-if __name__ == "__main__":
-    main()
+def getParser():
+    repository = MockRepository()
+    commandRunner = TestCommandRunner(repository)
+    return CommandParser(commandRunner)
