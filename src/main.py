@@ -156,4 +156,6 @@ class CommandParser:
 
 if __name__ == '__main__':
     parser = CommandParser(CommandRunner())
-    print(parser.parse(sys.argv[1:]))
+    result = parser.parse(sys.argv[1:])
+    if result is not None:
+        print(result)
