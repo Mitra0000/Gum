@@ -76,8 +76,10 @@ class CommandParser:
             currentRef = currentRef[:-1]
             currentCommit = self.branchManager.getCommitForBranch(currentRef)
             self.runner.run(f"git checkout {self.commitManager.getBranchForCommit(currentCommit)}")
-            self.runner.runInProcess("git cl upload --dependencies")
+            self.runner.runInProcess("git cl upload -f --dependencies")
             self.runner.run(f"git checkout {originalRef}")
+        elif command == "ut" or command == "uploadtree":
+            self.runner.runInProcess("git cl upload -f --dependencies")
         elif command == "status":
             out = self.runner.run("git status -s")
             return formatText(out, bold=True)
