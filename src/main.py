@@ -130,23 +130,26 @@ class CommandParser:
         output = ""
 
         for i, x in enumerate(nodes):
-            message = formatText(uniqueHashes[x.commitHash][0], underline=True, color=Color.Yellow)
-            message += formatText(uniqueHashes[x.commitHash][1], color=Color.Yellow) + " " 
-            message += self.runner.run(f"git log {x.commitHash} -1 --pretty=format:%s")
-            # Print the commit message.
-            if x.commitHash == currentHash:
-                output += "| " * x.level + f"@ {message}\n"
-            else:
-                output += "| " * x.level + f"o {message}\n"
+            line1 = formatText(uniqueHashes[x.commitHash][0], underline=True, color=Color.Yellow)
+            line1 += formatText(uniqueHashes[x.commitHash][1], color=Color.Yellow) + " " 
             
-            if x.commitHash in clNumbers and clNumbers[x.commitHash] != "None":
-                output += "| " * (x.level + 1) + clNumbers[x.commitHash] + "\n"
-
             # Print the author of the change.
             if x.isOwned:
-                output += "| " * (x.level + 1) + formatText("Author: You", color=Color.Blue) + "\n"
+                line1 += formatText("Author: You ", color=Color.Blue)
             else:
-                output += "| " * (x.level + 1) + formatText("Author: ", color=Color.Blue) + self.commitManager.getEmailForCommit(x.commitHash) + "\n"
+                line1 += formatText("Author: ", color=Color.Blue) + self.commitManager.getEmailForCommit(x.commitHash) + " "
+
+            # Print CL number.
+            if x.commitHash in clNumbers and clNumbers[x.commitHash] != "None":
+                line1 += clNumbers[x.commitHash]
+
+            if x.commitHash == currentHash:
+                output += "| " * x.level + f"@ {line1}\n"
+            else:
+                output += "| " * x.level + f"o {line1}\n"
+            
+            # Print the commit message.
+            output += "| " * (x.level + 1) + self.runner.run(f"git log {x.commitHash} -1 --pretty=format:%s") + "\n"
 
             if i + 1 < len(nodes) and nodes[i+1].level < x.level:
                 output += "| " * nodes[i+1].level + "|/\n"
