@@ -14,7 +14,6 @@ class CommitTree:
     def __init__(self):
         self.nextHash = "aaaaa"
         root = CommitNode(self.nextHash)
-        self._incrementHash()
         self.branchesToCommits = {"head": root}
         self.branches = set()
         self.branches.add("head")
@@ -33,7 +32,17 @@ class CommitTree:
         self.branchesToCommits[branchName] = newBranch
         self.updateCurrentBranchTo(branchName)
         return f"Created new branch '{branchName}'. Set to track {parent}."
-    
+
+    def createDetachedBranch(self, branchName):
+        if branchName in self.branches:
+            return "Could not create branch. Name already exists."
+        newBranch = CommitNode(self.nextHash)
+        self._incrementHash()
+        self.branches.add(branchName)
+        self.branchesToCommits[branchName] = newBranch
+        return f"Created new branch '{branchName}'."
+
+
     def createCommit(self, branchName, commitMessage, isOwned = True):
         if branchName not in self.branches:
             return "Branch not found."
@@ -97,7 +106,7 @@ class CommitTree:
                 commit[i] = alphabet[alphabet.find(commit[i]) + 1]
                 break
             commit[i] = "a"
-        return "".join(commit)
+        self.nextHash = "".join(commit)
 
 """ 
     A class representing a git repository for testing.
@@ -195,13 +204,14 @@ class MockRepository:
         elif command == "show":
             dataFormat = args[-1].split("%")[-1]
             if dataFormat == "ci":
-                "git show --no-patch --no-notes {commitHash} --pretty=format:%ci"
+                # git show --no-patch --no-notes {commit} --pretty=format:%ci
+                return args[4] + " +1:00"
             elif dataFormat == "ce":
                 # git show --no-patch --no-notes {commit} --format=%ce
-                if self.commitTree.getNode(args[4]).isOwned:
-                    return f"{USER_EMAIL}\n"
-                else:
-                    return f"{ANOTHER_EMAIL}\n"
+                node = self.commitTree.getNode(args[4])
+                if node is None:
+                    return "unknown"
+                return f"{USER_EMAIL}\n" if node.isOwned else f"{ANOTHER_EMAIL}\n"
         elif command == "status":
             "git status -s"
             "git status -s"
