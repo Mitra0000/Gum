@@ -84,6 +84,8 @@ class CommandParser:
             self.runner.runInProcess("git cl upload -f --dependencies")
         elif command == "status":
             out = self.runner.run("git status -s")
+            if out.strip() == "":
+                return None
             return formatText(out, bold=True)
         elif command == "update":
             if len(args) == 1:
