@@ -1,10 +1,11 @@
+import unittest
+
 from test_command_runner import *
 
 from main import *
-from unittest import UnitTest
 
 # Unit tests for the main.py file.
-class CommandParserTest(UnitTest):    
+class CommandParserTest(unittest.TestCase):    
     def before(self):
         self.repository = MockRepository()
         commandRunner = TestCommandRunner(self.repository)

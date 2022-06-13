@@ -12,3 +12,9 @@ class TestHelper:
         self.parser = CommandParser(self.commandRunner)
         self.commitManager = self.parser.commitManager
         self.branchManager = self.parser.branchManager
+    
+    def addChanges(self, changes):
+        self.repository.addChanges(changes)
+    
+    def getHashForBranch(self, branchName):
+        return self.repository.commitTree.branchesToCommits[branchName].commitHash

@@ -20,28 +20,31 @@ class CommitTree:
         self.branches.add("head")
         self.currentBranch = "head"
         self.workingChanges = {} # Format of { (filename, change_type) : "Contents" }
-        self.createCommit("head", "This is the head of the repository.")
+        self.createCommit("head", "This is the head of the repository.", False)
     
     def createBranch(self, branchName, parent):
         if branchName in self.branches:
             return "Could not create branch. Name already exists."
         if parent == None or parent not in self.branches:
             parent = self.currentBranch
-        newBranch = CommitNode(self.getNode(parent).commitHash, True, parent = self.getNode(parent))
+        newBranch = CommitNode(self.getNode(parent).commitHash, parent = self.getNode(parent))
         self.getNode(parent).children.add(newBranch)
         self.branches.add(branchName)
         self.branchesToCommits[branchName] = newBranch
         self.updateCurrentBranchTo(branchName)
         return f"Created new branch '{branchName}'. Set to track {parent}."
     
-    def createCommit(self, branchName, commitMessage):
+    def createCommit(self, branchName, commitMessage, isOwned = True):
         if branchName not in self.branches:
             return "Branch not found."
         node = self.branchesToCommits[branchName]
         node.commitHash = self.nextHash
         self._incrementHash()
+        node.isOwned = isOwned
         node.commitMessage = commitMessage
-        node.diff = self.workingChanges
+        for change in self.workingChanges:
+            if change[1] != "?":
+                node.diff[change] = self.workingChanges[change]
     
     def updateCurrentBranchTo(self, branchName):
         if branchName not in self.branches:
@@ -104,14 +107,25 @@ class CommitTree:
 class MockRepository:
     def __init__(self):
         self.commitTree = CommitTree()
+    
+    def addChanges(self, changes):
+        self.commitTree.workingChanges.update(changes)
 
     def processCommand(self, args):
         args = args.split()
         assert args[0] == "git"
         command = args[1]
         if command == "add":
-            "git add -A"
-            "git add -u"
+            if args[2] == "-A":
+                # git add -A
+                for change in self.commitTree.workingChanges:
+                    if change[1] == "?":
+                        newItem = {(change[0], "A"): self.commitTree.workingChanges[change]}
+                        del self.commitTree.workingChanges[change]
+                        self.commitTree.workingChanges.update(newItem)
+            if args[2] == "-u":
+                # git add -u
+                return
         elif command == "branch":
             if len(args) == 2:
                 # git branch

@@ -1,8 +1,9 @@
+import unittest
+
 from test_helper import TestHelper
-from unittest import UnitTest
 
 # Unit tests for the CommitManager class.
-class CommitManagerTest(UnitTest):
+class CommitManagerTest(unittest.TestCase):
     def setup(self):
         self.helper = TestHelper()
         self.commitManager = self.helper.commitManager

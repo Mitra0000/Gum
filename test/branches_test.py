@@ -1,54 +1,71 @@
+import unittest
+
 from test_helper import TestHelper
-from unittest import UnitTest, assertEquals
 
 # Unit tests for the BranchManager class.
-class BranchManagerTest(UnitTest):
-    def setup(self):
+class BranchManagerTest(unittest.TestCase):
+    @classmethod
+    def setUpClass(self):
         self.helper = TestHelper()
 
-    def before(self):
+    def setUp(self):
         self.helper.resetRepository()
         self.branchManager = self.helper.branchManager
 
-    @UnitTest.Test
     def testGetAllBranchesWithZeroBranches(self):
         self.helper.commandRunner.run("git branch -D head")
-        assertEquals(self.branchManager.getAllBranches(), [])
+        self.assertEquals(self.branchManager.getAllBranches(), [])
 
-    @UnitTest.Test
     def testGetAllBranchesWithOneBranch(self):
-        assertEquals(self.branchManager.getAllBranches(), ["head"])
+        self.assertEquals(self.branchManager.getAllBranches(), ["head"])
 
-    @UnitTest.Test
     def testGetAllBranchesWithTwoBranches(self):
         self.helper.commandRunner.run("git checkout -b testBranch")
-        assertEquals(self.branchManager.getAllBranches(), ["head", "testBranch"])
+        self.assertEquals(self.branchManager.getAllBranches(), ["head", "testBranch"])
 
-    @UnitTest.Test
     def testGetAllBranchesHasCurrentBranchLast(self):
         self.helper.commandRunner.run("git checkout -b testBranch")
-        assertEquals(self.branchManager.getAllBranches(), ["head", "testBranch"])
+        self.assertEquals(self.branchManager.getAllBranches(), ["head", "testBranch"])
         self.helper.commandRunner.run("git checkout head")
-        assertEquals(self.branchManager.getAllBranches(), ["testBranch", "head"])
+        self.assertEquals(self.branchManager.getAllBranches(), ["testBranch", "head"])
 
-    @UnitTest.Test
     def testGetCurrentBranch(self):
-        assertEquals(self.branchManager.getCurrentBranch(), "head")
+        self.assertEquals(self.branchManager.getCurrentBranch(), "head")
 
-    @UnitTest.Test
     def testGetCurrentBranchWithMultipleBranches(self):
         self.helper.commandRunner.run("git checkout -b testBranch")
-        assertEquals(self.branchManager.getCurrentBranch(), "testBranch")
+        self.assertEquals(self.branchManager.getCurrentBranch(), "testBranch")
 
-    @UnitTest.Test
     def testGetNextBranchName(self):
-        assertEquals(self.branchManager.getNextBranchNameFrom("aaaaa"), "aaaab")
-        assertEquals(self.branchManager.getNextBranchNameFrom("aaaaz"), "aaaba")
-        assertEquals(self.branchManager.getNextBranchNameFrom("abczd"), "abcze")
-        assertEquals(self.branchManager.getNextBranchNameFrom("zzzzz"), "aaaaa")
+        testMethod = self.branchManager.getNextBranchNameFrom
+        self.assertEquals(testMethod("aaaaa"), "aaaab")
+        self.assertEquals(testMethod("aaaaz"), "aaaba")
+        self.assertEquals(testMethod("abczd"), "abcze")
+        self.assertEquals(testMethod("zzzzz"), "aaaaa")
 
     def testGetCommitForBranch(self):
         run = self.helper.commandRunner.run
         run("git checkout -b testBranch")
         self.helper.addChanges({("myfile.txt", "A"): "This is a new file."})
         run("git add -A")
+        run("git commit -m 'This is a test'")
+        self.assertEquals(self.branchManager.getCommitForBranch("testBranch"), self.helper.getHashForBranch("testBranch"))
+
+    def testIsBranchOwnedWithHead(self):
+        self.assertFalse(self.branchManager.isBranchOwned("head"))
+
+    def testIsNewBranchOwnedWithoutCommit(self):
+        self.helper.commandRunner.run("git checkout -b testBranch")
+        self.assertFalse(self.branchManager.isBranchOwned("testBranch"))
+
+    def testIsNewBranchOwnedWithCommit(self):
+        run = self.helper.commandRunner.run
+        run("git checkout -b testBranch")
+        self.helper.addChanges({("myfile.txt", "A"): "This is a new file."})
+        run("git add -A")
+        run("git commit -m 'This is a test'")
+        self.assertTrue(self.branchManager.isBranchOwned("testBranch"))
+
+
+if __name__ == '__main__':
+    unittest.main()
