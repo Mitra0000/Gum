@@ -74,7 +74,8 @@ class CommandParser:
             while self.branchManager.isBranchOwned(currentRef):
                 currentRef += "^"
             currentRef = currentRef[:-1]
-            self.runner.run(f"git checkout {currentRef}")
+            currentCommit = self.branchManager.getCommitForBranch(currentRef)
+            self.runner.run(f"git checkout {self.commitManager.getBranchForCommit(currentCommit)}")
             self.runner.runInProcess("git cl upload --dependencies")
             self.runner.run(f"git checkout {originalRef}")
         elif command == "status":
