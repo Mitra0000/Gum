@@ -57,6 +57,8 @@ class CommandParser:
             return "Amend not implemented."
         elif command == "diff":
             self.runner.runInProcess("git diff")
+        elif command == "fix":
+            self.runner.runInProcess("git cl format")
         elif command == "prune":
             if len(args) == 1:
                 return "Please specify a hash to prune."
