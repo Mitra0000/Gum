@@ -55,6 +55,8 @@ class CommandParser:
             # self.runner.run("git add -A")
             # self.runner.run("git commit --amend --no-edit")
             return "Amend not implemented."
+        elif command == "diff":
+            self.runner.runInProcess("git diff")
         elif command == "prune":
             if len(args) == 1:
                 return "Please specify a hash to prune."
@@ -66,8 +68,15 @@ class CommandParser:
             if branchName is None:
                 return "Could not find specified commit hash."
             self.runner.run(f"git branch -D {branchName}")
-        elif command == "uc":
-            self.runner.runInProcess("git push")
+        elif command == "uc" or command == "uploadchain":
+            originalRef = self.branchManager.getCurrentBranch()
+            currentRef = originalRef
+            while self.branchManager.isBranchOwned(currentRef):
+                currentRef += "^"
+            currentRef = currentRef[:-1]
+            self.runner.run(f"git checkout {currentRef}")
+            self.runner.runInProcess("git cl upload --dependencies")
+            self.runner.run(f"git checkout {originalRef}")
         elif command == "status":
             out = self.runner.run("git status -s")
             return formatText(out, bold=True)
