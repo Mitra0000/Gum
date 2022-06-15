@@ -27,7 +27,7 @@ class CommandParser:
                     self.runner.run(f"git branch -D {branch}")
             self.runner.run("git pull --rebase")
         elif command == "test":
-            return self.branchManager.getUrlsForBranches()
+            return self.updateHead()
         elif command == "commit":
             commitMessage = self.commitManager.createCommitMessage()
             if commitMessage is None:
@@ -97,6 +97,10 @@ class CommandParser:
             if out.strip() == "":
                 return None
             return formatText(out, bold=True)
+        elif command == "sync":
+            # Need to traverse and rebase all children.
+            self.runner.runInProcess("git pull --rebase")
+            self.updateHead()
         elif command == "update":
             if len(args) == 1:
                 return "Please specify a hash to update to."
@@ -116,17 +120,7 @@ class CommandParser:
             return "Unknown gum command"
         
     def setupXl(self):
-        branches = self.branchManager.getAllBranches()
-        commits = set()
-        parentsToCommits = {}
-        for branch in branches:
-            commit = self.branchManager.getCommitForBranch(branch)
-            commits.add(commit)
-            if branch != "head":
-                parent = self.branchManager.getCommitForBranch(f"{branch}^")
-                if parent not in parentsToCommits:
-                    parentsToCommits[parent] = set()
-                parentsToCommits[parent].add(commit)
+        commits, parentsToCommits = self.generateParentsAndCommits()
         return self.commitManager.buildTreeFromCommits(parentsToCommits, commits)
 
 
@@ -172,6 +166,44 @@ class CommandParser:
         output += "~"
         return output
     
+    def generateParentsAndCommits(self):
+        branches = self.branchManager.getAllBranches()
+        commits = set()
+        parentsToCommits = {}
+        for branch in branches:
+            commit = self.branchManager.getCommitForBranch(branch)
+            commits.add(commit)
+            if branch != "head":
+                parent = self.branchManager.getCommitForBranch(f"{branch}^")
+                if parent not in parentsToCommits:
+                    parentsToCommits[parent] = set()
+                parentsToCommits[parent].add(commit)
+        return commits, parentsToCommits
+
+    def updateHead(self):
+        commits, parentsToCommits = self.generateParentsAndCommits()
+        headCommit = self.branchManager.getCommitForBranch("head")
+        commits.remove(headCommit)
+        if headCommit in parentsToCommits:
+            return
+        for parent in parentsToCommits.keys():
+            commits.add(parent)
+        for children in parentsToCommits.values():
+            for child in children:
+                commits.remove(child)
+        newHead = ""
+        if len(commits) == 0:
+            return
+        elif len(commits) == 1:
+            newHead = self.runner.run(f"git rev-parse {commits.pop()}")
+        else:
+            heads = sorted(list(commits), key=self.commitManager.getDateForCommit)
+            newHead = self.runner.run(f"git rev-parse {heads[0]}")
+
+        currentBranch = self.branchManager.getCurrentBranch()
+        self.runner.runInProcess("git checkout head")
+        self.runner.runInProcess(f"git pull origin {newHead}")
+        self.runner.runInProcess(f"git checkout {currentBranch}")
 
 if __name__ == '__main__':
     parser = CommandParser(CommandRunner())
