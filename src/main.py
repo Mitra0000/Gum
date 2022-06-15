@@ -73,13 +73,23 @@ class CommandParser:
         elif command == "uc" or command == "uploadchain":
             originalRef = self.branchManager.getCurrentBranch()
             currentRef = originalRef
+            commitStack = []
             while self.branchManager.isBranchOwned(currentRef):
+                commitStack.append(currentRef)
                 currentRef += "^"
-            currentRef = currentRef[:-1]
-            currentCommit = self.branchManager.getCommitForBranch(currentRef)
-            self.runner.run(f"git checkout {self.commitManager.getBranchForCommit(currentCommit)}")
-            self.runner.runInProcess("git cl upload -f --dependencies")
-            self.runner.run(f"git checkout {originalRef}")
+            urls = []
+            while commitStack:
+                commitRef = commitStack.pop()
+                commit = self.branchManager.getCommitForBranch(commitRef)
+                branch = self.commitManager.getBranchForCommit(commit)
+                self.runner.run(f"git checkout {branch}")
+                self.runner.runInProcess("git cl upload -f")
+                urls.append(commit)
+            commitsToUrls = self.branchManager.getUrlsForBranches()
+            print(f"Uploaded {len(urls)} CLs.")
+            for commit in urls:
+                if commit in commitsToUrls:
+                    print(commitsToUrls[commit], ":", self.runner.run(f"git log {commit} -1 --pretty=format:%s"))
         elif command == "ut" or command == "uploadtree":
             self.runner.runInProcess("git cl upload -f --dependencies")
         elif command == "status":
