@@ -214,29 +214,25 @@ class CommandParser:
         return commits, parentsToCommits
 
     def updateHead(self):
-        commits, parentsToCommits = self.generateParentsAndCommits()
+        unownedBranches = []
         headCommit = self.branchManager.getCommitForBranch("head")
-        commits.remove(headCommit)
-        if headCommit in parentsToCommits:
+        for branch in self.branchManager.getAllBranches():
+            if self.commitManager.getParentOfCommit(branch) == headCommit:
+                return
+            if not self.branchManager.isBranchOwned(branch):
+                unownedBranches.append(branch)
+        
+        unownedBranches = sorted(unownedBranches, self.commitManager.getDateForCommit)
+        if len(unownedBranches) < 2:
+            print("Not working")
             return
-        for parent in parentsToCommits.keys():
-            commits.add(parent)
-        for children in parentsToCommits.values():
-            for child in children:
-                commits.remove(child)
-        newHead = ""
-        if len(commits) == 0:
-            return
-        elif len(commits) == 1:
-            newHead = self.runner.run(f"git rev-parse {commits.pop()}")
-        else:
-            heads = sorted(list(commits), key=self.commitManager.getDateForCommit)
-            newHead = self.runner.run(f"git rev-parse {heads[0]}")
-
+        assert unownedBranches[0] == "head"
+        newHead = unownedBranches[1]
         currentBranch = self.branchManager.getCurrentBranch()
-        self.runner.runInProcess("git checkout head")
-        self.runner.runInProcess(f"git pull origin {newHead}")
-        self.runner.runInProcess(f"git checkout {currentBranch}")
+        self.runner.run("git checkout head")
+        self.runner.run(f"git pull origin {self.branchManager.getCommitForBranch(newHead)}")
+        self.runner.run(f"git branch -D {newHead}") 
+        self.runner.run(f"git checkout {currentBranch}")       
 
 if __name__ == '__main__':
     parser = CommandParser(CommandRunner())
