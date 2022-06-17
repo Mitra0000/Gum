@@ -15,7 +15,8 @@ class CommitManager:
                 commits.remove(j)
         # Commits now contains the root(s)
         for i in parentsToCommits:
-            commitsToNodes[i].children.extend([commitsToNodes[j] for j in parentsToCommits[i]])
+            if i in commitsToNodes:
+                commitsToNodes[i].children.extend([commitsToNodes[j] for j in parentsToCommits[i]])
         if len(commits) > 1:
             heads = sorted(list(commits), key=self.getDateForCommit)
             for parent, child in zip(heads, heads[1:]):
@@ -64,8 +65,11 @@ class CommitManager:
     def getCommitForPrefix(self, prefix: str) -> str:
         results = getPrefixesForCommits([self.branchManager.getCommitForBranch(b) for b in self.branchManager.getAllBranches()])
         if prefix not in results:
-            return None
+            return prefix
         return prefix + results[prefix]
+    
+    def getParentOfCommit(self, commitHash: str) -> str:
+        return self.branchManager.getCommitForBranch(commitHash + "^")
 
     
     def getBranchForCommit(self, commitHash: str) -> str:

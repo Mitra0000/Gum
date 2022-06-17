@@ -1,3 +1,5 @@
+import bisect
+from collections import defaultdict
 import sys
 
 from branches import *
@@ -27,7 +29,7 @@ class CommandParser:
                     self.runner.run(f"git branch -D {branch}")
             self.runner.run("git pull --rebase")
         elif command == "test":
-            return self.updateHead()
+            return self.commitManager.getParentOfCommit("0ee1ae45d99b9")
         elif command == "commit":
             commitMessage = self.commitManager.createCommitMessage()
             if commitMessage is None:
@@ -92,6 +94,20 @@ class CommandParser:
                     print(commitsToUrls[commit], ":", self.runner.run(f"git log {commit} -1 --pretty=format:%s"))
         elif command == "ut" or command == "uploadtree":
             self.runner.runInProcess("git cl upload -f --dependencies")
+        elif command == "rebase":
+            if len(args) != 5:
+                return "Please specify source and destination commit."
+            sourceCommit = ""
+            destinationCommit = ""
+            if args[1] == "-s" and args[3] == "-d":
+                sourceCommit = args[2]
+                destinationCommit = args[4]
+            elif args[1] == "-d" and args[3] == "-s":
+                sourceCommit = args[4]
+                destinationCommit = args[2]
+            if sourceCommit == "" or destinationCommit == "":
+                return
+            self.runner.runInProcess(f"git rebase --onto {self.commitManager.getCommitForPrefix(destinationCommit)} {self.commitManager.getParentOfCommit(self.commitManager.getCommitForPrefix(sourceCommit))}")
         elif command == "status":
             out = self.runner.run("git status -s")
             if out.strip() == "":
@@ -99,7 +115,11 @@ class CommandParser:
             return formatText(out, bold=True)
         elif command == "sync":
             # Need to traverse and rebase all children.
-            self.runner.runInProcess("git pull --rebase")
+            newBranch = self.branchManager.getNextBranch()
+            self.runner.run("git checkout head")
+            self.runner.run(f"git checkout -b {newBranch}")
+            self.runner.run(f"git branch --set-upstream-to=origin/main {newBranch}")
+            self.runner.run("git pull")
             self.updateHead()
         elif command == "update":
             if len(args) == 1:
@@ -169,15 +189,28 @@ class CommandParser:
     def generateParentsAndCommits(self):
         branches = self.branchManager.getAllBranches()
         commits = set()
-        parentsToCommits = {}
+        unownedCommits = []
+        parentsToCommits = defaultdict(set)
         for branch in branches:
             commit = self.branchManager.getCommitForBranch(branch)
             commits.add(commit)
-            if branch != "head":
-                parent = self.branchManager.getCommitForBranch(f"{branch}^")
-                if parent not in parentsToCommits:
-                    parentsToCommits[parent] = set()
-                parentsToCommits[parent].add(commit)
+            if not self.branchManager.isBranchOwned(commit):
+                bisect.insort(unownedCommits, (self.commitManager.getDateForCommit(commit), commit))
+
+        for branch in branches:
+            commit = self.branchManager.getCommitForBranch(branch)
+            if branch == "head":
+                continue
+            parent = self.branchManager.getCommitForBranch(f"{branch}^")
+            if parent not in commits:
+                parentDate = self.commitManager.getDateForCommit(parent)
+                for i in range(len(unownedCommits)):
+                    if unownedCommits[i][0] > parentDate:
+                        parent = unownedCommits[i - 1][1]
+                        break
+                else:
+                    parent = unownedCommits[-1][1]
+            parentsToCommits[parent].add(commit)
         return commits, parentsToCommits
 
     def updateHead(self):
