@@ -1,5 +1,6 @@
 import os
 
+from cacher import Cacher
 from util import *
 
 class BranchManager:
@@ -74,6 +75,7 @@ class BranchManager:
                 data = data[2:]
             data = data.split()
             branchesToUrls[self.getCommitForBranch(data[0])] = data[2]
+        Cacher.cacheClNumbers(branchesToUrls)
         return branchesToUrls
 
     

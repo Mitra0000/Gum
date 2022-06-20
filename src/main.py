@@ -3,6 +3,7 @@ from collections import defaultdict
 import sys
 
 from branches import BranchManager
+from cacher import Cacher
 from commits import CommitManager
 from lumberjack import LumberJack
 from node import Node
@@ -162,7 +163,9 @@ class CommandParser:
         traverser.preOrderTraversal(root)
         nodes = traverser.order[::-1]
         uniqueHashes = getUniqueCommitPrefixes([n.commitHash for n in nodes])
-        clNumbers = self.branchManager.getUrlsForBranches()
+        clNumbers = Cacher.getCachedClNumbers()
+        if len(clNumbers) == 0:
+            clNumbers = self.branchManager.getUrlsForBranches()
         output = ""
 
         for i, node in enumerate(nodes):
