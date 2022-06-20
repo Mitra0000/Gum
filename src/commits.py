@@ -1,6 +1,7 @@
 import os
 
-from branches import *
+from branches import BranchManager
+from node import Node
 from util import *
 
 class CommitManager:

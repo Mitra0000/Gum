@@ -2,8 +2,10 @@ import bisect
 from collections import defaultdict
 import sys
 
-from branches import *
+from branches import BranchManager
 from commits import CommitManager
+from lumberjack import LumberJack
+from node import Node
 from traverser import Traverser
 from util import *
 
