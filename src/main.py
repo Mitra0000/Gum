@@ -29,7 +29,7 @@ class CommandParser:
                     self.runner.run(f"git branch -D {branch}")
             self.runner.run("git pull --rebase")
         elif command == "test":
-            return self.commitManager.getParentOfCommit("0ee1ae45d99b9")
+            return self.updateHead()
         elif command == "commit":
             commitMessage = self.commitManager.createCommitMessage()
             if commitMessage is None:
@@ -105,15 +105,20 @@ class CommandParser:
             elif args[1] == "-d" and args[3] == "-s":
                 sourceCommit = args[4]
                 destinationCommit = args[2]
+            destinationCommit = self.commitManager.getCommitForPrefix(destinationCommit)
+            sourceCommit = self.commitManager.getCommitForPrefix(sourceCommit)
             if sourceCommit == "" or destinationCommit == "":
                 return
-            self.runner.runInProcess(f"git rebase --onto {self.commitManager.getCommitForPrefix(destinationCommit)} {self.commitManager.getParentOfCommit(self.commitManager.getCommitForPrefix(sourceCommit))}")
+            self.runner.runInProcess(f"git rebase --onto {destinationCommit} {self.commitManager.getParentOfCommit(sourceCommit)} {sourceCommit}")
         elif command == "status":
             out = self.runner.run("git status -s")
             if out.strip() == "":
                 return None
             return formatText(out, bold=True)
         elif command == "sync":
+            currentBranch = self.branchManager.getCurrentBranch()
+            if not self.branchManager.isBranchOwned(currentBranch):
+                return
             # Need to traverse and rebase all children.
             newBranch = self.branchManager.getNextBranch()
             self.runner.run("git checkout head")
@@ -121,6 +126,9 @@ class CommandParser:
             self.runner.run(f"git branch --set-upstream-to=origin/main {newBranch}")
             self.runner.run("git pull")
             self.updateHead()
+            # Move commit and children onto new branch.
+            self.runner.run(f"git checkout {currentBranch}")
+            self.runner.run(f"git rebase {newBranch}")
         elif command == "update":
             if len(args) == 1:
                 return "Please specify a hash to update to."
@@ -220,7 +228,7 @@ class CommandParser:
             if not self.branchManager.isBranchOwned(branch):
                 unownedBranches.append(branch)
         
-        unownedBranches = sorted(unownedBranches, self.commitManager.getDateForCommit)
+        unownedBranches = sorted(unownedBranches, key=self.commitManager.getDateForCommit)
         if len(unownedBranches) < 2:
             print("Not working")
             return
