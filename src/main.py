@@ -76,6 +76,7 @@ class CommandParser:
                 return "Could not find specified commit hash."
             self.runner.run(f"git branch -D {branchName}")
         elif command == "uc" or command == "uploadchain":
+            Cacher.invalidateClNumbers()
             originalRef = self.branchManager.getCurrentBranch()
             currentRef = originalRef
             commitStack = []
@@ -96,6 +97,7 @@ class CommandParser:
                 if commit in commitsToUrls:
                     print(commitsToUrls[commit], ":", self.runner.run(f"git log {commit} -1 --pretty=format:%s"))
         elif command == "ut" or command == "uploadtree":
+            Cacher.invalidateClNumbers()
             self.runner.runInProcess("git cl upload -f --dependencies")
         elif command == "rebase":
             if len(args) != 5:
