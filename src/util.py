@@ -37,6 +37,9 @@ def formatText(*args, bold: bool = False, underline: bool = False, color: str = 
     output += f"{TextDecorators.ENDC}{Color.Reset}"
     return output
 
+def abbreviateText(text, length = 20):
+    return text if len(text) <= length else text[:length - 3] + "..."
+
 def getPrefixesForCommits(commits):
     """ Returns a dictionary populated as follows. { prefix: suffix }"""
     trie = Trie()
