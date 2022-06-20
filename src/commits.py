@@ -84,4 +84,4 @@ class CommitManager:
     
     
     def getEmailForCommit(self, commitHash: str) -> str:
-        return self.runner.run(f"git show --no-patch --no-notes {commitHash} --format=%ce")[:-1]
+        return self.runner.run(f"git show --no-patch --no-notes {commitHash} --format=%ae")[:-1]
