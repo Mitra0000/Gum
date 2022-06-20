@@ -165,32 +165,30 @@ class CommandParser:
         clNumbers = self.branchManager.getUrlsForBranches()
         output = ""
 
-        for i, x in enumerate(nodes):
-            line1 = formatText(uniqueHashes[x.commitHash][0], underline=True, color=Color.Yellow)
-            line1 += formatText(uniqueHashes[x.commitHash][1], color=Color.Yellow) + " " 
+        for i, node in enumerate(nodes):
+            line1 = formatText(uniqueHashes[node.commitHash][0], underline=True, color=Color.Yellow)
+            line1 += formatText(uniqueHashes[node.commitHash][1], color=Color.Yellow) + " " 
             
             # Print the author of the change.
             line1 += formatText("Author: ", color = Color.Blue)
-            line1 += "You " if x.isOwned else abbreviateText(self.commitManager.getEmailForCommit(x.commitHash), 30)
+            line1 += "You " if node.isOwned else abbreviateText(self.commitManager.getEmailForCommit(node.commitHash), 30) + " "
 
             # Print CL number.
-            if x.commitHash in clNumbers and clNumbers[x.commitHash] != "None":
-                line1 += clNumbers[x.commitHash]
+            if node.commitHash in clNumbers and clNumbers[node.commitHash] != "None":
+                line1 += clNumbers[node.commitHash]
 
-            if x.commitHash == currentHash:
-                output += "| " * x.level + f"@ {line1}\n"
-            else:
-                output += "| " * x.level + f"o {line1}\n"
+            output += "| " * node.level
+            output += f"@ {line1}\n" if node.commitHash == currentHash else f"o {line1}\n"
             
             # Print the commit message.
-            output += "| " * (x.level + 1) + self.runner.run(f"git log {x.commitHash} -1 --pretty=format:%s") + "\n"
+            output += "| " * (node.level + 1) + self.commitManager.getTitleOfCommit(node.commitHash) + "\n"
 
-            if i + 1 < len(nodes) and nodes[i+1].level < x.level:
+            if i + 1 < len(nodes) and nodes[i+1].level < node.level:
                 output += "| " * nodes[i+1].level + "|/\n"
-            elif i + 1 < len(nodes) and nodes[i+1].level == x.level:
-                output += "| " * x.level + "|\n"
-            elif i + 1 < len(nodes) and nodes[i+1].level > x.level:
-                output += "| " * (x.level + 1) + "\n"
+            elif i + 1 < len(nodes) and nodes[i+1].level == node.level:
+                output += "| " * node.level + "|\n"
+            elif i + 1 < len(nodes) and nodes[i+1].level > node.level:
+                output += "| " * (node.level + 1) + "\n"
         output += "~"
         return output
     

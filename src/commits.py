@@ -10,7 +10,7 @@ class CommitManager:
         self.branchManager = branchManager
     
     def buildTreeFromCommits(self, parentsToCommits, commits):
-        commitsToNodes = {i: Node(i, self.branchManager.isBranchOwned(i)) for i in commits}
+        commitsToNodes = {i: self.createNode(i) for i in commits}
         for i in parentsToCommits.values():
             for j in i:
                 commits.remove(j)
@@ -24,7 +24,10 @@ class CommitManager:
                 commitsToNodes[parent].children.append(commitsToNodes[child])
             return commitsToNodes[heads[0]]
         return commitsToNodes[commits.pop()]
-    
+
+    def createNode(self, commitHash: str) -> Node:
+        owned = self.branchManager.isBranchOwned(commitHash)
+        return Node(commitHash, owned)
     
     def createCommitMessage(self):
         output = "\n\n\n\nGUM: Enter a commit message. Lines beginning with 'GUM:' are removed.\nGUM: Leave commit message empty to cancel.\nGUM: --\nGUM: user: "
@@ -62,7 +65,7 @@ class CommitManager:
             os.remove(filePath)
         return "\n".join(commitMessage)
     
-    
+
     def getCommitForPrefix(self, prefix: str) -> str:
         results = getPrefixesForCommits([self.branchManager.getCommitForBranch(b) for b in self.branchManager.getAllBranches()])
         if prefix not in results:
@@ -72,7 +75,9 @@ class CommitManager:
     def getParentOfCommit(self, commitHash: str) -> str:
         return self.branchManager.getCommitForBranch(commitHash + "^")
 
-    
+    def getTitleOfCommit(self, commitHash: str) -> str:
+        return self.runner.run(f"git log {commitHash} -1 --pretty=format:%s")
+
     def getBranchForCommit(self, commitHash: str) -> str:
         for branch in self.branchManager.getAllBranches():
             if self.branchManager.getCommitForBranch(branch) == commitHash:
