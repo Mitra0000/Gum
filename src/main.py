@@ -154,8 +154,8 @@ class CommandParser:
 
     def xl(self, root: Node, currentHash: str):
         root.level = 0
-        Node.getTrunk(root)
-        root.markNodes()
+        LumberJack.getTrunk(root)
+        LumberJack.markNodes(root)
         traverser = Traverser()
         traverser.preOrderTraversal(root)
         nodes = traverser.order[::-1]

@@ -81,8 +81,6 @@ class BranchManager:
         return self.runner.run(f"git show --no-patch --no-notes {reference} --format=%ce")[:-1] == self.runner.run("git config user.email")[:-1]
 
 class Node:
-    trunk = set()
-
     def __init__(self, commitHash: str = "", isOwned: bool = False):
         self.commitHash = commitHash
         self.children = []
@@ -95,8 +93,11 @@ class Node:
     def __hash__(self):
         return hash(self.commitHash)
 
+class LumberJack:
+    trunk = set()
+
     @classmethod
-    def getTrunk(cls, node):
+    def getTrunk(cls, node: Node):
         best = None
         maxChildren = -1
         for child in node.children:
@@ -104,16 +105,17 @@ class Node:
                 maxChildren = len(child.children)
                 best = child
         if best is not None:
-            Node.trunk.add(best)
+            cls.trunk.add(best)
             best.level = 0
-            Node.getTrunk(best)
+            cls.getTrunk(best)
 
-    def markNodes(self):
-        if len(self.children) > 0:
-            startingLevel = max(self.level, 1)
+    @classmethod
+    def markNodes(cls, node: Node):
+        if len(node.children) > 0:
+            startingLevel = max(node.level, 1)
             addition = 0
-            for child in self.children:
-                if child not in Node.trunk:
+            for child in node.children:
+                if child not in cls.trunk:
                     child.level = startingLevel + addition
                     addition += 1
-                child.markNodes()
+                cls.markNodes(child)
