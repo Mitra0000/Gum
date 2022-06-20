@@ -11,7 +11,8 @@ class Cacher:
     def init(cls):
         if not os.path.exists(cls.PATH):
             os.mkdir(cls.PATH)
-            open(os.path.join(cls.PATH, ".gitignore"), "w").close()
+            with open(os.path.join(cls.PATH, ".gitignore"), "w") as f:
+                f.write("clnumbers.json")
         if not os.path.exists(cls.CL_NUMBERS_JSON):
             with open(cls.CL_NUMBERS_JSON, "w") as f:
                 json.dump({}, f)
