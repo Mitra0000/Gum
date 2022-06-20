@@ -161,7 +161,7 @@ class CommandParser:
             
             # Print the author of the change.
             line1 += formatText("Author: ", color = Color.Blue)
-            line1 += "You " if x.isOwned else abbreviateText(self.commitManager.getEmailForCommit(x.commitHash))
+            line1 += "You " if x.isOwned else abbreviateText(self.commitManager.getEmailForCommit(x.commitHash), 30)
 
             # Print CL number.
             if x.commitHash in clNumbers and clNumbers[x.commitHash] != "None":
