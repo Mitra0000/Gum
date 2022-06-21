@@ -1,5 +1,5 @@
 import bisect
-from collections import defaultdict
+from collections import defaultdict, deque
 import sys
 
 from branches import BranchManager
@@ -55,11 +55,12 @@ class CommandParser:
             # Add known changes to y
             # Commit with commitMessage to y
         elif command == "amend":
-            # Need to look at rebasing dependent branches after amending.
-            # Use git rebase-update to rebase a dependent branch.
-            # self.runner.run("git add -A")
-            # self.runner.run("git commit --amend --no-edit")
-            return "Amend not implemented."
+            print("Amending changes.")
+            self.runner.run("git add -u")
+            self.runner.run("git commit --amend --no-edit")
+            print("Rebasing dependent branches.")
+            self.runner.run("git rebase-update")
+            return
         elif command == "diff":
             self.runner.runInProcess("git diff")
         elif command == "fix":
@@ -147,12 +148,12 @@ class CommandParser:
             self.runner.run(f"git checkout {branchName}")
             return f"Updated to {commitHash}"
         elif command == "xl":
-            tree = self.setupXl()
+            tree = self.generateTree()
             return self.xl(tree, self.branchManager.getCommitForBranch(self.branchManager.getCurrentBranch()))
         else:
             return "Unknown gum command"
         
-    def setupXl(self):
+    def generateTree(self):
         commits, parentsToCommits = self.generateParentsAndCommits()
         return self.commitManager.buildTreeFromCommits(parentsToCommits, commits)
 
