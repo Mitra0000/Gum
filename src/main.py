@@ -59,7 +59,7 @@ class CommandParser:
             self.runner.run("git add -u")
             self.runner.run("git commit --amend --no-edit")
             print("Rebasing dependent branches.")
-            self.runner.run("git rebase-update")
+            self.runner.runInProcess("git rebase-update --no-fetch")
             return
         elif command == "diff":
             self.runner.runInProcess("git diff")
@@ -116,8 +116,14 @@ class CommandParser:
             if sourceCommit == "" or destinationCommit == "":
                 return
             sourceBranch = self.commitManager.getBranchForCommit(sourceCommit)
+            destinationBranch = self.commitManager.getBranchForCommit(destinationCommit)
             self.runner.runInProcess(f"git rebase --onto {destinationCommit} {self.commitManager.getParentOfCommit(sourceCommit)} {sourceCommit}")
             self.runner.run(f"git checkout -B {sourceBranch} HEAD")
+            if self.branchManager.isBranchOwned(destinationBranch):
+                self.runner.run(f"git branch --set-upstream-to={destinationBranch} {sourceBranch}")
+            else:
+                self.runner.run(f"git branch --unset-upstream {sourceBranch}")
+            return
         elif command == "status":
             out = self.runner.run("git status -s")
             if out.strip() == "":
