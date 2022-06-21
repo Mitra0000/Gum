@@ -115,7 +115,9 @@ class CommandParser:
             sourceCommit = self.commitManager.getCommitForPrefix(sourceCommit)
             if sourceCommit == "" or destinationCommit == "":
                 return
+            sourceBranch = self.commitManager.getBranchForCommit(sourceCommit)
             self.runner.runInProcess(f"git rebase --onto {destinationCommit} {self.commitManager.getParentOfCommit(sourceCommit)} {sourceCommit}")
+            self.runner.run(f"git checkout -B {sourceBranch} HEAD")
         elif command == "status":
             out = self.runner.run("git status -s")
             if out.strip() == "":
