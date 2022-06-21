@@ -18,11 +18,13 @@ class CommandParser:
 
     def parse(self, args):
         command = args[0]
+
         if command == "add":
             if len(args) == 1:
                 self.runner.runInProcess("git add -A")
             else:
                 self.runner.runInProcess(f"git add {args[1]}")
+
         elif command == "init":
             self.runner.run("git branch -D head")
             self.runner.run("git checkout -b head")
@@ -31,8 +33,10 @@ class CommandParser:
                 if branch != "head":
                     self.runner.run(f"git branch -D {branch}")
             self.runner.run("git pull --rebase")
+
         elif command == "test":
             return self.updateHead()
+
         elif command == "commit":
             commitMessage = self.commitManager.createCommitMessage()
             if commitMessage is None:
@@ -54,6 +58,7 @@ class CommandParser:
             # Set upstream of y to x
             # Add known changes to y
             # Commit with commitMessage to y
+
         elif command == "amend":
             print("Amending changes.")
             self.runner.run("git add -u")
@@ -61,10 +66,13 @@ class CommandParser:
             print("Rebasing dependent branches.")
             self.runner.runInProcess("git rebase-update --no-fetch")
             return
+
         elif command == "diff":
             self.runner.runInProcess("git diff")
+
         elif command == "fix":
             self.runner.runInProcess("git cl format")
+
         elif command == "prune":
             if len(args) == 1:
                 return "Please specify a hash to prune."
@@ -76,6 +84,7 @@ class CommandParser:
             if branchName is None:
                 return "Could not find specified commit hash."
             self.runner.run(f"git branch -D {branchName}")
+
         elif command == "uc" or command == "uploadchain":
             Cacher.invalidateClNumbers()
             originalRef = self.branchManager.getCurrentBranch()
@@ -97,9 +106,11 @@ class CommandParser:
             for commit in urls:
                 if commit in commitsToUrls:
                     print(commitsToUrls[commit], ":", self.runner.run(f"git log {commit} -1 --pretty=format:%s"))
+
         elif command == "ut" or command == "uploadtree":
             Cacher.invalidateClNumbers()
             self.runner.runInProcess("git cl upload -f --dependencies")
+
         elif command == "rebase":
             if len(args) != 5:
                 return "Please specify source and destination commit."
@@ -124,11 +135,13 @@ class CommandParser:
             else:
                 self.runner.run(f"git branch --unset-upstream {sourceBranch}")
             return
+
         elif command == "status":
             out = self.runner.run("git status -s")
             if out.strip() == "":
                 return None
             return formatText(out, bold=True)
+
         elif command == "sync":
             currentBranch = self.branchManager.getCurrentBranch()
             if not self.branchManager.isBranchOwned(currentBranch):
@@ -143,6 +156,7 @@ class CommandParser:
             # Move commit and children onto new branch.
             self.runner.run(f"git checkout {currentBranch}")
             self.runner.run(f"git rebase {newBranch}")
+
         elif command == "update":
             if len(args) == 1:
                 return "Please specify a hash to update to."
@@ -155,6 +169,7 @@ class CommandParser:
                 return "Could not find specified commit hash."
             self.runner.run(f"git checkout {branchName}")
             return f"Updated to {commitHash}"
+
         elif command == "xl":
             tree = self.generateTree()
             return self.xl(tree, self.branchManager.getCommitForBranch(self.branchManager.getCurrentBranch()))
