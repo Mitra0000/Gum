@@ -19,20 +19,28 @@ class Cacher:
 
     @classmethod
     def areClNumbersValid(cls) -> bool:
+        if not os.path.exists(cls.CL_NUMBERS_JSON):
+            cls.init()
         return len(self.getCachedClNumbers()) != 0
     
     @classmethod
     def invalidateClNumbers(cls):
+        if not os.path.exists(cls.CL_NUMBERS_JSON):
+            cls.init()
         with open(cls.CL_NUMBERS_JSON, "w") as f:
             json.dump({}, f)
     
     @classmethod
     def getCachedClNumbers(cls):
+        if not os.path.exists(cls.CL_NUMBERS_JSON):
+            cls.init()
         with open(cls.CL_NUMBERS_JSON, "r") as f:
             numbers = json.load(f)
         return numbers
     
     @classmethod
     def cacheClNumbers(cls, clNumbers):
+        if not os.path.exists(cls.CL_NUMBERS_JSON):
+            cls.init()
         with open(cls.CL_NUMBERS_JSON, "w") as f:
             json.dump(clNumbers, f)
