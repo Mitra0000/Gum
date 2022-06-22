@@ -64,7 +64,7 @@ def generateParentsAndCommits():
             continue
         parent = getCommitForBranch(f"{branch}^")
         if parent not in commits:
-            parentDate = self.commitManager.getDateForCommit(parent)
+            parentDate = getDateForCommit(parent)
             for i in range(len(unownedCommits)):
                 if unownedCommits[i][0] > parentDate:
                     parent = unownedCommits[i - 1][1]
