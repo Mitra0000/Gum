@@ -134,6 +134,7 @@ class CommandParser:
                 self.runner.run(f"git branch --set-upstream-to={destinationBranch} {sourceBranch}")
             else:
                 self.runner.run(f"git branch --unset-upstream {sourceBranch}")
+            self.updateHead()
             return
 
         elif command == "status":
