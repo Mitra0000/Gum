@@ -29,7 +29,7 @@ def getAllBranches():
 def generateTree():
     branches = getAllBranches()
     tree = {}
-    commitsToParents, parentsToCommits = generateParentsAndCommits()
+    commitsToParents, parentsToCommits = generateParentsAndCommits(branches)
     for branch in branches:
         commit = getCommitForBranch(branch)
         parent = commitsToParents[branch]
@@ -43,8 +43,7 @@ def generateTree():
 def getCommitForBranch(branch):
     return run(f"git rev-parse {branch}")[:-1]
 
-def generateParentsAndCommits():
-    branches = getAllBranches()
+def generateParentsAndCommits(branches):
     commits = set()
     unownedCommits = []
     parentsToCommits = defaultdict(set)
