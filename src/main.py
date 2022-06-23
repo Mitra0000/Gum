@@ -217,7 +217,7 @@ class CommandParser:
             if i + 1 < len(nodes) and nodes[i+1].level < node.level:
                 output.append("| " * nodes[i+1].level + "|/")
             elif i + 1 < len(nodes) and nodes[i+1].level == node.level:
-                output.append("| " * node.level + "|\n")
+                output.append("| " * node.level + "|")
             elif i + 1 < len(nodes) and nodes[i+1].level > node.level:
                 output.append("| " * (node.level + 1))
         output.append("~")
