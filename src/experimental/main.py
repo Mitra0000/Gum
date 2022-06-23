@@ -40,17 +40,8 @@ def generateTree():
         tree[branch].parent = tree[tree[branch].parent] if tree[branch].parent else None
     return tree
 
-def getParentOfCommit(parentsToCommits, commit):
-    for parent in parentsToCommits:
-        if commit in parentsToCommits[parent]:
-            return parent
-    return None
-
 def getCommitForBranch(branch):
     return run(f"git rev-parse {branch}")[:-1]
-
-def toBranch(commit):
-    return run(f"git name-rev --name-only {commit}")[:-1]
 
 def generateParentsAndCommits():
     branches = getAllBranches()
@@ -58,9 +49,11 @@ def generateParentsAndCommits():
     unownedCommits = []
     parentsToCommits = defaultdict(set)
     commitsToParents = {}
+    commitsToBranches = {}
     for branch in branches:
         commit = getCommitForBranch(branch)
         commits.add(commit)
+        commitsToBranches[commit] = branch
         if not isBranchOwned(commit):
             bisect.insort(unownedCommits, (getDateForCommit(commit), commit))
 
@@ -77,8 +70,8 @@ def generateParentsAndCommits():
                     break
             else:
                 parent = unownedCommits[-1][1]
-        parentsToCommits[toBranch(parent)].add(branch)
-        commitsToParents[branch] = toBranch(parent)
+        parentsToCommits[commitsToBranches[parent]].add(branch)
+        commitsToParents[branch] = commitsToBranches[parent]
     return commitsToParents, parentsToCommits
 
 def getDateForCommit(commitHash: str) -> str:
