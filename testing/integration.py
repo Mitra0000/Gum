@@ -14,8 +14,7 @@ class IntegrationTest(unittest.TestCase):
         self.runCommand("git submodule init")
         
     def tearDown(self):
-        pass
-        # shutil.rmtree(self.TEST_REPOSITORY)
+        shutil.rmtree(self.TEST_REPOSITORY)
     
     def testRepository(self):
         self.assertTrue(os.path.exists(self.TEST_REPOSITORY))
