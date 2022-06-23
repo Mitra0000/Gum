@@ -193,34 +193,35 @@ class CommandParser:
         clNumbers = Cacher.getCachedClNumbers()
         if len(clNumbers) == 0:
             clNumbers = self.branchManager.getUrlsForBranches()
-        output = ""
+        output = []
 
         for i, node in enumerate(nodes):
-            line1 = formatText(uniqueHashes[node.commitHash][0], underline=True, color=Color.Yellow)
-            line1 += formatText(uniqueHashes[node.commitHash][1], color=Color.Yellow) + " " 
+            line1 = []
+            line1.append(formatText(uniqueHashes[node.commitHash][0], underline=True, color=Color.Yellow))
+            line1.append(formatText(uniqueHashes[node.commitHash][1], color=Color.Yellow))
+            line1.append(" ")
             
             # Print the author of the change.
-            line1 += formatText("Author: ", color = Color.Blue)
-            line1 += "You " if node.isOwned else abbreviateText(self.commitManager.getEmailForCommit(node.commitHash), 30) + " "
+            line1.append(formatText("Author: ", color = Color.Blue))
+            line1.append("You " if node.isOwned else abbreviateText(self.commitManager.getEmailForCommit(node.commitHash), 30) + " ")
 
             # Print CL number.
             if node.commitHash in clNumbers and clNumbers[node.commitHash] != "None":
-                line1 += clNumbers[node.commitHash]
+                line1.append(clNumbers[node.commitHash])
 
-            output += "| " * node.level
-            output += f"@ {line1}\n" if node.commitHash == currentHash else f"o {line1}\n"
+            output.append("".join(["| " * node.level, f"@ {''.join(line1)}" if node.commitHash == currentHash else f"o {''.join(line1)}"]))
             
             # Print the commit message.
-            output += "| " * (node.level + 1) + self.commitManager.getTitleOfCommit(node.commitHash) + "\n"
+            output.append("| " * (node.level + 1) + self.commitManager.getTitleOfCommit(node.commitHash))
 
             if i + 1 < len(nodes) and nodes[i+1].level < node.level:
-                output += "| " * nodes[i+1].level + "|/\n"
+                output.append("| " * nodes[i+1].level + "|/")
             elif i + 1 < len(nodes) and nodes[i+1].level == node.level:
-                output += "| " * node.level + "|\n"
+                output.append("| " * node.level + "|\n")
             elif i + 1 < len(nodes) and nodes[i+1].level > node.level:
-                output += "| " * (node.level + 1) + "\n"
-        output += "~"
-        return output
+                output.append("| " * (node.level + 1))
+        output.append("~")
+        return "\n".join(output)
     
     def generateParentsAndCommits(self):
         branches = self.branchManager.getAllBranches()

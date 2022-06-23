@@ -30,12 +30,18 @@ class CommandRunner:
         os.system(command)
 
 def formatText(*args, bold: bool = False, underline: bool = False, color: str = Color.White):
-    output = (TextDecorators.BOLD if bold else "") + (TextDecorators.UNDERLINE if underline else "") + color
-    for i in args:
-        output += i + " "
-    output = output[:-1]
-    output += f"{TextDecorators.ENDC}{Color.Reset}"
-    return output
+    output = []
+    if bold:
+        output.append(TextDecorators.BOLD)
+    if underline:
+        output.append(TextDecorators.UNDERLINE)
+    output.append(color)
+    message = []
+    for arg in args:
+        message.append(arg)
+    output.append(" ".join(message))
+    output.append(f"{TextDecorators.ENDC}{Color.Reset}")
+    return "".join(output)
 
 def abbreviateText(text, length = 20):
     return text if len(text) <= length else text[:length - 3] + "..."
