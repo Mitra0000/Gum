@@ -50,7 +50,7 @@ def getCommitForBranch(branch):
     return run(f"git rev-parse {branch}")[:-1]
 
 def toBranch(commit):
-    return run(f"git name-rev --name-only {commit}")
+    return run(f"git name-rev --name-only {commit}")[:-1]
 
 def generateParentsAndCommits():
     branches = getAllBranches()
@@ -66,6 +66,7 @@ def generateParentsAndCommits():
 
     for branch in branches:
         if branch == "head":
+            commitsToParents["head"] = None
             continue
         parent = getCommitForBranch(f"{branch}^")
         if parent not in commits:
@@ -77,7 +78,7 @@ def generateParentsAndCommits():
             else:
                 parent = unownedCommits[-1][1]
         parentsToCommits[toBranch(parent)].add(branch)
-        commitsToParents[commit] = toBranch(parent)
+        commitsToParents[branch] = toBranch(parent)
     return commitsToParents, parentsToCommits
 
 def getDateForCommit(commitHash: str) -> str:
