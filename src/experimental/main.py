@@ -29,13 +29,15 @@ def getAllBranches():
 def generateTree():
     branches = getAllBranches()
     tree = {}
-    commits, parentsToCommits = generateParentsAndCommits()
+    parentsToCommits = generateParentsAndCommits()
     for branch in branches:
         commit = getCommitForBranch(branch)
         parent = getParentOfCommit(parentsToCommits, commit)
         children = parentsToCommits[commit]
         is_owned = isBranchOwned(branch)
         tree[branch] = Node(branch, commit, parent, children, is_owned)
+    for branch in tree:
+        tree[branch].parent = tree[tree[branch].parent] if tree[branch].parent else None
     return tree
 
 def getParentOfCommit(parentsToCommits, commit):
@@ -46,6 +48,9 @@ def getParentOfCommit(parentsToCommits, commit):
 
 def getCommitForBranch(branch):
     return run(f"git rev-parse {branch}")[:-1]
+
+def toBranch(commit):
+    return run(f"git name-rev --name-only {commit}")
 
 def generateParentsAndCommits():
     branches = getAllBranches()
@@ -59,7 +64,6 @@ def generateParentsAndCommits():
             bisect.insort(unownedCommits, (getDateForCommit(commit), commit))
 
     for branch in branches:
-        commit = getCommitForBranch(branch)
         if branch == "head":
             continue
         parent = getCommitForBranch(f"{branch}^")
@@ -71,8 +75,8 @@ def generateParentsAndCommits():
                     break
             else:
                 parent = unownedCommits[-1][1]
-        parentsToCommits[parent].add(commit)
-    return commits, parentsToCommits
+        parentsToCommits[toBranch(parent)].add(branch)
+    return parentsToCommits
 
 def getDateForCommit(commitHash: str) -> str:
     return "".join(run(f"git show --no-patch --no-notes {commitHash} --pretty=format:%ci").split()[:-1])
