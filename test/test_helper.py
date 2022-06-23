@@ -1,6 +1,10 @@
-from test_command_runner import *
+import context
 
-from main import *
+from mock_repository import MockRepository
+from runner import CommandRunner as runner
+from test_command_runner import TestCommandRunner
+
+import main
 
 class TestHelper:
     def __init__(self):
@@ -9,9 +13,7 @@ class TestHelper:
     def resetRepository(self):
         self.repository = MockRepository()
         self.commandRunner = TestCommandRunner(self.repository)
-        self.parser = CommandParser(self.commandRunner)
-        self.commitManager = self.parser.commitManager
-        self.branchManager = self.parser.branchManager
+        runner.swapInstanceForTesting(self.commandRunner)
     
     def addChanges(self, changes):
         self.repository.addChanges(changes)

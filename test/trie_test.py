@@ -1,6 +1,8 @@
 import unittest
 
-import test_helper
+import context
+
+from test_helper import TestHelper
 
 import trie
 

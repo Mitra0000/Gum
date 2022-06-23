@@ -10,6 +10,10 @@ class CommandRunner:
             cls._instance = CommandRunner()
         return cls._instance
 
+    @classmethod
+    def swapInstanceForTesting(cls, instance):
+        cls._instance = instance
+
     def run(self, command: str) -> str:
         process = subprocess.Popen(command.split(), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         out, err = process.communicate()
@@ -17,6 +21,3 @@ class CommandRunner:
     
     def runInProcess(self, command: str):
         os.system(command)
-
-    def swapInstanceForTesting(cls, instance):
-        cls._instance = instance

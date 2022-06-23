@@ -1,6 +1,9 @@
 import unittest
 
+import context
 from test_helper import TestHelper
+
+import branches
 
 # Unit tests for the BranchManager class.
 class BranchManagerTest(unittest.TestCase):
@@ -10,34 +13,33 @@ class BranchManagerTest(unittest.TestCase):
 
     def setUp(self):
         self.helper.resetRepository()
-        self.branchManager = self.helper.branchManager
 
     def testGetAllBranchesWithZeroBranches(self):
         self.helper.commandRunner.run("git branch -D head")
-        self.assertEquals(self.branchManager.getAllBranches(), [])
+        self.assertEquals(branches.getAllBranches(), [])
 
     def testGetAllBranchesWithOneBranch(self):
-        self.assertEquals(self.branchManager.getAllBranches(), ["head"])
+        self.assertEquals(branches.getAllBranches(), ["head"])
 
     def testGetAllBranchesWithTwoBranches(self):
         self.helper.commandRunner.run("git checkout -b testBranch")
-        self.assertEquals(self.branchManager.getAllBranches(), ["head", "testBranch"])
+        self.assertEquals(branches.getAllBranches(), ["head", "testBranch"])
 
     def testGetAllBranchesHasCurrentBranchLast(self):
         self.helper.commandRunner.run("git checkout -b testBranch")
-        self.assertEquals(self.branchManager.getAllBranches(), ["head", "testBranch"])
+        self.assertEquals(branches.getAllBranches(), ["head", "testBranch"])
         self.helper.commandRunner.run("git checkout head")
-        self.assertEquals(self.branchManager.getAllBranches(), ["testBranch", "head"])
+        self.assertEquals(branches.getAllBranches(), ["testBranch", "head"])
 
     def testGetCurrentBranch(self):
-        self.assertEquals(self.branchManager.getCurrentBranch(), "head")
+        self.assertEquals(branches.getCurrentBranch(), "head")
 
     def testGetCurrentBranchWithMultipleBranches(self):
         self.helper.commandRunner.run("git checkout -b testBranch")
-        self.assertEquals(self.branchManager.getCurrentBranch(), "testBranch")
+        self.assertEquals(branches.getCurrentBranch(), "testBranch")
 
     def testGetNextBranchName(self):
-        testMethod = self.branchManager.getNextBranchNameFrom
+        testMethod = branches.getNextBranchNameFrom
         self.assertEquals(testMethod("aaaaa"), "aaaab")
         self.assertEquals(testMethod("aaaaz"), "aaaba")
         self.assertEquals(testMethod("abczd"), "abcze")
@@ -49,14 +51,14 @@ class BranchManagerTest(unittest.TestCase):
         self.helper.addChanges({("myfile.txt", "A"): "This is a new file."})
         run("git add -A")
         run("git commit -m 'This is a test'")
-        self.assertEquals(self.branchManager.getCommitForBranch("testBranch"), self.helper.getHashForBranch("testBranch"))
+        self.assertEquals(branches.getCommitForBranch("testBranch"), self.helper.getHashForBranch("testBranch"))
 
     def testIsBranchOwnedWithHead(self):
-        self.assertFalse(self.branchManager.isBranchOwned("head"))
+        self.assertFalse(branches.isBranchOwned("head"))
 
     def testIsNewBranchOwnedWithoutCommit(self):
         self.helper.commandRunner.run("git checkout -b testBranch")
-        self.assertFalse(self.branchManager.isBranchOwned("testBranch"))
+        self.assertFalse(branches.isBranchOwned("testBranch"))
 
     def testIsNewBranchOwnedWithCommit(self):
         run = self.helper.commandRunner.run
@@ -64,7 +66,7 @@ class BranchManagerTest(unittest.TestCase):
         self.helper.addChanges({("myfile.txt", "A"): "This is a new file."})
         run("git add -A")
         run("git commit -m 'This is a test'")
-        self.assertTrue(self.branchManager.isBranchOwned("testBranch"))
+        self.assertTrue(branches.isBranchOwned("testBranch"))
 
 
 if __name__ == '__main__':
