@@ -1,5 +1,3 @@
-import subprocess
-
 from trie import Trie
 
 class TextDecorators:
@@ -19,15 +17,6 @@ class Color:
     Cyan = "\u001b[36m"
     White = "\u001b[37m"
     Reset = "\u001b[0m"
-
-class CommandRunner:
-    def run(self, command: str) -> str:
-        process = subprocess.Popen(command.split(), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        out, err = process.communicate()
-        return out.decode("utf-8")
-    
-    def runInProcess(self, command: str):
-        os.system(command)
 
 def formatText(*args, bold: bool = False, underline: bool = False, color: str = Color.White):
     output = []
