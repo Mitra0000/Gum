@@ -1,4 +1,5 @@
 import os
+import re
 import shutil
 import subprocess
 import tempfile
@@ -25,6 +26,22 @@ class IntegrationTest(unittest.TestCase):
         out, err = process.communicate()
         process.wait()
         return out.decode("utf-8")
+    
+    def createFirstCommit(self):
+        self.runCommand(f"{self.GUM} init")
+        with open(os.path.join(self.TEST_REPOSITORY, "test.txt"), "w") as f:
+            f.write("This is a test.")
+        self.runCommand("git add -A")
+        self.runCommand("git commit -m 'Initial_commit.'")
+    
+    def createFile(self, filename: str, contents: str):
+        if os.path.exists(os.path.join(self.TEST_REPOSITORY, filename)):
+            raise Exception("Filename already exists.")
+        with open(os.path.join(self.TEST_REPOSITORY, filename), "w") as f:
+            f.write(contents)
+    
+    def decodeFormattedText(self, text: str) -> str:
+        return re.compile(r'\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])').sub('', text)
 
 if __name__ == '__main__':
     unittest.main()

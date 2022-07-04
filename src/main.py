@@ -104,10 +104,20 @@ def parse(args):
         return
 
     elif command == "status":
-        out = runner.get().run("git status -s")
-        if out.strip() == "":
+        status = runner.get().run("git status --porcelain")
+        if status.strip() == "":
             return None
-        return formatText(out, bold=True)
+        out = []
+        for line in status.split("\n"):
+            if line.startswith("A "):
+                out.append("A" + formatText(line[2:], color = Color.Green))
+            elif line.startswith(" M"):
+                out.append(formatText(line[1:], color = Color.Yellow))
+            elif line.startswith(" D"):
+                out.append(formatText(line[1:], color = Color.Red))
+            elif line.startswith("??"):
+                out.append(formatText(line[1:], color = Color.Magenta))
+        return "\n".join(out)
 
     elif command == "sync":
         currentBranch = branches.getCurrentBranch()
