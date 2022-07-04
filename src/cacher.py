@@ -21,7 +21,7 @@ class Cacher:
     def areClNumbersValid(cls) -> bool:
         if not os.path.exists(cls.CL_NUMBERS_JSON):
             cls.init()
-        return len(self.getCachedClNumbers()) != 0
+        return len(cls.getCachedClNumbers()) != 0
     
     @classmethod
     def invalidateClNumbers(cls):
