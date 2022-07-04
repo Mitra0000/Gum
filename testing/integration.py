@@ -40,6 +40,12 @@ class IntegrationTest(unittest.TestCase):
         with open(os.path.join(self.TEST_REPOSITORY, filename), "w") as f:
             f.write(contents)
     
+    def modifyFile(self, filename: str, contents: str):
+        if not os.path.exists(os.path.join(self.TEST_REPOSITORY, filename)):
+            raise Exception("Filename doesn't exist.")
+        with open(os.path.join(self.TEST_REPOSITORY, filename), "w") as f:
+            f.write(contents)
+    
     def decodeFormattedText(self, text: str) -> str:
         return re.compile(r'\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])').sub('', text)
 

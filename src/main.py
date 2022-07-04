@@ -109,14 +109,16 @@ def parse(args):
             return None
         out = []
         for line in status.split("\n"):
-            if line.startswith("A "):
-                out.append("A" + formatText(line[2:], color = Color.Green))
-            elif line.startswith(" M"):
-                out.append(formatText(line[1:], color = Color.Yellow))
-            elif line.startswith(" D"):
-                out.append(formatText(line[1:], color = Color.Red))
-            elif line.startswith("??"):
-                out.append(formatText(line[1:], color = Color.Magenta))
+            if len(line) == 0:
+                continue
+            elif line[1] == "M":
+                out.append(formatText("M" + line[2:], color = Color.Yellow))
+            elif line[1] == "D":
+                out.append(formatText("D" + line[2:], color = Color.Red))
+            elif line[1] == "?":
+                out.append(formatText("?" + line[2:], color = Color.Magenta))
+            elif line[0] == "A":
+                out.append(formatText("A" + line[2:], color = Color.Green))
         return "\n".join(out)
 
     elif command == "sync":
