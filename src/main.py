@@ -20,17 +20,13 @@ def parse(args):
         else:
             runner.get().runInProcess(f"git add {args[1]}")
 
-    elif command == "init":
-        runner.get().run("git branch -D head")
-        runner.get().run("git checkout -b head")
-        runner.get().run("git branch --set-upstream-to=origin/main head")
-        for branch in branches.getAllBranches():
-            if branch != "head":
-                runner.get().run(f"git branch -D {branch}")
-        runner.get().run("git pull --rebase")
-
-    elif command == "test":
-        return updateHead()
+    elif command == "amend":
+        print("Amending changes.")
+        runner.get().run("git add -u")
+        runner.get().run("git commit --amend --no-edit")
+        print("Rebasing dependent branches.")
+        runner.get().runInProcess("git rebase-update --no-fetch")
+        return
 
     elif command == "commit":
         commitMessage = commits.createCommitMessage()
@@ -54,19 +50,20 @@ def parse(args):
         # Add known changes to y
         # Commit with commitMessage to y
 
-    elif command == "amend":
-        print("Amending changes.")
-        runner.get().run("git add -u")
-        runner.get().run("git commit --amend --no-edit")
-        print("Rebasing dependent branches.")
-        runner.get().runInProcess("git rebase-update --no-fetch")
-        return
-
     elif command == "diff":
         runner.get().runInProcess("git diff")
 
     elif command == "fix":
         runner.get().runInProcess("git cl format")
+
+    elif command == "init":
+        runner.get().run("git branch -D head")
+        runner.get().run("git checkout -b head")
+        runner.get().run("git branch --set-upstream-to=origin/main head")
+        for branch in branches.getAllBranches():
+            if branch != "head":
+                runner.get().run(f"git branch -D {branch}")
+        runner.get().run("git pull --rebase")
 
     elif command == "prune":
         if len(args) == 1:
@@ -79,32 +76,6 @@ def parse(args):
         if branchName is None:
             return "Could not find specified commit hash."
         runner.get().run(f"git branch -D {branchName}")
-
-    elif command == "uc" or command == "uploadchain":
-        Cacher.invalidateClNumbers()
-        originalRef = branches.getCurrentBranch()
-        currentRef = originalRef
-        commitStack = []
-        while branches.isBranchOwned(currentRef):
-            commitStack.append(currentRef)
-            currentRef += "^"
-        urls = []
-        while commitStack:
-            commitRef = commitStack.pop()
-            commit = branches.getCommitForBranch(commitRef)
-            branch = commits.getBranchForCommit(commit)
-            runner.get().run(f"git checkout {branch}")
-            runner.get().runInProcess("git cl upload -f")
-            urls.append(commit)
-        commitsToUrls = branches.getUrlsForBranches()
-        print(f"Uploaded {len(urls)} CLs.")
-        for commit in urls:
-            if commit in commitsToUrls:
-                print(commitsToUrls[commit], ":", runner.get().run(f"git log {commit} -1 --pretty=format:%s"))
-
-    elif command == "ut" or command == "uploadtree":
-        Cacher.invalidateClNumbers()
-        runner.get().runInProcess("git cl upload -f --dependencies")
 
     elif command == "rebase":
         if len(args) != 5:
@@ -153,6 +124,9 @@ def parse(args):
         runner.get().run(f"git checkout {currentBranch}")
         runner.get().run(f"git rebase {newBranch}")
 
+    elif command == "test":
+        return updateHead()
+
     elif command == "update":
         if len(args) == 1:
             return "Please specify a hash to update to."
@@ -166,9 +140,36 @@ def parse(args):
         runner.get().run(f"git checkout {branchName}")
         return f"Updated to {commitHash}"
 
+    elif command == "uploadchain" or command == "uc":
+        Cacher.invalidateClNumbers()
+        originalRef = branches.getCurrentBranch()
+        currentRef = originalRef
+        commitStack = []
+        while branches.isBranchOwned(currentRef):
+            commitStack.append(currentRef)
+            currentRef += "^"
+        urls = []
+        while commitStack:
+            commitRef = commitStack.pop()
+            commit = branches.getCommitForBranch(commitRef)
+            branch = commits.getBranchForCommit(commit)
+            runner.get().run(f"git checkout {branch}")
+            runner.get().runInProcess("git cl upload -f")
+            urls.append(commit)
+        commitsToUrls = branches.getUrlsForBranches()
+        print(f"Uploaded {len(urls)} CLs.")
+        for commit in urls:
+            if commit in commitsToUrls:
+                print(commitsToUrls[commit], ":", runner.get().run(f"git log {commit} -1 --pretty=format:%s"))
+
+    elif command == "uploadtree" or command == "ut":
+        Cacher.invalidateClNumbers()
+        runner.get().runInProcess("git cl upload -f --dependencies")
+
     elif command == "xl":
         tree = generateTree()
         return xl(tree, branches.getCommitForBranch(branches.getCurrentBranch()))
+
     else:
         return "Unknown gum command"
     
