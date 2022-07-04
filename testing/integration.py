@@ -27,13 +27,6 @@ class IntegrationTest(unittest.TestCase):
         out, err = process.communicate()
         process.wait()
         return out.decode("utf-8")
-    
-    def createFirstCommit(self):
-        self.runCommand(f"{self.GUM} init")
-        with open(os.path.join(self.TEST_REPOSITORY, "test.txt"), "w") as f:
-            f.write("This is a test.")
-        self.runCommand("git add -A")
-        self.runCommand("git commit -m 'Initial_commit.'")
 
 if __name__ == '__main__':
     unittest.main()

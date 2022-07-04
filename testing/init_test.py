@@ -21,6 +21,13 @@ class InitTest(IntegrationTest):
         self.runCommand(f"{self.GUM} init")
         branches = self.runCommand("git branch")
         self.assertEqual(branches, "* head\n")
+    
+    def createFirstCommit(self):
+        self.runCommand(f"{self.GUM} init")
+        with open(os.path.join(self.TEST_REPOSITORY, "test.txt"), "w") as f:
+            f.write("This is a test.")
+        self.runCommand("git add -A")
+        self.runCommand("git commit -m 'Initial_commit.'")
 
 if __name__ == '__main__':
     unittest.main()
