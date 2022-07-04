@@ -4,8 +4,6 @@ import subprocess
 import tempfile
 import unittest
 
-import context
-
 # Template for integration tests to inherit from.
 class IntegrationTest(unittest.TestCase):
     TEST_REPOSITORY = os.path.join(tempfile.gettempdir(), "gumtesting", "sandbox", "repository")
