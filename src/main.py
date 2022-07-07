@@ -212,7 +212,7 @@ def generateParentsAndBranches(branchNames):
         commitSet.add(commit)
         commitsToBranches[commit] = branch
         if not branches.isBranchOwned(commit):
-            bisect.insort(unownedCommits, (commitSet.getDateForCommit(commit), commit))
+            bisect.insort(unownedCommits, (commits.getDateForCommit(commit), commit))
 
     for branch in branchNames:
         if branch == "head":
