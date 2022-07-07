@@ -94,7 +94,7 @@ class TreePrinter:
         cls.output.append(bP)
         cls.output.append(tP + "o " + node.branch)
         if len(node.children) == 1:
-            cls.F(node.children[0], bP, tP)
+            cls.F(node.children[0], tP + "| ", tP)
         elif len(node.children) == 2:
             cls.F(node.children[0], bP[:-2] + "|/", tP + "| ")
             cls.F(node.children[1], bP, tP)
@@ -150,5 +150,5 @@ class LumberJack:
 
 if __name__ == "__main__":
     tree = generateTree()
-    # print({k: str(tree[k]) for k in tree})
+    print({k: str(tree[k]) for k in tree})
     print(printTree(tree))
