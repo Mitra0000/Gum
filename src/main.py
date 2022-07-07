@@ -9,6 +9,7 @@ from lumberjack import LumberJack
 from node import Node
 from runner import CommandRunner as runner
 from traverser import Traverser
+from tree_printer import TreePrinter
 from util import *
 
 def parse(args):
@@ -180,74 +181,45 @@ def parse(args):
 
     elif command == "xl":
         tree = generateTree()
-        return xl(tree, branches.getCommitForBranch(branches.getCurrentBranch()))
+        TreePrinter.print(tree["head"])
 
     else:
         return "Unknown gum command"
-    
+
 def generateTree():
-    commitHashes, parentsToCommits = generateParentsAndCommits()
-    return commits.buildTreeFromCommits(parentsToCommits, commitHashes)
-
-
-def xl(root: Node, currentHash: str):
-    root.level = 0
-    LumberJack.getTrunk(root)
-    LumberJack.markNodes(root)
-    traverser = Traverser()
-    traverser.preOrderTraversal(root)
-    nodes = traverser.order[::-1]
-    uniqueHashes = getUniqueCommitPrefixes([n.commitHash for n in nodes])
-    clNumbers = Cacher.getCachedClNumbers()
-    if len(clNumbers) == 0:
-        clNumbers = branches.getUrlsForBranches()
-    output = []
-
-    for i, node in enumerate(nodes):
-        line1 = []
-        line1.append(formatText(uniqueHashes[node.commitHash][0], underline=True, color=Color.Yellow))
-        line1.append(formatText(uniqueHashes[node.commitHash][1], color=Color.Yellow))
-        line1.append(" ")
-        
-        # Print the author of the change.
-        line1.append(formatText("Author: ", color = Color.Blue))
-        line1.append("You " if node.isOwned else abbreviateText(commits.getEmailForCommit(node.commitHash), 30) + " ")
-
-        # Print CL number.
-        if node.commitHash in clNumbers and clNumbers[node.commitHash] != "None":
-            line1.append(clNumbers[node.commitHash])
-
-        output.append("".join(["| " * node.level, f"@ {''.join(line1)}" if node.commitHash == currentHash else f"o {''.join(line1)}"]))
-        
-        # Print the commit message.
-        output.append("| " * (node.level + 1) + commits.getTitleOfCommit(node.commitHash))
-
-        if i + 1 < len(nodes) and nodes[i+1].level < node.level:
-            output.append("| " * nodes[i+1].level + "|/")
-        elif i + 1 < len(nodes) and nodes[i+1].level == node.level:
-            output.append("| " * node.level + "|")
-        elif i + 1 < len(nodes) and nodes[i+1].level > node.level:
-            output.append("| " * (node.level + 1))
-    output.append("~")
-    return "\n".join(output)
-
-def generateParentsAndCommits():
     branchNames = branches.getAllBranches()
-    commitHashes = set()
-    unownedCommits = []
-    parentsToCommits = defaultdict(set)
+    tree = {}
+    branchesToParents, parentsToBranches, uniqueHashes = generateParentsAndBranches(branchNames)
     for branch in branchNames:
         commit = branches.getCommitForBranch(branch)
-        commitHashes.add(commit)
+        parent = branchesToParents[branch]
+        children = parentsToBranches[branch]
+        is_owned = branches.isBranchOwned(branch)
+        tree[branch] = Node(branch, commit, parent, children, is_owned, *uniqueHashes[commit])
+    for branch in tree:
+        tree[branch].parent = tree[tree[branch].parent] if tree[branch].parent else None
+        tree[branch].children = [tree[i] for i in tree[branch].children]
+    return tree
+
+def generateParentsAndBranches(branchNames):
+    commits = set()
+    unownedCommits = []
+    parentsToBranches = defaultdict(set)
+    branchesToParents = {}
+    commitsToBranches = {}
+    for branch in branchNames:
+        commit = branches.getCommitForBranch(branch)
+        commits.add(commit)
+        commitsToBranches[commit] = branch
         if not branches.isBranchOwned(commit):
             bisect.insort(unownedCommits, (commits.getDateForCommit(commit), commit))
 
     for branch in branchNames:
-        commit = branches.getCommitForBranch(branch)
         if branch == "head":
+            branchesToParents["head"] = None
             continue
         parent = branches.getCommitForBranch(f"{branch}^")
-        if parent not in commitHashes:
+        if parent not in commits:
             parentDate = commits.getDateForCommit(parent)
             for i in range(len(unownedCommits)):
                 if unownedCommits[i][0] > parentDate:
@@ -255,8 +227,11 @@ def generateParentsAndCommits():
                     break
             else:
                 parent = unownedCommits[-1][1]
-        parentsToCommits[parent].add(commit)
-    return commitHashes, parentsToCommits
+        parentsToBranches[commitsToBranches[parent]].add(branch)
+        branchesToParents[branch] = commitsToBranches[parent]
+    uniqueHashes = getUniqueCommitPrefixes([branches.getCommitForBranch(b) for b in branchesToParents.keys()])
+    return branchesToParents, parentsToBranches, uniqueHashes
+
 
 def updateHead():
     unownedBranches = []

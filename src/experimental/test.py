@@ -4,7 +4,7 @@ from node import Node
 import main
 
 
-# Unit tests for the BranchManager class.
+# Unit tests for the PrintTree function.
 class PrintTreeTest(unittest.TestCase):
     def testWith1Child(self):
         parent = Node("head", "a", None, [], False)
