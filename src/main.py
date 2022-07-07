@@ -202,24 +202,24 @@ def generateTree():
     return tree
 
 def generateParentsAndBranches(branchNames):
-    commits = set()
+    commitSet = set()
     unownedCommits = []
     parentsToBranches = defaultdict(set)
     branchesToParents = {}
     commitsToBranches = {}
     for branch in branchNames:
         commit = branches.getCommitForBranch(branch)
-        commits.add(commit)
+        commitSet.add(commit)
         commitsToBranches[commit] = branch
         if not branches.isBranchOwned(commit):
-            bisect.insort(unownedCommits, (commits.getDateForCommit(commit), commit))
+            bisect.insort(unownedCommits, (commitSet.getDateForCommit(commit), commit))
 
     for branch in branchNames:
         if branch == "head":
             branchesToParents["head"] = None
             continue
         parent = branches.getCommitForBranch(f"{branch}^")
-        if parent not in commits:
+        if parent not in commitSet:
             parentDate = commits.getDateForCommit(parent)
             for i in range(len(unownedCommits)):
                 if unownedCommits[i][0] > parentDate:
