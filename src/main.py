@@ -62,6 +62,11 @@ def parse(args):
                 runner.get().run(f"git branch -D {branch}")
         runner.get().run("git pull --rebase")
 
+    elif command == "patch":
+        url = args[1]
+        newbranch = branches.getNextBranch()
+        runner.get().runInProcess(f"git cl patch -b {newbranch} {url}")
+
     elif command == "prune":
         if len(args) == 1:
             return "Please specify a hash to prune."
