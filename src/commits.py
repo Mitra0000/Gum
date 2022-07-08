@@ -29,6 +29,9 @@ def createCommitMessage():
     output = "\n\n\n\nGUM: Enter a commit message. Lines beginning with 'GUM:' are removed.\nGUM: Leave commit message empty to cancel.\nGUM: --\nGUM: user: "
     output += runner.get().run("git config user.email") + "\n"
     files = runner.get().run("git status -s").split("\n")
+    if files == [""]:
+        print("No files to commit.")
+        return None
     for line in files:
         if line == "" or line.startswith("?"):
             continue
