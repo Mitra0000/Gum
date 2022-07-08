@@ -71,9 +71,8 @@ def getUrlsForBranches():
             data = data[2:]
         data = data.split()
         branchesToUrls[getCommitForBranch(data[0])] = data[2]
-    Cacher.cacheClNumbers(branchesToUrls)
+    Cacher.cacheKey(Cacher.CL_NUMBERS, branchesToUrls)
     return branchesToUrls
-
 
 def isBranchOwned(reference: str) -> str:
     return runner.get().run(f"git show --no-patch --no-notes {reference} --format=%ce")[:-1] == runner.get().run("git config user.email")[:-1]

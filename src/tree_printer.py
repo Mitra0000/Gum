@@ -10,7 +10,7 @@ class TreePrinter:
     def print(cls, root):
         cls._output = []
         cls._currentBranch = branches.getCurrentBranch()
-        cls._clNumbers = Cacher.getCachedClNumbers()
+        cls._clNumbers = Cacher.getCachedKey(Cacher.CL_NUMBERS)
         if len(cls._clNumbers) == 0:
             cls._clNumbers = branches.getUrlsForBranches()
         cls._output.append("~")

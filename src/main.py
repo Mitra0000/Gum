@@ -1,14 +1,10 @@
-import bisect
-from collections import defaultdict, deque
 import sys
 
 import branches
 from cacher import Cacher
 import commits
-from lumberjack import LumberJack
-from node import Node
 from runner import CommandRunner as runner
-from traverser import Traverser
+from tree import Tree
 from tree_printer import TreePrinter
 from util import *
 
@@ -138,7 +134,7 @@ def parse(args):
         runner.get().run(f"git rebase {newBranch}")
 
     elif command == "test":
-        return updateHead()
+        return Tree.getTreeHash()
 
     elif command == "update":
         if len(args) == 1:
@@ -154,7 +150,7 @@ def parse(args):
         return f"Updated to {commitHash}"
 
     elif command == "uploadchain" or command == "uc":
-        Cacher.invalidateClNumbers()
+        Cacher.invalidateKey(Cacher.CL_NUMBERS)
         originalRef = branches.getCurrentBranch()
         currentRef = originalRef
         commitStack = []
@@ -176,61 +172,15 @@ def parse(args):
                 print(commitsToUrls[commit], ":", runner.get().run(f"git log {commit} -1 --pretty=format:%s"))
 
     elif command == "uploadtree" or command == "ut":
-        Cacher.invalidateClNumbers()
+        Cacher.invalidateKey(Cacher.CL_NUMBERS)
         runner.get().runInProcess("git cl upload -f --dependencies")
 
     elif command == "xl":
-        tree = generateTree()
+        tree = Tree.get()
         TreePrinter.print(tree["head"])
 
     else:
         return "Unknown gum command"
-
-def generateTree():
-    branchNames = branches.getAllBranches()
-    tree = {}
-    branchesToParents, parentsToBranches, uniqueHashes = generateParentsAndBranches(branchNames)
-    for branch in branchNames:
-        commit = branches.getCommitForBranch(branch)
-        parent = branchesToParents[branch]
-        children = parentsToBranches[branch]
-        is_owned = branches.isBranchOwned(branch)
-        tree[branch] = Node(branch, commit, parent, children, is_owned, *uniqueHashes[commit])
-    for branch in tree:
-        tree[branch].parent = tree[tree[branch].parent] if tree[branch].parent else None
-        tree[branch].children = [tree[i] for i in tree[branch].children]
-    return tree
-
-def generateParentsAndBranches(branchNames):
-    commitSet = set()
-    unownedCommits = []
-    parentsToBranches = defaultdict(set)
-    branchesToParents = {}
-    commitsToBranches = {}
-    for branch in branchNames:
-        commit = branches.getCommitForBranch(branch)
-        commitSet.add(commit)
-        commitsToBranches[commit] = branch
-        if not branches.isBranchOwned(commit):
-            bisect.insort(unownedCommits, (commits.getDateForCommit(commit), commit))
-
-    for branch in branchNames:
-        if branch == "head":
-            branchesToParents["head"] = None
-            continue
-        parent = branches.getCommitForBranch(f"{branch}^")
-        if parent not in commitSet:
-            parentDate = commits.getDateForCommit(parent)
-            for i in range(len(unownedCommits)):
-                if unownedCommits[i][0] > parentDate:
-                    parent = unownedCommits[i - 1][1]
-                    break
-            else:
-                parent = unownedCommits[-1][1]
-        parentsToBranches[commitsToBranches[parent]].add(branch)
-        branchesToParents[branch] = commitsToBranches[parent]
-    uniqueHashes = getUniqueCommitPrefixes([branches.getCommitForBranch(b) for b in branchesToParents.keys()])
-    return branchesToParents, parentsToBranches, uniqueHashes
 
 
 def updateHead():

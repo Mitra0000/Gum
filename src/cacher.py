@@ -4,43 +4,45 @@ import os
 class Cacher:
     CL_NUMBERS = "cl_numbers"
     TREE = "tree"
+    TREE_HASH = "tree_hash"
+
     PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "tmp")
-    CL_NUMBERS_JSON = os.path.join(PATH, "clnumbers.json")
+    CACHE_JSON = os.path.join(PATH, "cache.json")
     
     @classmethod
     def init(cls):
         if not os.path.exists(cls.PATH):
             os.mkdir(cls.PATH)
             with open(os.path.join(cls.PATH, ".gitignore"), "w") as f:
-                f.write("clnumbers.json")
-        if not os.path.exists(cls.CL_NUMBERS_JSON):
-            with open(cls.CL_NUMBERS_JSON, "w") as f:
-                json.dump({}, f)
+                f.write("cache.json")
+        if not os.path.exists(cls.CACHE_JSON):
+            with open(cls.CACHE_JSON, "w") as f:
+                json.dump({cls.CL_NUMBERS: {}, cls.TREE: {}, cls.TREE_HASH: {}}, f)
 
     @classmethod
-    def areClNumbersValid(cls) -> bool:
-        if not os.path.exists(cls.CL_NUMBERS_JSON):
+    def getCachedKey(cls, key):
+        if not os.path.exists(cls.CACHE_JSON):
             cls.init()
-        return len(cls.getCachedClNumbers()) != 0
+        with open(cls.CACHE_JSON, "r") as f:
+            cache = json.load(f)
+        return cache[key]
+
+    @classmethod
+    def cacheKey(cls, key, data):
+        if not os.path.exists(cls.CACHE_JSON):
+            cls.init()
+        with open(cls.CACHE_JSON, "r") as f:
+            cache = json.load(f)
+        cache[key] = data
+        with open(cls.CACHE_JSON, "w") as f:
+            json.dump(cache, f)
     
     @classmethod
-    def invalidateClNumbers(cls):
-        if not os.path.exists(cls.CL_NUMBERS_JSON):
+    def invalidateKey(cls, key):
+        if not os.path.exists(cls.CACHE_JSON):
             cls.init()
-        with open(cls.CL_NUMBERS_JSON, "w") as f:
-            json.dump({}, f)
-    
-    @classmethod
-    def getCachedClNumbers(cls):
-        if not os.path.exists(cls.CL_NUMBERS_JSON):
-            cls.init()
-        with open(cls.CL_NUMBERS_JSON, "r") as f:
-            numbers = json.load(f)
-        return numbers
-    
-    @classmethod
-    def cacheClNumbers(cls, clNumbers):
-        if not os.path.exists(cls.CL_NUMBERS_JSON):
-            cls.init()
-        with open(cls.CL_NUMBERS_JSON, "w") as f:
-            json.dump(clNumbers, f)
+        with open(cls.CACHE_JSON, "r") as f:
+            cache = json.load(f)
+        cache[key] = {}
+        with open(cls.CACHE_JSON, "w") as f:
+            json.dump(cache, f)
