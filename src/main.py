@@ -141,6 +141,13 @@ def parse(args):
     elif command == "test":
         return Tree.getTreeHash()
 
+    elif command == "uncommit":
+        tree = Tree.get()
+        currentBranch = branches.getCurrentBranch()
+        runner.get().run("git reset --soft HEAD^")
+        runner.get().run(f"git checkout {tree[tree[currentBranch].parent]}")
+        runner.get().run(f"git branch -D {currentBranch}")
+
     elif command == "update":
         if len(args) == 1:
             return "Please specify a hash to update to."
