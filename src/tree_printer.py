@@ -32,6 +32,6 @@ class TreePrinter:
         elif len(node.children) > 2:
             cls._output.append(bP[:-2] + "|/")
             for child in node.children[:-2]:
-                cls._appendNode(child, bP + "|/", tP + "| | ")
+                cls._appendNode(child, bP + "|/  ", tP + "| | ")
             cls._appendNode(node.children[-2], bP + " /", tP + "|   ")
             cls._appendNode(node.children[-1], bP, tP)
