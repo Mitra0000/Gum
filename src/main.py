@@ -145,7 +145,7 @@ def parse(args):
         tree = Tree.get()
         currentBranch = branches.getCurrentBranch()
         runner.get().run("git reset --soft HEAD^")
-        runner.get().run(f"git checkout {tree[tree[currentBranch].parent]}")
+        runner.get().run(f"git checkout {tree[tree[currentBranch].parent.branch]}")
         runner.get().run(f"git branch -D {currentBranch}")
 
     elif command == "update":
