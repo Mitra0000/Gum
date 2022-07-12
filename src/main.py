@@ -1,3 +1,4 @@
+from collections import deque
 import sys
 
 import branches
@@ -19,10 +20,15 @@ def parse(args):
 
     elif command == "amend":
         print("Amending changes.")
+        originalBranch = branches.getCurrentBranch()
+        allChildren = Tree.getRecursiveChildrenFrom(originalBranch)
         runner.get().run("git add -u")
         runner.get().run("git commit --amend --no-edit")
         print("Rebasing dependent branches.")
-        runner.get().runInProcess("git rebase-update --no-fetch")
+        for child in allChildren:
+            runner.get().run(f"git checkout {child}")
+            runner.get().runInProcess(f"git pull --rebase")
+        runner.get().run(f"git checkout {originalBranch}")
         return
 
     elif command == "commit":

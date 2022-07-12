@@ -1,5 +1,5 @@
 import bisect
-from collections import defaultdict
+from collections import defaultdict, deque
 
 import branches
 from cacher import Cacher
@@ -9,20 +9,40 @@ from runner import CommandRunner as runner
 from util import *
 
 class Tree:
+    _tree = None
+
     @classmethod
     def get(cls):
+        if cls._tree:
+            return cls._tree
         tree = Cacher.getCachedKey(Cacher.TREE)
         if len(tree) == 0:
             return cls._generateTree()
         cachedHash = Cacher.getCachedKey(Cacher.TREE_HASH)
         currentHash = cls._getTreeHash()
         if currentHash == cachedHash:
-            return tree
+            cls._tree = tree
+            return cls._tree
 
         Cacher.cacheKey(Cacher.TREE_HASH, currentHash)
         tree = cls._generateTree()
         Cacher.cacheKey(Cacher.TREE, tree)
-        return tree
+        cls._tree = tree
+        return cls._tree
+    
+    @classmethod
+    def getRecursiveChildrenFrom(cls, branch):
+        tree = cls.get()
+        if branch not in tree:
+            raise Exception(f"Branch: {branch} not found")
+        children = []
+        frontier = deque()
+        frontier.extend(tree[branch].children)
+        while frontier:
+            child = frontier.popleft()
+            children.append(child.branch)
+            frontier.extend(child.children)
+        return children
 
     @classmethod
     def _generateTree(cls):
