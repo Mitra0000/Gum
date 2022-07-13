@@ -220,7 +220,10 @@ def updateHead():
     runner.get().run("git checkout head")
     runner.get().run(f"git pull origin {branches.getCommitForBranch(newHead)}")
     runner.get().run(f"git branch -D {newHead}") 
-    runner.get().run(f"git checkout {currentBranch}")       
+    runner.get().run(f"git checkout {currentBranch}")   
+
+def isRebaseInProgress() -> bool:
+    return runner.get().run("git status").startswith("rebase in progress;")    
 
 if __name__ == '__main__':
     result = parse(sys.argv[1:])
