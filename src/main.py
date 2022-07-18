@@ -1,4 +1,3 @@
-from collections import deque
 import sys
 
 import branches
@@ -11,6 +10,9 @@ from util import *
 
 def parse(args):
     command = args[0]
+
+    if command != "rebase" and branches.isRebaseInProgress():
+        return "Cannot perform tasks until current rebase is complete."
 
     if command == "add":
         if len(args) == 1:
@@ -25,10 +27,7 @@ def parse(args):
         runner.get().run("git add -u")
         runner.get().run("git commit --amend --no-edit")
         print("Rebasing dependent branches.")
-        for child in allChildren:
-            runner.get().run(f"git checkout {child}")
-            runner.get().runInProcess(f"git pull --rebase")
-        runner.get().run(f"git checkout {originalBranch}")
+        branches.rebaseBranches(allChildren, originalBranch)
         return
 
     elif command == "commit":
@@ -86,6 +85,15 @@ def parse(args):
         runner.get().run(f"git branch -D {branchName}")
 
     elif command == "rebase":
+        if len(args) == 2 and args[1] == "--continue":
+            runner.get().runInProcess("git rebase --continue")
+            if branches.isRebaseInProgress():
+                return
+            queue = Cacher.getCachedKey("REBASE_QUEUE")
+            originalBranch = Cacher.getCachedKey("ORIGINAL_REBASE_BRANCH")
+            if queue is not None:
+                branches.rebaseBranches(queue, originalBranch)
+            return
         if len(args) != 5:
             return "Please specify source and destination commit."
         sourceCommit = ""
@@ -220,10 +228,7 @@ def updateHead():
     runner.get().run("git checkout head")
     runner.get().run(f"git pull origin {branches.getCommitForBranch(newHead)}")
     runner.get().run(f"git branch -D {newHead}") 
-    runner.get().run(f"git checkout {currentBranch}")   
-
-def isRebaseInProgress() -> bool:
-    return runner.get().run("git status").startswith("rebase in progress;")    
+    runner.get().run(f"git checkout {currentBranch}")     
 
 if __name__ == '__main__':
     result = parse(sys.argv[1:])

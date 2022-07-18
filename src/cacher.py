@@ -25,7 +25,7 @@ class Cacher:
             cls.init()
         with open(cls.CACHE_JSON, "r") as f:
             cache = json.load(f)
-        return cache[key]
+        return cache[key] if key in cache else None
 
     @classmethod
     def cacheKey(cls, key, data):
@@ -43,6 +43,6 @@ class Cacher:
             cls.init()
         with open(cls.CACHE_JSON, "r") as f:
             cache = json.load(f)
-        cache[key] = {}
+        cache[key] = None
         with open(cls.CACHE_JSON, "w") as f:
             json.dump(cache, f)
