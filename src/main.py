@@ -11,7 +11,7 @@ from util import *
 def parse(args):
     command = args[0]
 
-    if command != "rebase" and branches.isRebaseInProgress():
+    if command != "rebase" and (branches.isRebaseInProgress() or Cacher.getCachedKey("REBASE_QUEUE") is not None):
         return "Cannot perform tasks until current rebase is complete."
 
     if command == "add":
@@ -120,22 +120,7 @@ def parse(args):
         return
 
     elif command == "status":
-        status = runner.get().run("git status --porcelain")
-        if status.strip() == "":
-            return None
-        out = []
-        for line in status.split("\n"):
-            if len(line) == 0:
-                continue
-            elif line[1] == "M":
-                out.append(formatText("M" + line[2:], color = Color.Yellow))
-            elif line[1] == "D":
-                out.append(formatText("D" + line[2:], color = Color.Red))
-            elif line[1] == "?":
-                out.append(formatText("?" + line[2:], color = Color.Magenta))
-            elif line[0] == "A":
-                out.append(formatText("A" + line[2:], color = Color.Green))
-        return "\n".join(out)
+        return getStatus()
 
     elif command == "sync":
         currentBranch = branches.getCurrentBranch()
@@ -165,6 +150,8 @@ def parse(args):
     elif command == "update":
         if len(args) == 1:
             return "Please specify a hash to update to."
+        if getStatus() is not None:
+            return "Cannot update with uncommitted changes.\nPlease commit/restore the changes and try again."
         commitHash = args[1]
         commit = commits.getCommitForPrefix(commitHash)
         if commit != None:
@@ -228,7 +215,25 @@ def updateHead():
     runner.get().run("git checkout head")
     runner.get().run(f"git pull origin {branches.getCommitForBranch(newHead)}")
     runner.get().run(f"git branch -D {newHead}") 
-    runner.get().run(f"git checkout {currentBranch}")     
+    runner.get().run(f"git checkout {currentBranch}")
+
+def getStatus():
+    status = runner.get().run("git status --porcelain")
+    if status.strip() == "":
+        return None
+    out = []
+    for line in status.split("\n"):
+        if len(line) == 0:
+            continue
+        elif line[1] == "M":
+            out.append(formatText("M" + line[2:], color = Color.Yellow))
+        elif line[1] == "D":
+            out.append(formatText("D" + line[2:], color = Color.Red))
+        elif line[1] == "?":
+            out.append(formatText("?" + line[2:], color = Color.Magenta))
+        elif line[0] == "A":
+            out.append(formatText("A" + line[2:], color = Color.Green))
+    return "\n".join(out)  
 
 if __name__ == '__main__':
     result = parse(sys.argv[1:])
