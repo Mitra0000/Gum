@@ -5,7 +5,6 @@ from integration import IntegrationTest
 # Integration tests for the `gm add` command.
 class AddTest(IntegrationTest):
     def testAddCommandTracksUntrackedFile(self):
-        self.createFirstCommit()
         self.createFile("added_file.txt", "This was just added.")
         status = self.runCommand("git status --porcelain")
         self.assertEqual(status, "?? added_file.txt\n")
@@ -14,7 +13,6 @@ class AddTest(IntegrationTest):
         self.assertEqual(status, "A  added_file.txt\n")
     
     def testAddSpecificFileDoesntAddAllFiles(self):
-        self.createFirstCommit()
         self.createFile("foo.txt", "This is foo.")
         self.createFile("bar.txt", "This is bar.")
         status = self.runCommand("git status --porcelain")

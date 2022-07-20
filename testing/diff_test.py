@@ -14,17 +14,14 @@ class DiffTest(IntegrationTest):
         self.assertGumOutputEqualsGitOutput()
 
     def testModifiedDiff(self):
-        self.createFirstCommit()
         self.modifyFile("test.txt", "This is a modified test.")
         self.assertGumOutputEqualsGitOutput()
 
     def testDeletedDiff(self):
-        self.createFirstCommit()
         self.modifyFile("test.txt", "")
         self.assertGumOutputEqualsGitOutput()
 
     def testMultiFileDiff(self):
-        self.createFirstCommit()
         self.modifyFile("test.txt", "This is a modified test.")
         self.createFile("newfile.txt", "This is a new file.")
         self.assertGumOutputEqualsGitOutput()

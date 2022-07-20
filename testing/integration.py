@@ -14,6 +14,7 @@ class IntegrationTest(unittest.TestCase):
     def setUp(self):
         os.makedirs(self.TEST_REPOSITORY)
         self.runCommand("git init")
+        self.createFirstCommit()
         
     def tearDown(self):
         shutil.rmtree(self.REMOVE_WHEN_DONE)
@@ -29,8 +30,7 @@ class IntegrationTest(unittest.TestCase):
     
     def createFirstCommit(self):
         self.runCommand(f"{self.GUM} init")
-        with open(os.path.join(self.TEST_REPOSITORY, "test.txt"), "w") as f:
-            f.write("This is a test.")
+        self.createFile("test.txt", "This is a test.")
         self.runCommand("git add -A")
         self.runCommand("git commit -m 'Initial_commit.'")
     

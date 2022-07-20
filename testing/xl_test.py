@@ -6,13 +6,11 @@ from integration import IntegrationTest
 # Integration tests for the `gm xl` command.
 class XlTest(IntegrationTest):
     def testXlOnEmptyRepository(self):
-        self.createFirstCommit()
         output = self.runCommand(f"{self.GUM} xl")
         output = self.decodeFormattedText(output)
         self.assertTrue(fnmatch.fnmatch(output, "@ * Author: You \n| 'Initial_commit.'\n~\n"))
 
     def testXlOnTwoLinearCommits(self):
-        self.createFirstCommit()
         self.runCommand("git checkout -b newBranch")
         self.runCommand("git branch --set-upstream-to=head")
         self.createFile("newfile.txt", "This is a new file.")
@@ -24,7 +22,6 @@ class XlTest(IntegrationTest):
         self.assertTrue(fnmatch.fnmatch(output, "@ * Author: You \n| 'Child_commit'\n|\no * Author: You \n| 'Initial_commit.'\n~\n"))
 
     def testXlOnParentWithTwoChildren(self):
-        self.createFirstCommit()
         self.runCommand("git checkout -b firstChild")
         self.runCommand("git branch --set-upstream-to=head")
         self.createFile("newfile.txt", "This is a new file.")
