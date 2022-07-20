@@ -132,10 +132,12 @@ def parse(args):
         runner.get().run(f"git checkout -b {newBranch}")
         runner.get().run(f"git branch --set-upstream-to=origin/main {newBranch}")
         runner.get().run("git pull")
-        updateHead()
+
         # Move commit and children onto new branch.
         runner.get().run(f"git checkout {currentBranch}")
         runner.get().run(f"git rebase {newBranch}")
+
+        updateHead()
 
     elif command == "test":
         return Tree.getTreeHash()
@@ -198,18 +200,18 @@ def parse(args):
 
 def updateHead():
     unownedBranches = []
-    headCommit = branches.getCommitForBranch("head")
-    for branch in branches.getAllBranches():
-        if commits.getParentOfCommit(branch) == headCommit:
-            return
-        if not branches.isBranchOwned(branch):
+    if len(Tree.get()["head"].children) > 0:
+        return
+    for branch in Tree.get():
+        if not Tree.get()[branch].is_owned:
             unownedBranches.append(branch)
     
     unownedBranches = sorted(unownedBranches, key=commits.getDateForCommit)
     if len(unownedBranches) < 2:
-        print("Not working")
-        return
+        raise Exception("Update head called when head cannot be updated.")
+
     assert unownedBranches[0] == "head"
+
     newHead = unownedBranches[1]
     currentBranch = branches.getCurrentBranch()
     runner.get().run("git checkout head")
