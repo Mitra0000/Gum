@@ -19,7 +19,7 @@ class XlTest(IntegrationTest):
 
         output = self.runCommand(f"{self.GUM} xl")
         output = self.decodeFormattedText(output)
-        self.assertTrue(fnmatch.fnmatch(output, "@ * Author: You \n| 'Child_commit'\n|\no * Author: You \n| 'Initial_commit.'\n~\n"))
+        self.assertTrue(fnmatch.fnmatch(output, "@ * Author: You \n| 'Child_commit'\no * Author: You \n| 'Initial_commit.'\n~\n"))
 
     def testXlOnParentWithTwoChildren(self):
         self.runCommand("git checkout -b firstChild")
@@ -37,9 +37,8 @@ class XlTest(IntegrationTest):
 
         output = self.runCommand(f"{self.GUM} xl")
         output = self.decodeFormattedText(output)
-        self.assertTrue(fnmatch.fnmatch(output, "o * Author: You \n| 'First_child_commit'\n| \n| @ * Author: You \n| | 'Second_child_commit'\n|/\no * Author: You \n| 'Initial_commit.'\n~\n") 
-                        or fnmatch.fnmatch(output, "@ * Author: You \n| 'Second_child_commit'\n| \n| o * Author: You \n| | 'First_child_commit'\n|/\no * Author: You \n| 'Initial_commit.'\n~\n"))
-
+        self.assertTrue(fnmatch.fnmatch(output, "o * Author: You \n| 'First_child_commit'\n| @ * Author: You \n|/  'Second_child_commit'\no * Author: You \n| 'Initial_commit.'\n~\n")
+                        or fnmatch.fnmatch(output, "@ * Author: You \n| 'Second_child_commit'\n| o * Author: You \n|/  'First_child_commit'\no * Author: You \n| 'Initial_commit.'\n~\n"))
 
 if __name__ == '__main__':
     unittest.main()
