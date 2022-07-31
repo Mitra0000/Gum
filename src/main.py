@@ -47,7 +47,7 @@ def parse(args):
     elif command == "commit":
         commitMessage = commits.createCommitMessage()
         if commitMessage is None:
-            return None
+            return "Commit cancelled."
         currentBranch = branches.getCurrentBranch()
         newBranch = branches.getNextBranch()
         if branches.isBranchOwned(currentBranch):

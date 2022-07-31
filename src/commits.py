@@ -29,11 +29,11 @@ def createCommitMessage():
     for line in files:
         if line == "" or line.startswith("?"):
             continue
-        if line.startswith("A"):
+        if line[1] == "A":
             output += "GUM: Added " + line[2:]
-        elif line.startswith("M"):
+        elif line[1] == "M":
             output += "GUM: Modified " + line[2:]
-        elif line.startswith("D"):
+        elif line[1] == "D":
             output += "GUM: Deleted " + line[2:]
 
     filePath = "/tmp/gum_commit_message.txt"
