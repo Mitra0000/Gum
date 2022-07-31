@@ -214,8 +214,9 @@ def parse(args):
 
 def updateHead():
     unownedBranches = []
-    if len(Tree.get()["head"].children) > 0:
-        return
+    for child in Tree.get()["head"].chidlren:
+        if child.is_owned:
+            return
     for branch in Tree.get():
         if not Tree.get()[branch].is_owned:
             unownedBranches.append(branch)
