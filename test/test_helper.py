@@ -27,7 +27,7 @@ class TestHelper:
     def resetRepository(self):
         self.repository = MockRepository()
         self.commandRunner = TestCommandRunner(self.repository)
-        runner.swapInstanceForTesting(self.commandRunner)
+        runner.swapInstance(self.commandRunner)
     
     def addChanges(self, changes):
         self.repository.addChanges(changes)

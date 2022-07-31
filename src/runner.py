@@ -25,7 +25,7 @@ class CommandRunner:
         return cls._instance
 
     @classmethod
-    def swapInstanceForTesting(cls, instance):
+    def swapInstance(cls, instance):
         cls._instance = instance
 
     def run(self, command: str) -> str:
@@ -35,3 +35,25 @@ class CommandRunner:
     
     def runInProcess(self, command: str):
         os.system(command)
+
+class VerboseRunner(CommandRunner):
+    def _log(self, log: str):
+        print(f"Verbose Runner: {log}")
+
+    def run(self, command: str) -> str:
+        self._log(f"Running `{command}`")
+        super.run(command)
+    
+    def runInProcess(self, command: str):
+        self._log(f"Running `{command}`")
+        super.runInProcess(command)
+
+class DryRunner(CommandRunner):
+    def _log(self, log: str):
+        print(f"Dry Runner: {log}")
+
+    def run(self, command: str) -> str:
+        self._log(f"Run `{command}`")
+    
+    def runInProcess(self, command: str):
+        self._log(f"Run `{command}`")
