@@ -19,26 +19,6 @@ from node import Node
 from runner import CommandRunner as runner
 from util import *
 
-def buildTreeFromCommits(parentsToCommits, commits):
-    commitsToNodes = {i: createNode(i) for i in commits}
-    for i in parentsToCommits.values():
-        for j in i:
-            commits.remove(j)
-    # Commits now contains the root(s)
-    for i in parentsToCommits:
-        if i in commitsToNodes:
-            commitsToNodes[i].children.extend([commitsToNodes[j] for j in parentsToCommits[i]])
-    if len(commits) > 1:
-        heads = sorted(list(commits), key=getDateForCommit)
-        for parent, child in zip(heads, heads[1:]):
-            commitsToNodes[parent].children.append(commitsToNodes[child])
-        return commitsToNodes[heads[0]]
-    return commitsToNodes[commits.pop()]
-
-def createNode(commitHash: str) -> Node:
-    owned = branches.isBranchOwned(commitHash)
-    return Node(commitHash, owned)
-
 def createCommitMessage():
     output = "\n\n\n\nGUM: Enter a commit message. Lines beginning with 'GUM:' are removed.\nGUM: Leave commit message empty to cancel.\nGUM: --\nGUM: user: "
     output += runner.get().run("git config user.email") + "\n"

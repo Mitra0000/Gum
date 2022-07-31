@@ -252,7 +252,20 @@ def getStatus():
             out.append(formatText("A" + line[2:], color = Color.Green))
     return "\n".join(out)  
 
+def generateSwitches(arguments):
+    switches = {}
+    switches["command"] = arguments[0]
+    lastKey = ""
+    for arg in arguments[1:]:
+        if arg.startswith("-"):
+            lastKey = arg
+            switches[arg] = True
+        else:
+            switches[lastKey] = arg
+    return switches
+
 if __name__ == '__main__':
+    switches = generateSwitches(sys.argv[1:])
     result = parse(sys.argv[1:])
     if result is not None:
         print(result)
