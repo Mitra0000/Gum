@@ -97,6 +97,9 @@ def getBranchForCommit(commitHash: str) -> str:
             return branch
     return None
 
+def getFullCommitHash(reference: str) -> str:
+    return runner.get().run(f"git rev-parse {reference}")
+
 
 def getDateForCommit(commitHash: str) -> str:
     return "".join(runner.get().run(f"git show --no-patch --no-notes {commitHash} --pretty=format:%ci").split()[:-1])

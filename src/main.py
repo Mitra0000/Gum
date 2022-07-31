@@ -154,7 +154,7 @@ def parse(args):
         updateHead()
 
     elif command == "test":
-        return Tree.getTreeHash()
+        return updateHead()
 
     elif command == "uncommit":
         tree = Tree.get()
@@ -214,7 +214,7 @@ def parse(args):
 
 def updateHead():
     unownedBranches = []
-    for child in Tree.get()["head"].chidlren:
+    for child in Tree.get()["head"].children:
         if child.is_owned:
             return
     for branch in Tree.get():
@@ -230,7 +230,7 @@ def updateHead():
     newHead = unownedBranches[1]
     currentBranch = branches.getCurrentBranch()
     runner.get().run("git checkout head")
-    runner.get().run(f"git pull origin {branches.getCommitForBranch(newHead)}")
+    runner.get().run(f"git pull origin {commits.getFullCommitHash(newHead)}")
     runner.get().run(f"git branch -D {newHead}") 
     runner.get().run(f"git checkout {currentBranch}")
 
