@@ -17,22 +17,25 @@ import sys
 import branches
 from cacher import Cacher
 import commits
+import parser
 from runner import CommandRunner as runner
 from tree import Tree
 from tree_printer import TreePrinter
 from util import *
 
-def parse(args):
-    command = args[0]
+def main(args):
+    command = args.command
 
-    if command != "rebase" and (branches.isRebaseInProgress() or Cacher.getCachedKey("REBASE_QUEUE") is not None):
-        return "Cannot perform tasks until current rebase is complete."
+    if command != "continue" and (branches.isRebaseInProgress() or Cacher.getCachedKey("REBASE_QUEUE") is not None):
+        return "Cannot perform tasks until current rebase is complete. \nPlease resolve conflicts and then run `gm continue`."
 
     if command == "add":
-        if len(args) == 1:
+        # Flatten the parsed filenames.
+        files = [item for inner in args.files for item in inner]
+        if len(files) == 0:
             runner.get().runInProcess("git add -A")
         else:
-            runner.get().runInProcess(f"git add {args[1]}")
+            runner.get().runInProcess(f"git add {' '.join(files)}")
 
     elif command == "amend":
         print("Amending changes.")
@@ -65,6 +68,16 @@ def parse(args):
         # Set upstream of y to x
         # Add known changes to y
         # Commit with commitMessage to y
+    
+    elif command == "continue":
+        runner.get().runInProcess("git rebase --continue")
+        if branches.isRebaseInProgress():
+            return
+        queue = Cacher.getCachedKey("REBASE_QUEUE")
+        originalBranch = Cacher.getCachedKey("ORIGINAL_REBASE_BRANCH")
+        if queue is not None:
+            branches.rebaseBranches(queue, originalBranch)
+        return
 
     elif command == "diff":
         runner.get().runInProcess("git diff")
@@ -82,46 +95,23 @@ def parse(args):
         runner.get().run("git pull --rebase")
 
     elif command == "patch":
-        url = args[1]
         newbranch = branches.getNextBranch()
-        runner.get().runInProcess(f"git cl patch -b {newbranch} {url}")
+        runner.get().runInProcess(f"git cl patch -b {newbranch} {args.cl} {'--force' if not args.copy else ''}")
 
     elif command == "prune":
-        if len(args) == 1:
-            return "Please specify a hash to prune."
-        commitHash = args[1]
-        commit = commits.getCommitForPrefix(commitHash)
+        commit = commits.getCommitForPrefix(args.commit)
         if commit != None:
-            commitHash = commit
-        branchName = commits.getBranchForCommit(commitHash)
+            args.commit = commit
+        branchName = commits.getBranchForCommit(args.commit)
         if branchName is None:
             return "Could not find specified commit hash."
         runner.get().run(f"git branch -D {branchName}")
 
     elif command == "rebase":
-        if len(args) == 2 and args[1] == "--continue":
-            runner.get().runInProcess("git rebase --continue")
-            if branches.isRebaseInProgress():
-                return
-            queue = Cacher.getCachedKey("REBASE_QUEUE")
-            originalBranch = Cacher.getCachedKey("ORIGINAL_REBASE_BRANCH")
-            if queue is not None:
-                branches.rebaseBranches(queue, originalBranch)
-            return
-        if len(args) != 5:
-            return "Please specify source and destination commit."
-        sourceCommit = ""
-        destinationCommit = ""
-        if args[1] == "-s" and args[3] == "-d":
-            sourceCommit = args[2]
-            destinationCommit = args[4]
-        elif args[1] == "-d" and args[3] == "-s":
-            sourceCommit = args[4]
-            destinationCommit = args[2]
-        destinationCommit = commits.getCommitForPrefix(destinationCommit)
-        sourceCommit = commits.getCommitForPrefix(sourceCommit)
+        destinationCommit = commits.getCommitForPrefix(args.destination)
+        sourceCommit = commits.getCommitForPrefix(args.source)
         if sourceCommit == "" or destinationCommit == "":
-            return
+            return f"Could not find specified commit: {args.source if sourceCommit == '' else args.destination}"
         sourceBranch = commits.getBranchForCommit(sourceCommit)
         destinationBranch = commits.getBranchForCommit(destinationCommit)
         runner.get().runInProcess(f"git rebase --onto {destinationCommit} {commits.getParentOfCommit(sourceCommit)} {sourceCommit}")
@@ -154,7 +144,7 @@ def parse(args):
         updateHead()
 
     elif command == "test":
-        return updateHead()
+        return args
 
     elif command == "uncommit":
         tree = Tree.get()
@@ -164,21 +154,18 @@ def parse(args):
         runner.get().run(f"git branch -D {currentBranch}")
 
     elif command == "update":
-        if len(args) == 1:
-            return "Please specify a hash to update to."
         if getStatus() is not None:
             return "Cannot update with uncommitted changes.\nPlease commit/restore the changes and try again."
-        commitHash = args[1]
-        commit = commits.getCommitForPrefix(commitHash)
+        commit = commits.getCommitForPrefix(args.commit)
         if commit != None:
-            commitHash = commit
-        branchName = commits.getBranchForCommit(commitHash)
+            args.commit = commit
+        branchName = commits.getBranchForCommit(args.commit)
         if branchName is None:
             return "Could not find specified commit hash."
         runner.get().run(f"git checkout {branchName}")
-        return f"Updated to {commitHash}"
+        return f"Updated to {args.commit}"
 
-    elif command == "uploadchain" or command == "uc":
+    elif command == "uploadchain":
         Cacher.invalidateKey(Cacher.CL_NUMBERS)
         originalRef = branches.getCurrentBranch()
         currentRef = originalRef
@@ -252,20 +239,7 @@ def getStatus():
             out.append(formatText("A" + line[2:], color = Color.Green))
     return "\n".join(out)  
 
-def generateSwitches(arguments):
-    switches = {}
-    switches["command"] = arguments[0]
-    lastKey = ""
-    for arg in arguments[1:]:
-        if arg.startswith("-"):
-            lastKey = arg
-            switches[arg] = True
-        else:
-            switches[lastKey] = arg
-    return switches
-
 if __name__ == '__main__':
-    switches = generateSwitches(sys.argv[1:])
-    result = parse(sys.argv[1:])
+    result = main(parser.getArgs())
     if result is not None:
         print(result)
