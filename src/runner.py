@@ -28,7 +28,7 @@ class CommandRunner:
     def swapInstance(cls, instance):
         cls._instance = instance
 
-    def run(self, command: str) -> str:
+    def run(self, command: str, isModifying: bool = False) -> str:
         process = subprocess.Popen(command.split(), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         out, err = process.communicate()
         return out.decode("utf-8")
@@ -40,7 +40,7 @@ class VerboseRunner(CommandRunner):
     def _log(self, log: str):
         print(f"Verbose Runner: {log}")
 
-    def run(self, command: str) -> str:
+    def run(self, command: str, isModifying: bool = False) -> str:
         self._log(f"Running `{command}`")
         return super().run(command)
     
@@ -52,8 +52,11 @@ class DryRunner(CommandRunner):
     def _log(self, log: str):
         print(f"Dry Runner: {log}")
 
-    def run(self, command: str) -> str:
-        self._log(f"Run `{command}`")
+    def run(self, command: str, isModifying: bool = False) -> str:
+        if isModifying:
+            self._log(f"Run `{command}`")
+        else:
+            return super().run(command)
     
     def runInProcess(self, command: str):
         self._log(f"Run `{command}`")

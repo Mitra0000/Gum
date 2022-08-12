@@ -93,7 +93,7 @@ def isBranchOwned(reference: str) -> str:
 
 def rebaseBranches(queue, originalBranch):
     for i, branch in enumerate(queue):
-        runner.get().run(f"git checkout {branch}")
+        runner.get().run(f"git checkout {branch}", True)
         runner.get().runInProcess(f"git pull --rebase")
         if isRebaseInProgress():
             Cacher.cacheKey("REBASE_QUEUE", queue[i+1:])
@@ -101,7 +101,7 @@ def rebaseBranches(queue, originalBranch):
             return
     Cacher.invalidateKey("REBASE_QUEUE")
     Cacher.invalidateKey("ORIGINAL_REBASE_BRANCH")
-    runner.get().run(f"git checkout {originalBranch}")
+    runner.get().run(f"git checkout {originalBranch}", True)
 
 def isRebaseInProgress() -> bool:
     return runner.get().run("git status").startswith("rebase in progress;")

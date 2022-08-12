@@ -46,8 +46,8 @@ def main(args):
         print("Amending changes.")
         originalBranch = branches.getCurrentBranch()
         allChildren = Tree.getRecursiveChildrenFrom(originalBranch)
-        runner.get().run("git add -u")
-        runner.get().run("git commit --amend --no-edit")
+        runner.get().run("git add -u", True)
+        runner.get().run("git commit --amend --no-edit", True)
         print("Rebasing dependent branches.")
         branches.rebaseBranches(allChildren, originalBranch)
         return
@@ -60,13 +60,13 @@ def main(args):
         newBranch = branches.getNextBranch()
         if branches.isBranchOwned(currentBranch):
             # runner.get().run(f"git new-branch --upstream_current {newBranch}") # Only works on Chromium.
-            runner.get().run(f"git checkout -b {newBranch}")
-            runner.get().run(f"git branch --set-upstream-to={currentBranch}")
+            runner.get().run(f"git checkout -b {newBranch}", True)
+            runner.get().run(f"git branch --set-upstream-to={currentBranch}", True)
         else:
             # If we're currently on an unowned node we don't want to set an upstream so that we can upload to Gerrit.
-            runner.get().run(f"git checkout -b {newBranch} {branches.getCommitForBranch(currentBranch)}")
-            runner.get().run("git branch --set-upstream-to=origin/main")
-        runner.get().run("git add -u")
+            runner.get().run(f"git checkout -b {newBranch} {branches.getCommitForBranch(currentBranch)}", True)
+            runner.get().run("git branch --set-upstream-to=origin/main", True)
+        runner.get().run("git add -u", True)
         runner.get().runInProcess(f"git commit -m '{commitMessage}'")
         # Store the current branch name as x
         # Create a new branch called y
@@ -91,13 +91,13 @@ def main(args):
         runner.get().runInProcess("git cl format")
 
     elif command == "init":
-        runner.get().run("git branch -D head")
-        runner.get().run("git checkout -b head")
-        runner.get().run("git branch --set-upstream-to=origin/main head")
+        runner.get().run("git branch -D head", True)
+        runner.get().run("git checkout -b head", True)
+        runner.get().run("git branch --set-upstream-to=origin/main head", True)
         for branch in branches.getAllBranches():
             if branch != "head":
-                runner.get().run(f"git branch -D {branch}")
-        runner.get().run("git pull --rebase")
+                runner.get().run(f"git branch -D {branch}", True)
+        runner.get().run("git pull --rebase", True)
 
     elif command == "patch":
         newbranch = branches.getNextBranch()
@@ -110,7 +110,7 @@ def main(args):
         branchName = commits.getBranchForCommit(args.commit)
         if branchName is None:
             return "Could not find specified commit hash."
-        runner.get().run(f"git branch -D {branchName}")
+        runner.get().run(f"git branch -D {branchName}", True)
 
     elif command == "rebase":
         destinationCommit = commits.getCommitForPrefix(args.destination)
@@ -120,11 +120,11 @@ def main(args):
         sourceBranch = commits.getBranchForCommit(sourceCommit)
         destinationBranch = commits.getBranchForCommit(destinationCommit)
         runner.get().runInProcess(f"git rebase --onto {destinationCommit} {commits.getParentOfCommit(sourceCommit)} {sourceCommit}")
-        runner.get().run(f"git checkout -B {sourceBranch} HEAD")
+        runner.get().run(f"git checkout -B {sourceBranch} HEAD", True)
         if branches.isBranchOwned(destinationBranch):
-            runner.get().run(f"git branch --set-upstream-to={destinationBranch} {sourceBranch}")
+            runner.get().run(f"git branch --set-upstream-to={destinationBranch} {sourceBranch}", True)
         else:
-            runner.get().run(f"git branch --unset-upstream {sourceBranch}")
+            runner.get().run(f"git branch --unset-upstream {sourceBranch}", True)
         updateHead()
         return
 
@@ -137,14 +137,14 @@ def main(args):
             return
         # Need to traverse and rebase all children.
         newBranch = branches.getNextBranch()
-        runner.get().run("git checkout head")
-        runner.get().run(f"git checkout -b {newBranch}")
-        runner.get().run(f"git branch --set-upstream-to=origin/main {newBranch}")
-        runner.get().run("git pull")
+        runner.get().run("git checkout head", True)
+        runner.get().run(f"git checkout -b {newBranch}", True)
+        runner.get().run(f"git branch --set-upstream-to=origin/main {newBranch}", True)
+        runner.get().run("git pull", True)
 
         # Move commit and children onto new branch.
-        runner.get().run(f"git checkout {currentBranch}")
-        runner.get().run(f"git rebase {newBranch}")
+        runner.get().run(f"git checkout {currentBranch}", True)
+        runner.get().run(f"git rebase {newBranch}", True)
 
         updateHead()
 
@@ -154,9 +154,9 @@ def main(args):
     elif command == "uncommit":
         tree = Tree.get()
         currentBranch = branches.getCurrentBranch()
-        runner.get().run("git reset --soft HEAD^")
-        runner.get().run(f"git checkout {tree[currentBranch].parent.branch}")
-        runner.get().run(f"git branch -D {currentBranch}")
+        runner.get().run("git reset --soft HEAD^", True)
+        runner.get().run(f"git checkout {tree[currentBranch].parent.branch}", True)
+        runner.get().run(f"git branch -D {currentBranch}", True)
 
     elif command == "update":
         if getStatus() is not None:
@@ -167,7 +167,7 @@ def main(args):
         branchName = commits.getBranchForCommit(args.commit)
         if branchName is None:
             return "Could not find specified commit hash."
-        runner.get().run(f"git checkout {branchName}")
+        runner.get().run(f"git checkout {branchName}", True)
         return f"Updated to {args.commit}"
 
     elif command == "uploadchain" or command == "uc":
@@ -183,7 +183,7 @@ def main(args):
             commitRef = commitStack.pop()
             commit = branches.getCommitForBranch(commitRef)
             branch = commits.getBranchForCommit(commit)
-            runner.get().run(f"git checkout {branch}")
+            runner.get().run(f"git checkout {branch}", True)
             runner.get().runInProcess("git cl upload -f")
             urls.append(commit)
         commitsToUrls = branches.getUrlsForBranches()
@@ -221,10 +221,10 @@ def updateHead():
 
     newHead = unownedBranches[1]
     currentBranch = branches.getCurrentBranch()
-    runner.get().run("git checkout head")
-    runner.get().run(f"git pull origin {commits.getFullCommitHash(newHead)}")
-    runner.get().run(f"git branch -D {newHead}") 
-    runner.get().run(f"git checkout {currentBranch}")
+    runner.get().run("git checkout head", True)
+    runner.get().run(f"git pull origin {commits.getFullCommitHash(newHead)}", True)
+    runner.get().run(f"git branch -D {newHead}", True) 
+    runner.get().run(f"git checkout {currentBranch}", True)
 
 def getStatus():
     status = runner.get().run("git status --porcelain")
