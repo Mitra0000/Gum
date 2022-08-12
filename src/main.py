@@ -17,6 +17,8 @@ from cacher import Cacher
 import commits
 import parser
 from runner import CommandRunner as runner
+from runner import DryRunner
+from runner import VerboseRunner
 from tree import Tree
 from tree_printer import TreePrinter
 from util import *
@@ -26,6 +28,11 @@ def main(args):
 
     if command != "continue" and (branches.isRebaseInProgress() or Cacher.getCachedKey("REBASE_QUEUE") is not None):
         return "Cannot perform tasks until current rebase is complete. \nPlease resolve conflicts and then run `gm continue`."
+
+    if args.verbose:
+        runner.swapInstance(VerboseRunner())
+    if args.dry_run:
+        runner.swapInstance(DryRunner())
 
     if command == "add":
         # Flatten the parsed filenames.
@@ -163,7 +170,7 @@ def main(args):
         runner.get().run(f"git checkout {branchName}")
         return f"Updated to {args.commit}"
 
-    elif command == "uploadchain":
+    elif command == "uploadchain" or command == "uc":
         Cacher.invalidateKey(Cacher.CL_NUMBERS)
         originalRef = branches.getCurrentBranch()
         currentRef = originalRef

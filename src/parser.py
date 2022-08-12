@@ -16,8 +16,6 @@ import argparse
 
 def getArgs():
     parser = argparse.ArgumentParser(prog="gm", description="Gum: A Mercurial Style Git Wrapper.")
-    parser.add_argument("--verbose", action="store_true", help="Display all Git commands which are run under the hood.")
-    parser.add_argument("--dry-run", action="store_true", help="Display the Git commands but don't actually run them.")
     subparsers = parser.add_subparsers(dest="command")
 
     add_parser = subparsers.add_parser("add", help="Add untracked files to Gum.")
@@ -53,4 +51,9 @@ def getArgs():
     uploadtree_parser = subparsers.add_parser("uploadtree", aliases=["ut"], help="Upload the currently checked out commit along with any children.")
     xl_parser = subparsers.add_parser("xl", help="Display the current commit tree.")
 
-    return parser.parse_args()
+    parser.add_argument("--verbose", action="store_true", help="Display all Git commands which are run under the hood.")
+    parser.add_argument("--dry-run", action="store_true", help="Display the Git commands but don't actually run them.")
+
+    args = parser.parse_known_args()
+    args = parser.parse_args(args[1], args[0])
+    return args

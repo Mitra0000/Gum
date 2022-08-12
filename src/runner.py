@@ -42,11 +42,11 @@ class VerboseRunner(CommandRunner):
 
     def run(self, command: str) -> str:
         self._log(f"Running `{command}`")
-        super.run(command)
+        return super().run(command)
     
     def runInProcess(self, command: str):
         self._log(f"Running `{command}`")
-        super.runInProcess(command)
+        super().runInProcess(command)
 
 class DryRunner(CommandRunner):
     def _log(self, log: str):
