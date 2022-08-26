@@ -119,7 +119,7 @@ class Tree:
     @classmethod
     def cleanup(cls):
         oldTree = cls.get()
-        for branch in oldTree:
+        for branch in dict(oldTree):
             if branch == "head":
                 continue
             if not oldTree[branch].is_owned:
