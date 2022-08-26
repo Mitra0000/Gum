@@ -169,7 +169,7 @@ def main(args):
     elif command == "update":
         if status.getStatus() is not None:
             return "Cannot update with uncommitted changes.\nPlease commit/restore the changes and try again."
-        commit = commits.getCommitForPrefix(args.commit)
+        commit = commits.getSingleCommitForPrefix(args.commit)
         if commit != None:
             args.commit = commit
         branchName = commits.getBranchForCommit(args.commit)

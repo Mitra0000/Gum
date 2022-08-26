@@ -76,6 +76,13 @@ def getCommitForPrefix(prefix: str) -> str:
         return prefix
     return prefix + results[prefix]
 
+def getSingleCommitForPrefix(prefix: str) -> str:
+    trie = Trie()
+    commits = runner.get().run("git rev-parse --branches=*").split("\n")
+    for commit in commits:
+        trie.insert(commit)
+    return trie.query()
+
 def getParentOfCommit(commitHash: str) -> str:
     return branches.getCommitForBranch(commitHash + "^")
 
