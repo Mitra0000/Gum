@@ -40,7 +40,7 @@ class TreePrinter:
         node.children = sorted(node.children, key=lambda n: len(n.children))
         for i, child in enumerate(node.children):
             if not child.is_owned:
-                node.children[i], node.children[-1] = node.children[-1], node.childre[i]
+                node.children[i], node.children[-1] = node.children[-1], node.children[i]
                 break
 
         cls._output.append(bP + commits.getTitleOfCommit(node.commit))
