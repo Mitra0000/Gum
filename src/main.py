@@ -157,7 +157,7 @@ def main(args):
         updateHead()
 
     elif command == "test":
-        return Tree.cleanup()
+        return commits.getSingleCommitForPrefix(input())
 
     elif command == "uncommit":
         tree = Tree.get()

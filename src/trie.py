@@ -50,10 +50,25 @@ class Trie(object):
         if len(node.children) == 1:
             return node.char + self.searchTail(list(node.children.values())[0])
         return node.char
-        
+
+    # Deprecated
     def query(self):
         self.output = {}
         node = self.root
         for child in node.children.values():
             self.dfs(child, "")
         return self.output
+    
+    def querySingle(self, query):
+        node = self.root
+        idx = 0
+        while node.children and idx < len(query):
+            if query[idx] not in node.children:
+                break
+            node = node.children[query[idx]]
+            idx += 1
+        else:
+            if len(node.children) == 1:
+                query = query[:-1] + self.searchTail(node)
+                return query
+        return None
