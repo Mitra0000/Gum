@@ -13,38 +13,48 @@
 # limitations under the License.
 
 import os
+import tempfile
 
 import branches
 from node import Node
 from runner import CommandRunner as runner
+import status
 from util import *
 
 def createCommitMessage():
-    output = "\n\n\n\nGUM: Enter a commit message. Lines beginning with 'GUM:' are removed.\nGUM: Leave commit message empty to cancel.\nGUM: --\nGUM: user: "
-    output += runner.get().run("git config user.email") + "\n"
-    files = runner.get().run("git status -s -uno").split("\n")
-    if files == [""]:
+    message = ["\n\n\nGUM: Enter a commit message. Lines beginning with 'GUM:' are removed.\nGUM: Leave commit message empty to cancel.\nGUM: --\nGUM: user: "]
+    message.append(runner.get().run("git config user.email"))
+    message.append("\n")
+    files = decodeFormattedText(status.getStatus())
+    if files is None:
         print("No files to commit.")
         return None
-    for line in files:
+    for line in files.split("\n"):
         if line == "" or line.startswith("?"):
             continue
-        if line[1] == "A":
-            output += "GUM: Added " + line[2:]
-        elif line[1] == "M":
-            output += "GUM: Modified " + line[2:]
-        elif line[1] == "D":
-            output += "GUM: Deleted " + line[2:]
+        if line[0] == "A":
+            message.extend(["GUM: Added " + line[2:], "\n"])
+        elif line[0] == "M":
+            message.extend(["GUM: Modified " + line[2:], "\n"])
+        elif line[0] == "D":
+            message.extend(["GUM: Deleted " + line[2:], "\n"])
 
-    filePath = "/tmp/gum_commit_message.txt"
+    filePath = os.path.join(tempfile.gettempdir(), "gum_commit_message.txt")
 
+    output = "".join(message)
     with open(filePath, "w") as f:
         f.write(output)
 
-    os.system(f"nano {filePath}")
+    editor = os.getenv("EDITOR")
+    if editor is not None:
+        runner.get().runInProcess(f"{editor} {filePath}") 
+    else:
+        runner.get().runInProcess(f"nano {filePath}")
+
     commitMessage = []
     with open(filePath, "r") as f:
         content = f.read()
+
     if content == output:
         return None
 
@@ -56,6 +66,7 @@ def createCommitMessage():
     
     if os.path.exists(filePath):
         os.remove(filePath)
+    commitMessage[0] += "\n"
     return "\n".join(commitMessage)
 
 

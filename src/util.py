@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import re
+
 from trie import Trie
 
 class TextDecorators:
@@ -45,6 +47,9 @@ def formatText(*args, bold: bool = False, underline: bool = False, color: str = 
     output.append(" ".join(message))
     output.append(f"{TextDecorators.ENDC}{Color.Reset}")
     return "".join(output)
+
+def decodeFormattedText(text: str) -> str:
+    return re.compile(r'\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])').sub('', text)
 
 def abbreviateText(text, length = 20):
     return text if len(text) <= length else text[:length - 3] + "..."

@@ -19,6 +19,7 @@ import parser
 from runner import CommandRunner as runner
 from runner import DryRunner
 from runner import VerboseRunner
+import status
 from tree import Tree
 from tree_printer import TreePrinter
 from util import *
@@ -131,7 +132,7 @@ def main(args):
         return
 
     elif command == "status":
-        return getStatus()
+        return status.getStatus()
 
     elif command == "sync":
         currentBranch = branches.getCurrentBranch()
@@ -161,7 +162,7 @@ def main(args):
         runner.get().run(f"git branch -D {currentBranch}", True)
 
     elif command == "update":
-        if getStatus() is not None:
+        if status.getStatus() is not None:
             return "Cannot update with uncommitted changes.\nPlease commit/restore the changes and try again."
         commit = commits.getCommitForPrefix(args.commit)
         if commit != None:
@@ -227,24 +228,6 @@ def updateHead():
     runner.get().run(f"git pull origin {commits.getFullCommitHash(newHead)}", True)
     runner.get().run(f"git branch -D {newHead}", True) 
     runner.get().run(f"git checkout {currentBranch}", True)
-
-def getStatus():
-    status = runner.get().run("git status --porcelain")
-    if status.strip() == "":
-        return None
-    out = []
-    for line in status.split("\n"):
-        if len(line) == 0:
-            continue
-        elif line[1] == "M":
-            out.append(formatText("M" + line[2:], color = Color.Yellow))
-        elif line[1] == "D":
-            out.append(formatText("D" + line[2:], color = Color.Red))
-        elif line[1] == "?":
-            out.append(formatText("?" + line[2:], color = Color.Magenta))
-        elif line[0] == "A":
-            out.append(formatText("A" + line[2:], color = Color.Green))
-    return "\n".join(out)  
 
 if __name__ == '__main__':
     result = main(parser.getArgs())
