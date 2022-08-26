@@ -48,6 +48,8 @@ def main(args):
         allChildren = Tree.getRecursiveChildrenFrom(originalBranch)
         runner.get().run("git add -u", True)
         runner.get().run("git commit --amend --no-edit", True)
+        if len(allChildren) == 0:
+            return "No dependent branches to rebase."
         print("Rebasing dependent branches.")
         branches.rebaseBranches(allChildren, originalBranch)
         return
