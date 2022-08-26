@@ -123,6 +123,6 @@ class Tree:
             if branch == "head":
                 continue
             if not oldTree[branch].is_owned:
-                if len([child for child in oldTree[branch] if child.is_owned]) == 0:
+                if len([child for child in oldTree[branch].children if child.is_owned]) == 0:
                     del oldTree[branch]
         cls._tree = None
