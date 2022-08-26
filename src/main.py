@@ -153,6 +153,7 @@ def main(args):
         allChildren = Tree.getRecursiveChildrenFrom(originalBranch)
         branches.rebaseBranches(allChildren, originalBranch)
 
+        Tree.cleanup()
         updateHead()
 
     elif command == "test":
