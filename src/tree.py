@@ -119,10 +119,14 @@ class Tree:
     @classmethod
     def cleanup(cls):
         oldTree = cls.get()
+        nodesToDelete = []
         for branch in dict(oldTree):
             if branch == "head":
                 continue
             if not oldTree[branch].is_owned:
                 if len([child for child in oldTree[branch].children if child.is_owned]) == 0:
+                    nodesToDelete.append(branch)
                     del oldTree[branch]
+        for node in nodesToDelete:
+            runner.get().run(f"git branch -D {node}")
         cls._tree = None
