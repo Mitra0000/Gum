@@ -90,13 +90,10 @@ def getTitleOfCommit(commitHash: str) -> str:
     return runner.get().run(f"git log {commitHash} -1 --pretty=format:%s")
 
 def getBranchForCommit(commitHash: str) -> str:
-    foundBranch = None
     for branch in branches.getAllBranches():
-        if branches.getCommitForBranch(branch).startswith(commitHash):
-            if foundBranch:
-                return None
-            foundBranch = branch
-    return foundBranch
+        if branches.getCommitForBranch(branch) == commitHash:
+            return branch
+    return None
 
 def getFullCommitHash(reference: str) -> str:
     return runner.get().run(f"git rev-parse {reference}")

@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from runner import CommandRunner as runner
+
 class TrieNode:
     def __init__(self, char):
         self.char = char
@@ -70,5 +72,5 @@ class Trie(object):
         else:
             if len(node.children) == 1:
                 query = query[:-1] + self.searchTail(node)
-                return query
+                return runner.get().run(f"git rev-parse --short {query}")[:-1]
         return None
