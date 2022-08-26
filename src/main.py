@@ -156,7 +156,7 @@ def main(args):
         updateHead()
 
     elif command == "test":
-        return args
+        return Tree.cleanup()
 
     elif command == "uncommit":
         tree = Tree.get()
