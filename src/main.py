@@ -149,6 +149,10 @@ def main(args):
         runner.get().run(f"git checkout {currentBranch}", True)
         runner.get().run(f"git rebase {newBranch}", True)
 
+        originalBranch = branches.getCurrentBranch()
+        allChildren = Tree.getRecursiveChildrenFrom(originalBranch)
+        branches.rebaseBranches(allChildren, originalBranch)
+
         updateHead()
 
     elif command == "test":
