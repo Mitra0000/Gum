@@ -36,6 +36,13 @@ class TreePrinter:
     
     @classmethod
     def _appendNode(cls, node, bP, tP):
+        # Pre process children to ensure tree ordering.
+        node.children = sorted(node.children, key=lambda n: len(n.children))
+        for i, child in enumerate(node.children):
+            if not child.is_owned:
+                node.children[i], node.children[-1] = node.children[-1], node.childre[i]
+                break
+
         cls._output.append(bP + commits.getTitleOfCommit(node.commit))
         cls._output.append("".join([tP, "@ " if cls._currentBranch == node.branch else "o ", formatText(node.commitPrefix, underline = True, color = Color.Yellow), formatText(node.commitSuffix, color = Color.Yellow), formatText(" Author: ", color=Color.Blue), "You" if node.is_owned else commits.getEmailForCommit(node.commit), " ", cls._clNumbers[node.commit] if node.commit in cls._clNumbers and cls._clNumbers[node.commit] != "None" else ""]))
         if len(node.children) == 1:
