@@ -18,8 +18,8 @@ from cacher import Cacher
 from runner import CommandRunner as runner
 from util import *
 
-def getAllBranches():
-    """ Gets a list of all branches with the current branch at the end. """
+def getAllBranches() -> "list[str]":
+    """ Returns a list of all branches with the current branch at the end. """
     data = runner.get().run("git branch")
     data = data.split("\n")
     output = []
@@ -36,11 +36,13 @@ def getAllBranches():
     return output
 
 
-def getCurrentBranch():
+def getCurrentBranch() -> str:
+    """ Returns the current branch name. """
     return runner.get().run("git rev-parse --abbrev-ref HEAD")[:-1]
 
 
-def getNextBranch():
+def getNextBranch() -> str:
+    """ Returns the next unique branch name to use for creating a new branch. """
     filename = os.path.join(os.path.dirname(os.path.abspath(__file__)), "nextBranch.txt")
     with open(filename, "r") as f:
         branch = f.read()
@@ -57,7 +59,8 @@ def getNextBranch():
     return branch
 
 
-def getNextBranchNameFrom(branchName):
+def getNextBranchNameFrom(branchName: str) -> str:
+    """ Takes a 5 character string and calculates the next alphabetical 5 character string. """
     alphabet = "abcdefghijklmnopqrstuvwxyz"
     branchName = list(branchName)
     for i in range(len(branchName) - 1, -1, -1):
@@ -69,10 +72,12 @@ def getNextBranchNameFrom(branchName):
 
 
 def getCommitForBranch(reference: str) -> str:
+    """ Returns the short commit hash of a given branch/commit reference (eg. HEAD^^). """
     return runner.get().run(f"git rev-parse --short {reference}")[:-1]
 
 
-def getUrlsForBranches():
+def getUrlsForBranches() -> "dict[str, str]":
+    """ Returns a dictionary mapping branch names to their CL URLs if they exist. """
     branchesToUrls = {}
     output = runner.get().run("git cl status -f --no-branch-color")
     output = output.split("\n")[1:]
@@ -89,9 +94,11 @@ def getUrlsForBranches():
     return branchesToUrls
 
 def isBranchOwned(reference: str) -> str:
+    """ Returns whether the commit was authored by the current Git user. """
     return runner.get().run(f"git show --no-patch --no-notes {reference} --format=%ce")[:-1] == runner.get().run("git config user.email")[:-1]
 
-def rebaseBranches(queue, originalBranch):
+def rebaseBranches(queue: "list[str]", originalBranch: str) -> None:
+    """ Iterates through a queue of branches, rebasing each onto its upstream parent. """
     for i, branch in enumerate(queue):
         runner.get().run(f"git checkout {branch}", True)
         runner.get().runInProcess(f"git pull --rebase")
@@ -104,4 +111,5 @@ def rebaseBranches(queue, originalBranch):
     runner.get().run(f"git checkout {originalBranch}", True)
 
 def isRebaseInProgress() -> bool:
+    """ Returns true if a rebase is currently in progress. """
     return runner.get().run("git status").startswith("rebase in progress;")

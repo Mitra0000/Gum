@@ -16,6 +16,17 @@ import json
 import os
 
 class Cacher:
+    """
+        A simple helper class to handle all interaction with a cache stored on disk.
+        A cache is required so that state can be maintained between commands as each
+        command is processed in its own execution of the program.
+
+        The cache on disk is stored as a JSON and is a key-value store where the keys
+        are strings and the values can be any serialisable type.
+
+        Keys should be stored as static constants below to avoid spelling mistakes.
+    """
+
     CL_NUMBERS = "cl_numbers"
     TREE = "tree"
     TREE_HASH = "tree_hash"
@@ -25,6 +36,7 @@ class Cacher:
     
     @classmethod
     def init(cls):
+        """ Initialises the cache in the event it may have been deleted. """
         if not os.path.exists(cls.PATH):
             os.mkdir(cls.PATH)
             with open(os.path.join(cls.PATH, ".gitignore"), "w") as f:
@@ -34,7 +46,11 @@ class Cacher:
                 json.dump({cls.CL_NUMBERS: {}, cls.TREE: {}, cls.TREE_HASH: {}}, f)
 
     @classmethod
-    def getCachedKey(cls, key):
+    def getCachedKey(cls, key: str):
+        """
+            Returns the value associated with a given key or None if it doens't 
+            exist in the cache.
+        """
         if not os.path.exists(cls.CACHE_JSON):
             cls.init()
         with open(cls.CACHE_JSON, "r") as f:
@@ -42,7 +58,8 @@ class Cacher:
         return cache[key] if key in cache else None
 
     @classmethod
-    def cacheKey(cls, key, data):
+    def cacheKey(cls, key: str, data):
+        """ Stores the given data along with its key in the cache. """
         if not os.path.exists(cls.CACHE_JSON):
             cls.init()
         with open(cls.CACHE_JSON, "r") as f:
@@ -52,7 +69,8 @@ class Cacher:
             json.dump(cache, f)
     
     @classmethod
-    def invalidateKey(cls, key):
+    def invalidateKey(cls, key: str):
+        """ Deletes any data associated with the given key. """
         if not os.path.exists(cls.CACHE_JSON):
             cls.init()
         with open(cls.CACHE_JSON, "r") as f:
