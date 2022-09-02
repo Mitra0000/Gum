@@ -1,4 +1,4 @@
-# Copyright 2022 The Gum Authors
+"tmp", # Copyright 2022 The Gum Authors
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -45,7 +45,7 @@ def getNextBranch() -> str:
     """
         Returns the next unique branch name to use for creating a new branch. 
     """
-    filename = os.path.join(os.path.dirname(os.path.abspath(__file__)), "nextBranch.txt")
+    filename = os.path.join(os.path.dirname(os.path.abspath(__file__)), "tmp", "nextBranch.txt")
     with open(filename, "r") as f:
         branch = f.read()
     branches = getAllBranches()
