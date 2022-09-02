@@ -45,6 +45,7 @@ def getNextBranch() -> str:
     """
         Returns the next unique branch name to use for creating a new branch. 
     """
+    # TODO: Update this method to use the cacher instead of a separate text file.
     filename = os.path.join(os.path.dirname(os.path.abspath(__file__)), "tmp", "nextBranch.txt")
     with open(filename, "r") as f:
         branch = f.read()
