@@ -32,6 +32,7 @@ class Cacher:
     CL_NUMBERS = "cl_numbers"
     TREE = "tree"
     TREE_HASH = "tree_hash"
+    NEXT_BRANCH = "next_branch"
 
     PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "tmp")
     CACHE_JSON = os.path.join(PATH, "cache.json")
@@ -45,7 +46,7 @@ class Cacher:
                 f.write("cache.json")
         if not os.path.exists(cls.CACHE_JSON):
             with open(cls.CACHE_JSON, "w") as f:
-                json.dump({cls.CL_NUMBERS: {}, cls.TREE: {}, cls.TREE_HASH: {}}, f)
+                json.dump({cls.CL_NUMBERS: {}, cls.TREE: {}, cls.TREE_HASH: {}, cls.NEXT_BRANCH: "aaaaa"}, f)
 
     @classmethod
     def getCachedKey(cls, key: str):

@@ -45,20 +45,22 @@ def getNextBranch() -> str:
     """
         Returns the next unique branch name to use for creating a new branch. 
     """
-    # TODO: Update this method to use the cacher instead of a separate text file.
-    filename = os.path.join(os.path.dirname(os.path.abspath(__file__)), "tmp", "nextBranch.txt")
-    with open(filename, "r") as f:
-        branch = f.read()
+    cachedBranch = Cacher.getCachedKey(Cacher.NEXT_BRANCH)
     branches = getAllBranches()
+    # True when a branch exists with a name higher than the cached branch name.
+    shouldIncrement = False
+
     for b in branches:
         if b == "head":
             continue
-        if b >= branch:
-            branch = getNextBranchNameFrom(b)
+        if b >= cachedBranch:
+            cachedBranch = b
+            shouldIncrement = True
 
-    nextBranch = getNextBranchNameFrom(branch)
-    with open(filename, "w") as f:
-        f.write(nextBranch)
+    if shouldIncrement:
+        branch = getNextBranchNameFrom(branch)
+
+    Cacher.cacheKey(Cacher.NEXT_BRANCH, getNextBranchNameFrom(branch))
     return branch
 
 
