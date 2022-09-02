@@ -15,9 +15,11 @@
 import unittest
 
 import context
+from cacher_for_testing import CacherForTesting
 from test_helper import TestHelper
 
 import branches
+from cacher import Cacher
 
 # Unit tests for the functions found in src/branches.py.
 class BranchesTest(unittest.TestCase):
@@ -57,6 +59,24 @@ class BranchesTest(unittest.TestCase):
         self.assertEqual("testBranch", branches.getCurrentBranch())
 
     # Tests for getNextBranch.
+    def testGetNextBranch(self):
+        Cacher.swapInstanceForTesting(CacherForTesting())
+        Cacher.cacheKey(Cacher.NEXT_BRANCH, "aaaac")
+        self.assertEqual("aaaac", branches.getNextBranch())
+
+    def testGetNextBranchWithHigherBranch(self):
+        Cacher.swapInstanceForTesting(CacherForTesting())
+        self.repo.createNewBranch("abcde")
+        Cacher.cacheKey(Cacher.NEXT_BRANCH, "abbab")
+        self.assertEqual("abcdf", branches.getNextBranch())
+
+    def testGetNextBranchWithEqualBranch(self):
+        Cacher.swapInstanceForTesting(CacherForTesting())
+        self.repo.createNewBranch("abbab")
+        Cacher.cacheKey(Cacher.NEXT_BRANCH, "abbab")
+        self.assertEqual("abbac", branches.getNextBranch())
+
+    # Tests for getNextBranchNameFrom.
     def testGetNextBranchName(self):
         self.assertEqual("aaaab", branches.getNextBranchNameFrom("aaaaa"))
         self.assertEqual("aaaba", branches.getNextBranchNameFrom("aaaaz"))

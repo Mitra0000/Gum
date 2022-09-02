@@ -45,7 +45,7 @@ def getNextBranch() -> str:
     """
         Returns the next unique branch name to use for creating a new branch. 
     """
-    cachedBranch = Cacher.getCachedKey(Cacher.NEXT_BRANCH)
+    branch = Cacher.getCachedKey(Cacher.NEXT_BRANCH)
     branches = getAllBranches()
     # True when a branch exists with a name higher than the cached branch name.
     shouldIncrement = False
@@ -53,8 +53,8 @@ def getNextBranch() -> str:
     for b in branches:
         if b == "head":
             continue
-        if b >= cachedBranch:
-            cachedBranch = b
+        if b >= branch:
+            branch = b
             shouldIncrement = True
 
     if shouldIncrement:

@@ -36,48 +36,71 @@ class Cacher:
 
     PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "tmp")
     CACHE_JSON = os.path.join(PATH, "cache.json")
-    
-    @classmethod
-    def init(cls):
-        """ Initialises the cache in the event it may have been deleted. """
-        if not os.path.exists(cls.PATH):
-            os.mkdir(cls.PATH)
-            with open(os.path.join(cls.PATH, ".gitignore"), "w") as f:
-                f.write("cache.json")
-        if not os.path.exists(cls.CACHE_JSON):
-            with open(cls.CACHE_JSON, "w") as f:
-                json.dump({cls.CL_NUMBERS: {}, cls.TREE: {}, cls.TREE_HASH: {}, cls.NEXT_BRANCH: "aaaaa"}, f)
+    _INSTANCE = None
 
     @classmethod
-    def getCachedKey(cls, key: str):
+    def init(cls) -> None:
+        cls._get._init()
+
+    @classmethod
+    def getCachedKey(cls, key):
+        return cls._get()._getCachedKey(key)
+
+    @classmethod
+    def cacheKey(cls, key: str, data):
+        return cls._get()._cacheKey(key, data)
+
+    @classmethod
+    def invalidateKey(cls, key: str):
+        return cls._get()._invalidateKey(key)
+
+    @classmethod
+    def swapInstanceForTesting(cls, testingInstance):
+        cls._INSTANCE = testingInstance
+
+    @classmethod
+    def _get(cls) -> "Cacher":
+        if not cls._INSTANCE:
+            cls._INSTANCE = Cacher()
+        return cls._INSTANCE
+    
+    def _init(self):
+        """ Initialises the cache in the event it may have been deleted. """
+        if not os.path.exists(self.PATH):
+            os.mkdir(self.PATH)
+            with open(os.path.join(self.PATH, ".gitignore"), "w") as f:
+                f.write("cache.json")
+        if not os.path.exists(self.CACHE_JSON):
+            with open(self.CACHE_JSON, "w") as f:
+                json.dump({self.CL_NUMBERS: {}, self.TREE: {}, self.TREE_HASH: {}, self.NEXT_BRANCH: "aaaaa"}, f)
+
+    def _getCachedKey(self, key: str):
         """
             Returns the value associated with a given key or None if it doens't 
             exist in the cache.
         """
-        if not os.path.exists(cls.CACHE_JSON):
-            cls.init()
-        with open(cls.CACHE_JSON, "r") as f:
+        if not os.path.exists(self.CACHE_JSON):
+            self.init()
+        with open(self.CACHE_JSON, "r") as f:
             cache = json.load(f)
         return cache[key] if key in cache else None
 
-    @classmethod
-    def cacheKey(cls, key: str, data):
+    def _cacheKey(self, key: str, data):
         """ Stores the given data along with its key in the cache. """
-        if not os.path.exists(cls.CACHE_JSON):
-            cls.init()
-        with open(cls.CACHE_JSON, "r") as f:
+        if not os.path.exists(self.CACHE_JSON):
+            self.init()
+        with open(self.CACHE_JSON, "r") as f:
             cache = json.load(f)
         cache[key] = data
-        with open(cls.CACHE_JSON, "w") as f:
+        with open(self.CACHE_JSON, "w") as f:
             json.dump(cache, f)
     
-    @classmethod
-    def invalidateKey(cls, key: str):
+    def _invalidateKey(self, key: str):
         """ Deletes any data associated with the given key. """
-        if not os.path.exists(cls.CACHE_JSON):
-            cls.init()
-        with open(cls.CACHE_JSON, "r") as f:
+        if not os.path.exists(self.CACHE_JSON):
+            self.init()
+        with open(self.CACHE_JSON, "r") as f:
             cache = json.load(f)
         cache[key] = None
-        with open(cls.CACHE_JSON, "w") as f:
+        with open(self.CACHE_JSON, "w") as f:
             json.dump(cache, f)
