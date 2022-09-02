@@ -21,7 +21,12 @@ from runner import CommandRunner as runner
 import status
 from util import *
 
-def createCommitMessage():
+def createCommitMessage() -> str:
+    """
+        Opens the user's default editor (or nano by default) and prompts them 
+        to enter a message for the new commit. An empty commit message should 
+        cancel the commit.
+    """
     message = ["\n\n\nGUM: Enter a commit message. Lines beginning with 'GUM:' are removed.\nGUM: Leave commit message empty to cancel.\nGUM: --\nGUM: user: "]
     message.append(runner.get().run("git config user.email"))
     message.append("\n")
@@ -70,13 +75,16 @@ def createCommitMessage():
     return "\n".join(commitMessage)
 
 
+# DEPRECATED: Use getSingleCommitForPrefix instead.
 def getCommitForPrefix(prefix: str) -> str:
+    """ Returns a full commit hash given a unique commit hash prefix. """
     results = getPrefixesForCommits([branches.getCommitForBranch(b) for b in branches.getAllBranches()])
     if prefix not in results:
         return prefix
     return prefix + results[prefix]
 
 def getSingleCommitForPrefix(prefix: str) -> str:
+    """ Returns a full commit hash given a unique commit hash prefix. """
     trie = Trie()
     commits = runner.get().run("git rev-parse --branches=*").split("\n")
     for commit in commits:
@@ -84,24 +92,34 @@ def getSingleCommitForPrefix(prefix: str) -> str:
     return trie.querySingle(prefix)
 
 def getParentOfCommit(commitHash: str) -> str:
+    """ Returns the direct parent of a commit given a commit reference. """
     return branches.getCommitForBranch(commitHash + "^")
 
 def getTitleOfCommit(commitHash: str) -> str:
+    """ Returns the first line of a commit's description (the title). """
     return runner.get().run(f"git log {commitHash} -1 --pretty=format:%s")
 
 def getBranchForCommit(commitHash: str) -> str:
+    """
+        Given a commit hash, return the branch that points to that hash with 
+        the assumption that a maximum of one branch points to each commit. If 
+        no branch points to the given commit hash, return None.
+    """
     for branch in branches.getAllBranches():
         if branches.getCommitForBranch(branch) == commitHash:
             return branch
     return None
 
 def getFullCommitHash(reference: str) -> str:
+    """ Resolves a commit reference to its full commit hash. """
     return runner.get().run(f"git rev-parse {reference}")
 
 
 def getDateForCommit(commitHash: str) -> str:
+    """ Returns the date a commit was created. """
     return "".join(runner.get().run(f"git show --no-patch --no-notes {commitHash} --pretty=format:%ci").split()[:-1])
 
 
 def getEmailForCommit(commitHash: str) -> str:
+    """ Returns the commit author's email for a given commit hash. """
     return runner.get().run(f"git show --no-patch --no-notes {commitHash} --format=%ae")[:-1]

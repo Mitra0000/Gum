@@ -17,14 +17,16 @@ import os
 
 class Cacher:
     """
-        A simple helper class to handle all interaction with a cache stored on disk.
-        A cache is required so that state can be maintained between commands as each
-        command is processed in its own execution of the program.
+        A simple helper class to handle all interaction with a cache stored on 
+        disk. A cache is required so that state can be maintained between 
+        commands as each command is processed in its own execution of the 
+        program.
 
-        The cache on disk is stored as a JSON and is a key-value store where the keys
-        are strings and the values can be any serialisable type.
+        The cache on disk is stored as a JSON and is a key-value store where 
+        the keys are strings and the values can be any serialisable type.
 
-        Keys should be stored as static constants below to avoid spelling mistakes.
+        Keys should be stored as static constants below to avoid spelling 
+        mistakes.
     """
 
     CL_NUMBERS = "cl_numbers"

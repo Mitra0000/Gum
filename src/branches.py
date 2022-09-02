@@ -42,7 +42,9 @@ def getCurrentBranch() -> str:
 
 
 def getNextBranch() -> str:
-    """ Returns the next unique branch name to use for creating a new branch. """
+    """
+        Returns the next unique branch name to use for creating a new branch. 
+    """
     filename = os.path.join(os.path.dirname(os.path.abspath(__file__)), "nextBranch.txt")
     with open(filename, "r") as f:
         branch = f.read()
@@ -60,7 +62,10 @@ def getNextBranch() -> str:
 
 
 def getNextBranchNameFrom(branchName: str) -> str:
-    """ Takes a 5 character string and calculates the next alphabetical 5 character string. """
+    """
+        Takes a 5 character string and calculates the next alphabetical 
+        5 character string.
+    """
     alphabet = "abcdefghijklmnopqrstuvwxyz"
     branchName = list(branchName)
     for i in range(len(branchName) - 1, -1, -1):
@@ -72,12 +77,18 @@ def getNextBranchNameFrom(branchName: str) -> str:
 
 
 def getCommitForBranch(reference: str) -> str:
-    """ Returns the short commit hash of a given branch/commit reference (eg. HEAD^^). """
+    """
+        Returns the short commit hash of a given branch/commit reference 
+        (eg. HEAD^^). 
+    """
     return runner.get().run(f"git rev-parse --short {reference}")[:-1]
 
 
 def getUrlsForBranches() -> "dict[str, str]":
-    """ Returns a dictionary mapping branch names to their CL URLs if they exist. """
+    """
+        Returns a dictionary mapping branch names to their CL URLs if they 
+        exist.
+    """
     branchesToUrls = {}
     output = runner.get().run("git cl status -f --no-branch-color")
     output = output.split("\n")[1:]
@@ -98,7 +109,10 @@ def isBranchOwned(reference: str) -> str:
     return runner.get().run(f"git show --no-patch --no-notes {reference} --format=%ce")[:-1] == runner.get().run("git config user.email")[:-1]
 
 def rebaseBranches(queue: "list[str]", originalBranch: str) -> None:
-    """ Iterates through a queue of branches, rebasing each onto its upstream parent. """
+    """
+        Iterates through a queue of branches, rebasing each onto its 
+        upstream parent.
+    """
     for i, branch in enumerate(queue):
         runner.get().run(f"git checkout {branch}", True)
         runner.get().runInProcess(f"git pull --rebase")
