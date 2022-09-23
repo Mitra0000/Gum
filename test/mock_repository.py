@@ -25,11 +25,8 @@ class MockRepository:
         self.nextBranch = 1
         self.currentBranch = "head"
     
-    def createNewBranch(self, name):
-        commit = str(self.nextBranch)
-        self.createNewBranch(name, commit)
-    
-    def createNewBranch(self, name, commit):
+    def createNewBranch(self, name, commit = None):
+        commit = commit if commit else str(self.nextBranch)
         self.tree[name] = Node(name, commit, self.tree[self.currentBranch], [], True, commit, "")
         self.tree[self.currentBranch].children.append(self.tree[name])
     
