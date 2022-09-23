@@ -16,7 +16,6 @@ import os
 import tempfile
 
 import branches
-from node import Node
 from runner import CommandRunner as runner
 import status
 from util import *
