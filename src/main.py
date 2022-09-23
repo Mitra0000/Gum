@@ -56,13 +56,12 @@ def main(args):
         return
 
     elif command == "commit":
-        commitMessage = commits.createCommitMessage()
-        if commitMessage is None:
-            return "Commit cancelled."
+        commitMessage = args.message if args.message else commits.createCommitMessage()
+        if commitMessage is None or commitMessage == "":
+            return "Commit cancelled due to empty commit message."
         currentBranch = branches.getCurrentBranch()
         newBranch = branches.getNextBranch()
         if branches.isBranchOwned(currentBranch):
-            # runner.get().run(f"git new-branch --upstream_current {newBranch}") # Only works on Chromium.
             runner.get().run(f"git checkout -b {newBranch}", True)
             runner.get().run(f"git branch --set-upstream-to={currentBranch}", True)
         else:
@@ -71,11 +70,6 @@ def main(args):
             runner.get().run("git branch --set-upstream-to=origin/main", True)
         runner.get().run("git add -u", True)
         runner.get().runInProcess(f"git commit -m '{commitMessage}'")
-        # Store the current branch name as x
-        # Create a new branch called y
-        # Set upstream of y to x
-        # Add known changes to y
-        # Commit with commitMessage to y
     
     elif command == "continue":
         runner.get().runInProcess("git rebase --continue")

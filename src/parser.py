@@ -22,7 +22,10 @@ def getArgs():
     add_parser.add_argument("files", action="append", nargs="*", type=str)
 
     amend_parser = subparsers.add_parser("amend", help="Update the current commit with the latest changes.")
+
     commit_parser = subparsers.add_parser("commit", help="Create a new commit as a child of the current commit.")
+    commit_parser.add_argument("-m", "--message", required=False)
+
     continue_parser = subparsers.add_parser("continue", help="Continues an in-progress rebase.")
     diff_parser = subparsers.add_parser("diff", help="Show changes made since the last commit/amendment.")
     fix_parser = subparsers.add_parser("fix", help="Run a linter to automatically format code.")
