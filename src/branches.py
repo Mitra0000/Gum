@@ -109,6 +109,8 @@ def getUrlsForBranches() -> "dict[str, str]":
 
 def isBranchOwned(reference: str) -> str:
     """ Returns whether the commit was authored by the current Git user. """
+    if reference == "head":
+        return False
     return runner.get().run(f"git show --no-patch --no-notes {reference} --format=%ce")[:-1] == runner.get().run("git config user.email")[:-1]
 
 def rebaseBranches(queue: "list[str]", originalBranch: str) -> None:
