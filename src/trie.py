@@ -49,9 +49,16 @@ class Trie(object):
             self.dfs(child, prefix + node.char)
     
     def searchTail(self, node):
-        if len(node.children) == 1:
-            return node.char + self.searchTail(list(node.children.values())[0])
-        return node.char
+        tail = node.char
+        while node.children:
+            if len(node.children) > 1:
+                return None
+            elif len(node.children) == 1:
+                node = list(node.children.values())[0]
+                tail += node.char
+            else:
+                return None
+        return tail
 
     # Deprecated
     def query(self):
@@ -70,7 +77,10 @@ class Trie(object):
             node = node.children[query[idx]]
             idx += 1
         else:
-            if len(node.children) == 1:
-                query = query[:-1] + self.searchTail(node)
+            if len(node.children) <= 1:
+                tail = self.searchTail(node)
+                if not tail:
+                    return None
+                query = query[:-1] + tail
                 return runner.get().run(f"git rev-parse --short {query}")[:-1]
         return None

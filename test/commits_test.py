@@ -32,5 +32,22 @@ class CommitManagerTest(unittest.TestCase):
     def testGetBranchForCommit(self):
         self.assertEqual(commits.getBranchForCommit("0"), "head")
 
+    def testGetSingleCommitForPrefix(self):
+        commit = "123abc"
+        self.repo.createNewBranch("test", commit)
+        for i in range(1, len(commit) + 1):
+            self.assertEqual(commits.getSingleCommitForPrefix(commit[0:i]), commit)
+
+    def testGetSingleCommitForPrefixMultipleBranches(self):
+        commit1 = "123abc"
+        commit2 = "128cba"
+        self.repo.createNewBranch("test1", commit1)
+        self.repo.createNewBranch("test2", commit2)
+        self.assertEqual(commits.getSingleCommitForPrefix("1"), None)
+        self.assertEqual(commits.getSingleCommitForPrefix("12"), None)
+        self.assertEqual(commits.getSingleCommitForPrefix("123"), commit1)
+        self.assertEqual(commits.getSingleCommitForPrefix("128"), commit2)
+
+
 if __name__ == '__main__':
     unittest.main()

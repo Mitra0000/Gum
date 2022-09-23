@@ -27,6 +27,9 @@ class MockRepository:
     
     def createNewBranch(self, name):
         commit = str(self.nextBranch)
+        self.createNewBranch(name, commit)
+    
+    def createNewBranch(self, name, commit):
         self.tree[name] = Node(name, commit, self.tree[self.currentBranch], [], True, commit, "")
         self.tree[self.currentBranch].children.append(self.tree[name])
     
@@ -54,9 +57,17 @@ class MockRepository:
             return self.currentBranch + "\n"
         elif command.startswith("git rev-parse --short"):
             branch = command.split()[-1]
-            return self.tree[branch].commit + "\n"
+            if branch in self.tree:
+                return self.tree[branch].commit + "\n"
+            return branch + "\n"
         elif command.startswith("git show --no-patch --no-notes"):
             branch = command.split()[4]
             return (OWNED_EMAIL if self.tree[branch].is_owned else ANOTHER_EMAIL) + "\n"
         elif command == "git config user.email":
             return OWNED_EMAIL + "\n"
+        # Commands for commits.py
+        elif command == "git rev-parse --branches=*":
+            s = ""
+            for branch in self.tree:
+                s += self.tree[branch].commit + "\n"
+            return s
