@@ -137,16 +137,23 @@ def main(args):
     elif command == "sync":
         currentBranch = branches.getCurrentBranch()
         if not branches.isBranchOwned(currentBranch):
-            return
+            return "Syncing unowned branches is not implemented yet"
         # Need to traverse and rebase all children.
         newBranch = branches.getNextBranch()
         runner.get().run("git checkout head", True)
         runner.get().run(f"git checkout -b {newBranch}", True)
         runner.get().run(f"git branch --set-upstream-to=origin/main {newBranch}", True)
-        runner.get().run("git pull", True)
+        print("Fetching changes from remote.")
+        runner.get().runInProcess("git pull")
 
-        # Move commit and children onto new branch.
         runner.get().run(f"git checkout {currentBranch}", True)
+
+        if branches.getCommitForBranch(newBranch) == branches.getCommitForBranch("head"):
+            # Repository was already up to date.
+            runner.get().run(f"git branch -D {newBranch}", True)
+            return
+        # Move commit and children onto new branch.
+        print("Rebasing changes onto new head.")
         runner.get().run(f"git rebase {newBranch}", True)
 
         originalBranch = branches.getCurrentBranch()
