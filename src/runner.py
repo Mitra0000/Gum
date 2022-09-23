@@ -35,6 +35,10 @@ class CommandRunner:
     
     def runInProcess(self, command: str):
         os.system(command)
+    
+    def runInProcessWithReturnCode(self, command: str):
+        process = subprocess.run(command, shell=True)
+        return process.returncode
 
 class VerboseRunner(CommandRunner):
     def _log(self, log: str):
@@ -48,6 +52,10 @@ class VerboseRunner(CommandRunner):
         self._log(f"Running `{command}`")
         super().runInProcess(command)
 
+    def runInProcessWithReturnCode(self, command: str):
+        self._log(f"Running `{command}`")
+        return super().runInProcessWithReturnCode(command)
+
 class DryRunner(CommandRunner):
     def _log(self, log: str):
         print(f"Dry Runner: {log}")
@@ -60,3 +68,7 @@ class DryRunner(CommandRunner):
     
     def runInProcess(self, command: str):
         self._log(f"Run `{command}`")
+
+    def runInProcessWithReturnCode(self, command: str):
+        self._log(f"Run `{command}`")
+        return 0

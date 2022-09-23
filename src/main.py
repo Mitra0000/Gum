@@ -193,8 +193,11 @@ def main(args):
             commit = branches.getCommitForBranch(commitRef)
             branch = commits.getBranchForCommit(commit)
             runner.get().run(f"git checkout {branch}", True)
-            runner.get().runInProcess("git cl upload -f")
-            urls.append(commit)
+            returnCode = runner.get().runInProcessWithReturnCode("git cl upload -f")
+            if returnCode == 0:
+                urls.append(commit)
+        if len(urls) == 0:
+            return "Upload failed."
         commitsToUrls = branches.getUrlsForBranches()
         print(f"Uploaded {len(urls)} CLs.")
         for commit in urls:
