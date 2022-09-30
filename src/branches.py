@@ -16,6 +16,15 @@ from cacher import Cacher
 from runner import CommandRunner as runner
 from util import *
 
+def createNewBranchAt(commit: str):
+    """ 
+        Creates a new branch with its head pointing to commit, 
+        returning the new branch name.
+    """
+    branch = getNextBranch()
+    runner.get().run(f"git branch {branch} {commit}")
+    return branch
+
 def getAllBranches() -> "list[str]":
     """ Returns a list of all branches with the current branch at the end. """
     data = runner.get().run("git branch")

@@ -76,33 +76,54 @@ class Tree:
 
     @classmethod
     def _generateParentsAndBranches(cls, branchNames):
+        # Set of commit hashes.
         commitSet = set()
+        # List of tuples of (Commit Date, Commit Hash) sorted on Commit Date.
         unownedCommits = []
-        parentsToBranches = defaultdict(set)
-        branchesToParents = {}
+        # Maps commit hashes to branches.
         commitsToBranches = {}
+
         for branch in branchNames:
             commit = branches.getCommitForBranch(branch)
             commitSet.add(commit)
+            assert commit not in commitsToBranches, (
+                f"Two branches ({commitsToBranches[commit]} & {branch}) " +
+                "point to the same commit. Please delete one of them.")
             commitsToBranches[commit] = branch
-            if not branches.isBranchOwned(commit):
+            if not branches.isBranchOwned(branch):
                 bisect.insort(unownedCommits, (commits.getDateForCommit(commit), commit))
+
+        # Relates a parent branch to a set of child branches.
+        parentsToBranches = defaultdict(set)
+        # Relates a branch to its parent branch.
+        branchesToParents = {}
 
         for branch in branchNames:
             if branch == "head":
                 branchesToParents["head"] = None
                 continue
             parent = branches.getCommitForBranch(f"{branch}^")
+            # Orphan change
             if parent not in commitSet:
+                # Create a new unowned branch for the new parent.
+                newBranch = branches.createNewBranchAt(parent)
+                commitSet.add(parent)
                 parentDate = commits.getDateForCommit(parent)
-                for i in range(len(unownedCommits)):
-                    if unownedCommits[i][0] > parentDate:
-                        parent = unownedCommits[i - 1][1]
-                        break
+                pos = bisect.bisect(unownedCommits, (parentDate, parent))
+                skipParent = unownedCommits[pos - 1][1]
+
+                if pos == len(unownedCommits):
+                    unownedCommits.append(parent)
                 else:
-                    parent = unownedCommits[-1][1]
-            parentsToBranches[commitsToBranches[parent]].add(branch)
-            branchesToParents[branch] = commitsToBranches[parent]
+                    unownedCommits.insert(pos, (parentDate, parent))
+
+                branchesToParents[branch] = newBranch
+                branchesToParents[newBranch] = skipParent
+                parentsToBranches[newBranch].add(branch)
+                parentsToBranches[skipParent].add(newBranch)
+            else:
+                parentsToBranches[commitsToBranches[parent]].add(branch)
+                branchesToParents[branch] = commitsToBranches[parent]
         uniqueHashes = getUniqueCommitPrefixes([branches.getCommitForBranch(b) for b in branchesToParents.keys()])
         return branchesToParents, parentsToBranches, uniqueHashes 
     

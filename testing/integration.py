@@ -41,7 +41,13 @@ class IntegrationTest(unittest.TestCase):
         out, err = process.communicate()
         process.wait()
         return out.decode("utf-8")
-    
+
+    def runCommandReturnError(self, command: str) -> str:
+        process = subprocess.Popen(command.split(), stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd=self.TEST_REPOSITORY)
+        out, err = process.communicate()
+        process.wait()
+        return err.decode("utf-8")
+
     def createFirstCommit(self):
         self.runCommand(f"{self.GUM} init")
         self.createFile("test.txt", "This is a test.")

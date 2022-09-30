@@ -54,5 +54,42 @@ class XlTest(IntegrationTest):
         self.assertTrue(fnmatch.fnmatch(output, "o * Author: You \n| 'First_child_commit'\n| @ * Author: You \n|/  'Second_child_commit'\no * Author: * \n| 'Initial_commit.'\n~\n")
                         or fnmatch.fnmatch(output, "@ * Author: You \n| 'Second_child_commit'\n| o * Author: You \n|/  'First_child_commit'\no * Author: * \n| 'Initial_commit.'\n~\n"))
 
+    def testXlWithTwoBranchesPointingToSameCommit(self):
+        self.runCommand("git checkout -b firstChild")
+        self.createFile("newfile.txt", "This is a new file.")
+        self.runCommand("git add -A")
+        self.runCommand("git commit -m 'First_child_commit'")
+        # Checks out a new branch and updates it to the first child's commit.
+        self.runCommand("git checkout -b secondChild firstChild")
+        self.runCommand("git checkout head")
+
+        err = self.runCommandReturnError(f"{self.GUM} xl")
+        self.assertTrue(
+            err.endswith("AssertionError: Two branches " + 
+            "(firstChild & secondChild) point to the same commit. " + 
+            "Please delete one of them.\n"))
+    
+    def testXlWithOrphanedBranch(self):
+        self.runCommand("git checkout -b aaaaa")
+        self.runCommand("git branch --set-upstream-to=head")
+        self.createFile("newfile.txt", "This is a new file.")
+        self.runCommand("git add -A")
+        self.runCommand("git commit -m 'First_child_commit'")
+
+        self.runCommand("git checkout -b aaaab")
+        self.runCommand("git branch --set-upstream-to=aaaaa")
+        self.createFile("different_file.txt", "This is a different file.")
+        self.runCommand("git add -A")
+        self.runCommand("git commit -m 'Second_child_commit'")
+        # Remove the parent to see if it is recreated.
+        self.runCommand("git branch -D firstChild")
+
+        output = self.runCommand(f"{self.GUM} xl")
+        output = self.decodeFormattedText(output)
+
+        self.assertTrue(fnmatch.fnmatch(output, "@ * Author: You \n| 'Second_child_commit'\no * Author: You \n| 'First_child_commit'\no * Author: * \n| 'Initial_commit.'\n~\n"))
+        branches = self.runCommand(f"git branch").split("\n")
+        self.assertEqual(len([b for b in branches if b != ""]), 3)
+
 if __name__ == '__main__':
     unittest.main()
