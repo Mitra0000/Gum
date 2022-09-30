@@ -21,8 +21,6 @@ class TextDecorators:
     UNDERLINE = '\033[4m'
     ENDC = '\033[0m'
 
-import os
-
 class Color:
     Black = "\u001b[30m"
     Red = "\u001b[31m"
