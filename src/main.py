@@ -44,8 +44,10 @@ def main(args):
             runner.get().runInProcess(f"git add {' '.join(files)}")
 
     elif command == "amend":
-        print("Amending changes.")
         originalBranch = branches.getCurrentBranch()
+        if not branches.isBranchOwned(originalBranch):
+            return "You cannot amend to an unowned branch."
+        print("Amending changes.")
         allChildren = Tree.getRecursiveChildrenFrom(originalBranch)
         runner.get().run("git add -u", True)
         runner.get().run("git commit --amend --no-edit", True)
