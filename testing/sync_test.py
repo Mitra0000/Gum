@@ -35,7 +35,7 @@ class SyncTest(IntegrationTest):
         self.runCommand("git commit -m 'Update_test.txt'")
 
         self.useLocalRepository()
-        print(self.runCommand(f"{self.GUM} sync"))
+        self.runCommand(f"{self.GUM} sync")
         contents = self.readFile("test.txt")
         self.runCommand(f"{self.GUM} xl")
         self.assertEqual("This is data from remote.", contents)

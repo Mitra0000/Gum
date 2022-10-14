@@ -31,16 +31,16 @@ class IntegrationTest(unittest.TestCase):
     def setUp(self):
         os.makedirs(self.REMOTE_REPOSITORY)
         self.useRemoteRepository()
-        print(self.runCommandReturnError("git init -b main"))
+        self.runCommandReturnError("git init -b main")
         self.createFile("test.txt", "This is a test.")
         self.runCommand("git add -A")
         self.runCommand("git commit -m 'Initial_commit.'")
         self._currentRepository = self.REMOVE_WHEN_DONE
-        print(self.runCommandReturnError(f"git clone {os.path.join(self.REMOTE_REPOSITORY, '.git')} {self.TEST_REPOSITORY}"))
+        self.runCommandReturnError(f"git clone {os.path.join(self.REMOTE_REPOSITORY, '.git')} {self.TEST_REPOSITORY}")
         self.assertTrue(os.path.exists(self.TEST_REPOSITORY))
         self.useLocalRepository()
         self.runCommand(f"{self.GUM} init")
-        
+
     def tearDown(self):
         shutil.rmtree(self.REMOVE_WHEN_DONE)
 
