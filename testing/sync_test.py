@@ -27,7 +27,7 @@ class SyncTest(IntegrationTest):
         self.runCommand(f"{self.GUM} add")
         self.runCommand(f"{self.GUM} commit -m 'first_commit'")
         self.runCommand("git fetch --all")
-        self.runCommand("git branch --set-upstream-to=origin/master")
+        self.runCommand("git branch --set-upstream-to=origin/main")
 
         self.useRemoteRepository()
         self.modifyFile("test.txt", "This is data from remote.")
@@ -35,7 +35,7 @@ class SyncTest(IntegrationTest):
         self.runCommand("git commit -m 'Update_test.txt'")
 
         self.useLocalRepository()
-        self.runCommand(f"git pull --rebase")
+        print(self.runCommand(f"{self.GUM} sync"))
         contents = self.readFile("test.txt")
         self.runCommand(f"{self.GUM} xl")
         self.assertEqual("This is data from remote.", contents)
