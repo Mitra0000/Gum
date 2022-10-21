@@ -73,6 +73,10 @@ def getArgs():
         help=
         "The commit that the commit being rebased should be moved on top of.",
         required=True)
+    
+    revert_parser = subparsers.add_parser(
+        "revert", help="Undo any changes made to a specific file/pathspec.")
+    revert_parser.add_argument("files", action="append", nargs="*", type=str)
 
     status_parser = subparsers.add_parser(
         "status",

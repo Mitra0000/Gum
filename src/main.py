@@ -141,6 +141,11 @@ def main(args):
                              True)
         updateHead()
         return
+    
+    elif command == "revert":
+        # Flatten the parsed filenames.
+        files = [item for inner in args.files for item in inner]
+        runner.get().runInProcess(f"git restore -s HEAD {' '.join(files)}")
 
     elif command == "status":
         return status.getStatus()
