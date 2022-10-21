@@ -97,6 +97,11 @@ def main(args):
     elif command == "fix":
         runner.get().runInProcess("git cl format")
 
+    elif command == "forget":
+        # Flatten the parsed filenames.
+        files = [item for inner in args.files for item in inner]
+        runner.get().runInProcess(f"git rm --cached {' '.join(files)}")
+
     elif command == "init":
         runner.get().run("git branch -D head", True)
         runner.get().run("git checkout -b head", True)
@@ -141,11 +146,12 @@ def main(args):
                              True)
         updateHead()
         return
-    
+
     elif command == "revert":
         # Flatten the parsed filenames.
         files = [item for inner in args.files for item in inner]
-        runner.get().runInProcess(f"git restore -s HEAD {' '.join(files)}")
+        runner.get().runInProcess(
+            f"git restore --staged --worktree -s HEAD {' '.join(files)}")
 
     elif command == "status":
         return status.getStatus()

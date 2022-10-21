@@ -40,6 +40,11 @@ def getArgs():
         "diff", help="Show changes made since the last commit/amendment.")
     fix_parser = subparsers.add_parser(
         "fix", help="Run a linter to automatically format code.")
+
+    forget_parser = subparsers.add_parser("forget",
+                                          help="Stop tracking a file or path.")
+    forget_parser.add_argument("files", action="append", nargs="*", type=str)
+
     init_parser = subparsers.add_parser(
         "init",
         help=
@@ -73,7 +78,7 @@ def getArgs():
         help=
         "The commit that the commit being rebased should be moved on top of.",
         required=True)
-    
+
     revert_parser = subparsers.add_parser(
         "revert", help="Undo any changes made to a specific file/pathspec.")
     revert_parser.add_argument("files", action="append", nargs="*", type=str)

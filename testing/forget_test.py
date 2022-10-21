@@ -17,26 +17,28 @@ import unittest
 from integration import IntegrationTest
 
 
-# Integration tests for the `gm add` command.
-# Should be kept reasonably up to date with forget_test.py.
-class AddTest(IntegrationTest):
+# Integration tests for the `gm forget` command.
+# Should be kept reasonably up to date with add_test.py.
+class ForgetTest(IntegrationTest):
 
-    def testAddCommandTracksUntrackedFile(self):
+    def testForgetCommandUntracksTrackedFile(self):
         self.createFile("added_file.txt", "This was just added.")
+        self.runCommand("git add -A")
+        self.assertEqual(self.runCommand("git status --porcelain"),
+                         "A  added_file.txt\n")
+        self.runCommand(f"{self.GUM} forget added_file.txt")
         status = self.runCommand("git status --porcelain")
         self.assertEqual(status, "?? added_file.txt\n")
-        self.runCommand(f"{self.GUM} add")
-        status = self.runCommand("git status --porcelain")
-        self.assertEqual(status, "A  added_file.txt\n")
 
-    def testAddSpecificFileDoesntAddAllFiles(self):
+    def testForgetSpecificFileDoesntForgetAllFiles(self):
         self.createFile("foo.txt", "This is foo.")
         self.createFile("bar.txt", "This is bar.")
+        self.runCommand("git add -A")
         status = self.runCommand("git status --porcelain")
-        self.assertEqual(status, "?? bar.txt\n?? foo.txt\n")
-        self.runCommand(f"{self.GUM} add foo.txt")
+        self.assertEqual(status, "A  bar.txt\nA  foo.txt\n")
+        self.runCommand(f"{self.GUM} forget foo.txt")
         status = self.runCommand("git status --porcelain")
-        self.assertEqual(status, "A  foo.txt\n?? bar.txt\n")
+        self.assertEqual(status, "A  bar.txt\n?? foo.txt\n")
 
 
 if __name__ == '__main__':
