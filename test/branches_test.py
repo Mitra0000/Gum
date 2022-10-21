@@ -96,5 +96,10 @@ class BranchesTest(unittest.TestCase):
         self.repo.createNewBranch("testBranch")
         self.assertTrue(branches.isBranchOwned("testBranch"))
 
+    def testIsUnownedBranchOwned(self):
+        self.repo.createNewBranch("testBranch")
+        self.repo.tree["testBranch"].is_owned = False
+        self.assertFalse(branches.isBranchOwned("testBranch"))
+
 if __name__ == '__main__':
     unittest.main()
