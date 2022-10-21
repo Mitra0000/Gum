@@ -92,6 +92,10 @@ def getArgs():
         "sync", help="Sync the current commit to the newest point upstream.")
     test_parser = subparsers.add_parser(
         "test", help="DO NOT USE. Undefined behaviour meant for testing.")
+    unamend_parser = subparsers.add_parser(
+        "unamend",
+        help=
+        "Undo the last amend and move the changes into your working directory.")
     uncommit_parser = subparsers.add_parser(
         "uncommit",
         help=

@@ -190,6 +190,9 @@ def main(args):
     elif command == "test":
         return commits.getSingleCommitForPrefix(input())
 
+    elif command == "unamend":
+        runner.get().run("git reset --soft HEAD@{1}")
+
     elif command == "uncommit":
         tree = Tree.get()
         currentBranch = branches.getCurrentBranch()
