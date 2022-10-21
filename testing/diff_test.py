@@ -16,8 +16,10 @@ import unittest
 
 from integration import IntegrationTest
 
+
 # Integration tests for the `gm diff` command.
 class DiffTest(IntegrationTest):
+
     def testEmptyDiff(self):
         self.assertEqual(self.runCommand(f"{self.GUM} diff"), "")
         self.assertGumOutputEqualsGitOutput()
@@ -43,6 +45,7 @@ class DiffTest(IntegrationTest):
         gumOutput = self.runCommand(f"{self.GUM} diff")
         gitOutput = self.runCommand("git diff")
         self.assertEqual(gumOutput, gitOutput)
+
 
 if __name__ == '__main__':
     unittest.main()

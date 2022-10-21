@@ -20,13 +20,16 @@ from runner import CommandRunner as runner
 import status
 from util import *
 
+
 def createCommitMessage() -> str:
     """
         Opens the user's default editor (or nano by default) and prompts them 
         to enter a message for the new commit. An empty commit message should 
         cancel the commit.
     """
-    message = ["\n\n\nGUM: Enter a commit message. Lines beginning with 'GUM:' are removed.\nGUM: Leave commit message empty to cancel.\nGUM: --\nGUM: user: "]
+    message = [
+        "\n\n\nGUM: Enter a commit message. Lines beginning with 'GUM:' are removed.\nGUM: Leave commit message empty to cancel.\nGUM: --\nGUM: user: "
+    ]
     message.append(runner.get().run("git config user.email"))
     message.append("\n")
     files = decodeFormattedText(status.getStatus())
@@ -51,7 +54,7 @@ def createCommitMessage() -> str:
 
     editor = os.getenv("EDITOR")
     if editor is not None:
-        runner.get().runInProcess(f"{editor} {filePath}") 
+        runner.get().runInProcess(f"{editor} {filePath}")
     else:
         runner.get().runInProcess(f"nano {filePath}")
 
@@ -64,10 +67,10 @@ def createCommitMessage() -> str:
 
     lines = content.split("\n")
     for line in lines:
-        if line.startswith("GUM:") or line == ""  or line == "\n":
+        if line.startswith("GUM:") or line == "" or line == "\n":
             continue
         commitMessage.append(line)
-    
+
     if os.path.exists(filePath):
         os.remove(filePath)
     commitMessage[0] += "\n"
@@ -77,10 +80,12 @@ def createCommitMessage() -> str:
 # DEPRECATED: Use getSingleCommitForPrefix instead.
 def getCommitForPrefix(prefix: str) -> str:
     """ Returns a full commit hash given a unique commit hash prefix. """
-    results = getPrefixesForCommits([branches.getCommitForBranch(b) for b in branches.getAllBranches()])
+    results = getPrefixesForCommits(
+        [branches.getCommitForBranch(b) for b in branches.getAllBranches()])
     if prefix not in results:
         return prefix
     return prefix + results[prefix]
+
 
 def getSingleCommitForPrefix(prefix: str) -> str:
     """ Returns a full commit hash given a unique commit hash prefix. """
@@ -90,13 +95,16 @@ def getSingleCommitForPrefix(prefix: str) -> str:
         trie.insert(commit)
     return trie.querySingle(prefix)
 
+
 def getParentOfCommit(commitHash: str) -> str:
     """ Returns the direct parent of a commit given a commit reference. """
     return branches.getCommitForBranch(commitHash + "^")
 
+
 def getTitleOfCommit(commitHash: str) -> str:
     """ Returns the first line of a commit's description (the title). """
     return runner.get().run(f"git log {commitHash} -1 --pretty=format:%s")
+
 
 def getBranchForCommit(commitHash: str) -> str:
     """
@@ -109,6 +117,7 @@ def getBranchForCommit(commitHash: str) -> str:
             return branch
     return None
 
+
 def getFullCommitHash(reference: str) -> str:
     """ Resolves a commit reference to its full commit hash. """
     return runner.get().run(f"git rev-parse {reference}")
@@ -116,9 +125,12 @@ def getFullCommitHash(reference: str) -> str:
 
 def getDateForCommit(commitHash: str) -> str:
     """ Returns the date a commit was created. """
-    return "".join(runner.get().run(f"git show --no-patch --no-notes {commitHash} --pretty=format:%ci").split()[:-1])
+    return "".join(runner.get().run(
+        f"git show --no-patch --no-notes {commitHash} --pretty=format:%ci").
+                   split()[:-1])
 
 
 def getEmailForCommit(commitHash: str) -> str:
     """ Returns the commit author's email for a given commit hash. """
-    return runner.get().run(f"git show --no-patch --no-notes {commitHash} --format=%ae")[:-1]
+    return runner.get().run(
+        f"git show --no-patch --no-notes {commitHash} --format=%ae")[:-1]

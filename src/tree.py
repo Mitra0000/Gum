@@ -22,6 +22,7 @@ from node import Node
 from runner import CommandRunner as runner
 from util import *
 
+
 class Tree:
     _tree = None
 
@@ -43,7 +44,7 @@ class Tree:
         Cacher.cacheKey(Cacher.TREE, tree)
         cls._tree = tree
         return cls._tree
-    
+
     @classmethod
     def getRecursiveChildrenFrom(cls, branch):
         tree = cls.get()
@@ -62,15 +63,18 @@ class Tree:
     def _generateTree(cls):
         branchNames = branches.getAllBranches()
         tree = {}
-        branchesToParents, parentsToBranches, uniqueHashes = cls._generateParentsAndBranches(branchNames)
+        branchesToParents, parentsToBranches, uniqueHashes = cls._generateParentsAndBranches(
+            branchNames)
         for branch in branchNames:
             commit = branches.getCommitForBranch(branch)
             parent = branchesToParents[branch]
             children = parentsToBranches[branch]
             is_owned = branches.isBranchOwned(branch)
-            tree[branch] = Node(branch, commit, parent, children, is_owned, *uniqueHashes[commit])
+            tree[branch] = Node(branch, commit, parent, children, is_owned,
+                                *uniqueHashes[commit])
         for branch in tree:
-            tree[branch].parent = tree[tree[branch].parent] if tree[branch].parent else None
+            tree[branch].parent = tree[
+                tree[branch].parent] if tree[branch].parent else None
             tree[branch].children = [tree[i] for i in tree[branch].children]
         return tree
 
@@ -91,7 +95,8 @@ class Tree:
                 "point to the same commit. Please delete one of them.")
             commitsToBranches[commit] = branch
             if not branches.isBranchOwned(branch):
-                bisect.insort(unownedCommits, (commits.getDateForCommit(commit), commit))
+                bisect.insort(unownedCommits,
+                              (commits.getDateForCommit(commit), commit))
 
         # Relates a parent branch to a set of child branches.
         parentsToBranches = defaultdict(set)
@@ -132,9 +137,10 @@ class Tree:
                 parentsToBranches[commitsToBranches[parent]].add(branch)
                 branchesToParents[branch] = commitsToBranches[parent]
 
-        uniqueHashes = getUniqueCommitPrefixes([branches.getCommitForBranch(b) for b in branchesToParents.keys()])
-        return branchesToParents, parentsToBranches, uniqueHashes 
-    
+        uniqueHashes = getUniqueCommitPrefixes(
+            [branches.getCommitForBranch(b) for b in branchesToParents.keys()])
+        return branchesToParents, parentsToBranches, uniqueHashes
+
     @classmethod
     def _getTreeHash(cls):
         totalHash = 0
@@ -144,7 +150,7 @@ class Tree:
                 continue
             totalHash += int(line, base=16)
         return hex(totalHash)[2:]
-    
+
     @classmethod
     def cleanup(cls):
         oldTree = cls.get()
@@ -153,7 +159,10 @@ class Tree:
             if branch == "head":
                 continue
             if not oldTree[branch].is_owned:
-                if len([child for child in oldTree[branch].children if child.is_owned]) == 0:
+                if len([
+                        child for child in oldTree[branch].children
+                        if child.is_owned
+                ]) == 0:
                     nodesToDelete.append(branch)
                     del oldTree[branch]
         for node in nodesToDelete:

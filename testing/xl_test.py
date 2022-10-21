@@ -17,12 +17,15 @@ import unittest
 
 from integration import IntegrationTest
 
+
 # Integration tests for the `gm xl` command.
 class XlTest(IntegrationTest):
+
     def testXlOnEmptyRepository(self):
         output = self.runCommand(f"{self.GUM} xl")
         output = self.decodeFormattedText(output)
-        self.assertTrue(fnmatch.fnmatch(output, "@ * Author: * \n| 'Initial_commit.'\n~\n"))
+        self.assertTrue(
+            fnmatch.fnmatch(output, "@ * Author: * \n| 'Initial_commit.'\n~\n"))
 
     def testXlOnTwoLinearCommits(self):
         self.runCommand("git checkout -b newBranch")
@@ -33,7 +36,11 @@ class XlTest(IntegrationTest):
 
         output = self.runCommand(f"{self.GUM} xl")
         output = self.decodeFormattedText(output)
-        self.assertTrue(fnmatch.fnmatch(output, "@ * Author: You \n| 'Child_commit'\no * Author: * \n| 'Initial_commit.'\n~\n"))
+        self.assertTrue(
+            fnmatch.fnmatch(
+                output,
+                "@ * Author: You \n| 'Child_commit'\no * Author: * \n| 'Initial_commit.'\n~\n"
+            ))
 
     def testXlOnParentWithTwoChildren(self):
         self.runCommand("git checkout -b firstChild")
@@ -51,8 +58,14 @@ class XlTest(IntegrationTest):
 
         output = self.runCommand(f"{self.GUM} xl")
         output = self.decodeFormattedText(output)
-        self.assertTrue(fnmatch.fnmatch(output, "o * Author: You \n| 'First_child_commit'\n| @ * Author: You \n|/  'Second_child_commit'\no * Author: * \n| 'Initial_commit.'\n~\n")
-                        or fnmatch.fnmatch(output, "@ * Author: You \n| 'Second_child_commit'\n| o * Author: You \n|/  'First_child_commit'\no * Author: * \n| 'Initial_commit.'\n~\n"))
+        self.assertTrue(
+            fnmatch.fnmatch(
+                output,
+                "o * Author: You \n| 'First_child_commit'\n| @ * Author: You \n|/  'Second_child_commit'\no * Author: * \n| 'Initial_commit.'\n~\n"
+            ) or fnmatch.fnmatch(
+                output,
+                "@ * Author: You \n| 'Second_child_commit'\n| o * Author: You \n|/  'First_child_commit'\no * Author: * \n| 'Initial_commit.'\n~\n"
+            ))
 
     def testXlWithTwoBranchesPointingToSameCommit(self):
         self.runCommand("git checkout -b firstChild")
@@ -65,10 +78,11 @@ class XlTest(IntegrationTest):
 
         err = self.runCommandReturnError(f"{self.GUM} xl")
         self.assertTrue(
-            err.endswith("AssertionError: Two branches " + 
-            "(firstChild & secondChild) point to the same commit. " + 
-            "Please delete one of them.\n"))
-    
+            err.endswith(
+                "AssertionError: Two branches " +
+                "(firstChild & secondChild) point to the same commit. " +
+                "Please delete one of them.\n"))
+
     def testXlWithOrphanedBranch(self):
         self.runCommand("git checkout -b aaaaa")
         self.runCommand("git branch --set-upstream-to=head")
@@ -87,9 +101,14 @@ class XlTest(IntegrationTest):
         output = self.runCommand(f"{self.GUM} xl")
         output = self.decodeFormattedText(output)
 
-        self.assertTrue(fnmatch.fnmatch(output, "@ * Author: You \n| 'Second_child_commit'\no * Author: You \n| 'First_child_commit'\no * Author: * \n| 'Initial_commit.'\n~\n"))
+        self.assertTrue(
+            fnmatch.fnmatch(
+                output,
+                "@ * Author: You \n| 'Second_child_commit'\no * Author: You \n| 'First_child_commit'\no * Author: * \n| 'Initial_commit.'\n~\n"
+            ))
         branches = self.runCommand(f"git branch").split("\n")
         self.assertEqual(len([b for b in branches if b != ""]), 3)
+
 
 if __name__ == '__main__':
     unittest.main()

@@ -19,12 +19,14 @@ from test_helper import TestHelper
 
 import commits
 
+
 # Unit tests for the CommitManager class.
 class CommitManagerTest(unittest.TestCase):
+
     @classmethod
     def setUpClass(self):
         self.helper = TestHelper()
-    
+
     def setUp(self):
         self.helper.resetRepository()
         self.repo = self.helper.repository
@@ -36,7 +38,8 @@ class CommitManagerTest(unittest.TestCase):
         commit = "123abc"
         self.repo.createNewBranch("test", commit)
         for i in range(1, len(commit) + 1):
-            self.assertEqual(commits.getSingleCommitForPrefix(commit[0:i]), commit)
+            self.assertEqual(commits.getSingleCommitForPrefix(commit[0:i]),
+                             commit)
 
     def testGetSingleCommitForPrefixMultipleBranches(self):
         commit1 = "123abc"

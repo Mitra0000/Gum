@@ -16,6 +16,7 @@ from cacher import Cacher
 from runner import CommandRunner as runner
 from util import *
 
+
 def createNewBranchAt(commit: str):
     """ 
         Creates a new branch with its head pointing to commit, 
@@ -24,6 +25,7 @@ def createNewBranchAt(commit: str):
     branch = getNextBranch()
     runner.get().run(f"git branch {branch} {commit}")
     return branch
+
 
 def getAllBranches() -> "list[str]":
     """ Returns a list of all branches with the current branch at the end. """
@@ -114,11 +116,15 @@ def getUrlsForBranches() -> "dict[str, str]":
     Cacher.cacheKey(Cacher.CL_NUMBERS, branchesToUrls)
     return branchesToUrls
 
+
 def isBranchOwned(reference: str) -> str:
     """ Returns whether the commit was authored by the current Git user. """
     if reference == "head":
         return False
-    return runner.get().run(f"git show --no-patch --no-notes {reference} --format=%ce")[:-1] == runner.get().run("git config user.email")[:-1]
+    return runner.get().run(
+        f"git show --no-patch --no-notes {reference} --format=%ce"
+    )[:-1] == runner.get().run("git config user.email")[:-1]
+
 
 def rebaseBranches(queue: "list[str]", originalBranch: str) -> None:
     """
@@ -129,12 +135,13 @@ def rebaseBranches(queue: "list[str]", originalBranch: str) -> None:
         runner.get().run(f"git checkout {branch}", True)
         runner.get().runInProcess(f"git pull --rebase")
         if isRebaseInProgress():
-            Cacher.cacheKey("REBASE_QUEUE", queue[i+1:])
+            Cacher.cacheKey("REBASE_QUEUE", queue[i + 1:])
             Cacher.cacheKey("ORIGINAL_REBASE_BRANCH", originalBranch)
             return
     Cacher.invalidateKey("REBASE_QUEUE")
     Cacher.invalidateKey("ORIGINAL_REBASE_BRANCH")
     runner.get().run(f"git checkout {originalBranch}", True)
+
 
 def isRebaseInProgress() -> bool:
     """ Returns true if a rebase is currently in progress. """

@@ -14,6 +14,7 @@
 
 from node import Node
 
+
 class LumberJack:
     trunk = set()
 

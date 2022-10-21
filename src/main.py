@@ -24,10 +24,13 @@ from tree import Tree
 from tree_printer import TreePrinter
 from util import *
 
+
 def main(args):
     command = args.command
 
-    if command != "continue" and (branches.isRebaseInProgress() or Cacher.getCachedKey("REBASE_QUEUE") is not None):
+    if command != "continue" and (
+            branches.isRebaseInProgress() or
+            Cacher.getCachedKey("REBASE_QUEUE") is not None):
         return "Cannot perform tasks until current rebase is complete. \nPlease resolve conflicts and then run `gm continue`."
 
     if args.verbose:
@@ -58,21 +61,26 @@ def main(args):
         return
 
     elif command == "commit":
-        commitMessage = args.message if args.message else commits.createCommitMessage()
+        commitMessage = args.message if args.message else commits.createCommitMessage(
+        )
         if commitMessage is None or commitMessage == "":
             return "Commit cancelled due to empty commit message."
         currentBranch = branches.getCurrentBranch()
         newBranch = branches.getNextBranch()
         if branches.isBranchOwned(currentBranch):
             runner.get().run(f"git checkout -b {newBranch}", True)
-            runner.get().run(f"git branch --set-upstream-to={currentBranch}", True)
+            runner.get().run(f"git branch --set-upstream-to={currentBranch}",
+                             True)
         else:
-            # If we're currently on an unowned node we don't want to set an upstream so that we can upload to Gerrit.
-            runner.get().run(f"git checkout -b {newBranch} {branches.getCommitForBranch(currentBranch)}", True)
+            # If we're currently on an unowned node we don't want to set an
+            # upstream so that we can upload to Gerrit.
+            runner.get().run(
+                f"git checkout -b {newBranch} {branches.getCommitForBranch(currentBranch)}",
+                True)
             runner.get().run("git branch --set-upstream-to=origin/main", True)
         runner.get().run("git add -u", True)
         runner.get().runInProcess(f"git commit -m '{commitMessage}'")
-    
+
     elif command == "continue":
         runner.get().runInProcess("git rebase --continue")
         if branches.isRebaseInProgress():
@@ -100,7 +108,9 @@ def main(args):
 
     elif command == "patch":
         newbranch = branches.getNextBranch()
-        runner.get().runInProcess(f"git cl patch -b {newbranch} {args.cl} {'--force' if not args.copy else ''}")
+        runner.get().runInProcess(
+            f"git cl patch -b {newbranch} {args.cl} {'--force' if not args.copy else ''}"
+        )
 
     elif command == "prune":
         commit = commits.getCommitForPrefix(args.commit)
@@ -118,12 +128,17 @@ def main(args):
             return f"Could not find specified commit: {args.source if sourceCommit == '' else args.destination}"
         sourceBranch = commits.getBranchForCommit(sourceCommit)
         destinationBranch = commits.getBranchForCommit(destinationCommit)
-        runner.get().runInProcess(f"git rebase --onto {destinationCommit} {commits.getParentOfCommit(sourceCommit)} {sourceCommit}")
+        runner.get().runInProcess(
+            f"git rebase --onto {destinationCommit} {commits.getParentOfCommit(sourceCommit)} {sourceCommit}"
+        )
         runner.get().run(f"git checkout -B {sourceBranch} HEAD", True)
         if branches.isBranchOwned(destinationBranch):
-            runner.get().run(f"git branch --set-upstream-to={destinationBranch} {sourceBranch}", True)
+            runner.get().run(
+                f"git branch --set-upstream-to={destinationBranch} {sourceBranch}",
+                True)
         else:
-            runner.get().run(f"git branch --unset-upstream {sourceBranch}", True)
+            runner.get().run(f"git branch --unset-upstream {sourceBranch}",
+                             True)
         updateHead()
         return
 
@@ -138,13 +153,15 @@ def main(args):
         newBranch = branches.getNextBranch()
         runner.get().run("git checkout head", True)
         runner.get().run(f"git checkout -b {newBranch}", True)
-        runner.get().run(f"git branch --set-upstream-to=origin/main {newBranch}", True)
+        runner.get().run(
+            f"git branch --set-upstream-to=origin/main {newBranch}", True)
         print("Fetching changes from remote.")
         runner.get().runInProcess("git pull")
 
         runner.get().run(f"git checkout {currentBranch}", True)
 
-        if branches.getCommitForBranch(newBranch) == branches.getCommitForBranch("head"):
+        if branches.getCommitForBranch(
+                newBranch) == branches.getCommitForBranch("head"):
             # Repository was already up to date.
             runner.get().run(f"git branch -D {newBranch}", True)
             return
@@ -166,7 +183,8 @@ def main(args):
         tree = Tree.get()
         currentBranch = branches.getCurrentBranch()
         runner.get().run("git reset --soft HEAD^", True)
-        runner.get().run(f"git checkout {tree[currentBranch].parent.branch}", True)
+        runner.get().run(f"git checkout {tree[currentBranch].parent.branch}",
+                         True)
         runner.get().run(f"git branch -D {currentBranch}", True)
 
     elif command == "update":
@@ -195,7 +213,8 @@ def main(args):
             commit = branches.getCommitForBranch(commitRef)
             branch = commits.getBranchForCommit(commit)
             runner.get().run(f"git checkout {branch}", True)
-            returnCode = runner.get().runInProcessWithReturnCode("git cl upload -f")
+            returnCode = runner.get().runInProcessWithReturnCode(
+                "git cl upload -f")
             if returnCode == 0:
                 urls.append(commit)
         if len(urls) == 0:
@@ -204,7 +223,9 @@ def main(args):
         print(f"Uploaded {len(urls)} CLs.")
         for commit in urls:
             if commit in commitsToUrls:
-                print(commitsToUrls[commit], ":", runner.get().run(f"git log {commit} -1 --pretty=format:%s"))
+                print(
+                    commitsToUrls[commit], ":",
+                    runner.get().run(f"git log {commit} -1 --pretty=format:%s"))
 
     elif command == "uploadtree" or command == "ut":
         Cacher.invalidateKey(Cacher.CL_NUMBERS)
@@ -226,7 +247,7 @@ def updateHead():
     for branch in Tree.get():
         if not Tree.get()[branch].is_owned:
             unownedBranches.append(branch)
-    
+
     unownedBranches = sorted(unownedBranches, key=commits.getDateForCommit)
     if len(unownedBranches) < 2:
         raise Exception("Update head called when head cannot be updated.")
@@ -236,9 +257,11 @@ def updateHead():
     newHead = unownedBranches[1]
     currentBranch = branches.getCurrentBranch()
     runner.get().run("git checkout head", True)
-    runner.get().run(f"git pull origin {commits.getFullCommitHash(newHead)}", True)
-    runner.get().run(f"git branch -D {newHead}", True) 
+    runner.get().run(f"git pull origin {commits.getFullCommitHash(newHead)}",
+                     True)
+    runner.get().run(f"git branch -D {newHead}", True)
     runner.get().run(f"git checkout {currentBranch}", True)
+
 
 if __name__ == '__main__':
     result = main(parser.getArgs())

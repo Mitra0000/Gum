@@ -15,6 +15,7 @@
 from runner import CommandRunner as runner
 from util import *
 
+
 def getStatus():
     status = runner.get().run("git status --porcelain")
     if status.strip() == "":
@@ -24,11 +25,11 @@ def getStatus():
         if len(line) == 0:
             continue
         elif line[1] == "M":
-            out.append(formatText("M" + line[2:], color = Color.Yellow))
+            out.append(formatText("M" + line[2:], color=Color.Yellow))
         elif line[1] == "D":
-            out.append(formatText("D" + line[2:], color = Color.Red))
+            out.append(formatText("D" + line[2:], color=Color.Red))
         elif line[1] == "?":
-            out.append(formatText("?" + line[2:], color = Color.Magenta))
+            out.append(formatText("?" + line[2:], color=Color.Magenta))
         elif line[0] == "A":
-            out.append(formatText("A" + line[2:], color = Color.Green))
-    return "\n".join(out)  
+            out.append(formatText("A" + line[2:], color=Color.Green))
+    return "\n".join(out)

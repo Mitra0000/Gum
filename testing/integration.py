@@ -19,12 +19,17 @@ import subprocess
 import tempfile
 import unittest
 
+
 # Template for integration tests to inherit from.
 class IntegrationTest(unittest.TestCase):
-    TEST_REPOSITORY = os.path.join(tempfile.gettempdir(), "gumtesting", "sandbox", "repository")
-    REMOTE_REPOSITORY = os.path.join(tempfile.gettempdir(), "gumtesting", "sandbox", "remote")
+    TEST_REPOSITORY = os.path.join(tempfile.gettempdir(), "gumtesting",
+                                   "sandbox", "repository")
+    REMOTE_REPOSITORY = os.path.join(tempfile.gettempdir(), "gumtesting",
+                                     "sandbox", "remote")
     REMOVE_WHEN_DONE = os.path.join(tempfile.gettempdir(), "gumtesting")
-    GUM = "python3 " + os.path.join(os.path.dirname(os.path.dirname(os.path.realpath(__file__))), "src", "main.py ")
+    GUM = "python3 " + os.path.join(
+        os.path.dirname(os.path.dirname(os.path.realpath(__file__))), "src",
+        "main.py ")
 
     _currentRepository = TEST_REPOSITORY
 
@@ -36,7 +41,9 @@ class IntegrationTest(unittest.TestCase):
         self.runCommand("git add -A")
         self.runCommand("git commit -m 'Initial_commit.'")
         self._currentRepository = self.REMOVE_WHEN_DONE
-        self.runCommandReturnError(f"git clone {os.path.join(self.REMOTE_REPOSITORY, '.git')} {self.TEST_REPOSITORY}")
+        self.runCommandReturnError(
+            f"git clone {os.path.join(self.REMOTE_REPOSITORY, '.git')} {self.TEST_REPOSITORY}"
+        )
         self.assertTrue(os.path.exists(self.TEST_REPOSITORY))
         self.useLocalRepository()
         self.runCommand(f"{self.GUM} init")
@@ -53,19 +60,25 @@ class IntegrationTest(unittest.TestCase):
     # Sanity tests.
     def testRepository(self):
         self.assertTrue(os.path.exists(self.TEST_REPOSITORY))
-    
+
     def testRemote(self):
         self.assertTrue(os.path.exists(self.REMOTE_REPOSITORY))
 
     # Util functions for other tests.
     def runCommand(self, command: str) -> str:
-        process = subprocess.Popen(command.split(), stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd=self._currentRepository)
+        process = subprocess.Popen(command.split(),
+                                   stdout=subprocess.PIPE,
+                                   stderr=subprocess.PIPE,
+                                   cwd=self._currentRepository)
         out, err = process.communicate()
         process.wait()
         return out.decode("utf-8")
 
     def runCommandReturnError(self, command: str) -> str:
-        process = subprocess.Popen(command.split(), stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd=self._currentRepository)
+        process = subprocess.Popen(command.split(),
+                                   stdout=subprocess.PIPE,
+                                   stderr=subprocess.PIPE,
+                                   cwd=self._currentRepository)
         out, err = process.communicate()
         process.wait()
         return err.decode("utf-8")
@@ -75,28 +88,29 @@ class IntegrationTest(unittest.TestCase):
         self.createFile("test.txt", "This is a test.")
         self.runCommand("git add -A")
         self.runCommand("git commit -m 'Initial_commit.'")
-    
+
     def createFile(self, filename: str, contents: str):
         if os.path.exists(os.path.join(self._currentRepository, filename)):
             raise Exception("Filename already exists.")
         with open(os.path.join(self._currentRepository, filename), "w") as f:
             f.write(contents)
-    
+
     def modifyFile(self, filename: str, contents: str):
         if not os.path.exists(os.path.join(self._currentRepository, filename)):
             raise Exception("Filename doesn't exist.")
         with open(os.path.join(self._currentRepository, filename), "w") as f:
             f.write(contents)
-    
+
     def readFile(self, filename: str):
         if not os.path.exists(os.path.join(self._currentRepository, filename)):
             raise Exception("Filename doesn't exist.")
         with open(os.path.join(self._currentRepository, filename), "r") as f:
             return f.read()
-        
-    
+
     def decodeFormattedText(self, text: str) -> str:
-        return re.compile(r'\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])').sub('', text)
+        return re.compile(r'\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])').sub(
+            '', text)
+
 
 if __name__ == '__main__':
     unittest.main()

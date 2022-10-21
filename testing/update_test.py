@@ -16,10 +16,13 @@ import unittest
 
 from integration import IntegrationTest
 
+
 # Integration tests for the `gm update` command.
 class UpdateTest(IntegrationTest):
+
     def testUpdateSwitchesBetweenCommits(self):
-        self.assertEqual(self.runCommand("git rev-parse --abbrev-ref HEAD"), "head\n")
+        self.assertEqual(self.runCommand("git rev-parse --abbrev-ref HEAD"),
+                         "head\n")
 
         # Create two commit branches: foo and bar.
         self.runCommand("git checkout -b foo")
@@ -45,6 +48,7 @@ class UpdateTest(IntegrationTest):
         self.createFile("bar.txt", "bar")
         self.runCommand(f"{self.GUM} update head")
         self.assertEqual(self.runCommand("git rev-parse HEAD"), foo_hash)
+
 
 if __name__ == '__main__':
     unittest.main()

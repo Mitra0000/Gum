@@ -14,17 +14,21 @@
 
 from runner import CommandRunner as runner
 
+
 class TrieNode:
+
     def __init__(self, char):
         self.char = char
         self.is_end = False
         self.counter = 0
         self.children = {}
 
+
 class Trie(object):
+
     def __init__(self):
         self.root = TrieNode("")
-    
+
     def insert(self, word):
         node = self.root
 
@@ -39,15 +43,16 @@ class Trie(object):
                 node.counter += 1
 
         node.is_end = True
-        
+
     def dfs(self, node, prefix):
         if node.counter == 1:
-            self.output[prefix + node.char] = self.searchTail(list(node.children.values())[0])
+            self.output[prefix + node.char] = self.searchTail(
+                list(node.children.values())[0])
             return
-        
+
         for child in node.children.values():
             self.dfs(child, prefix + node.char)
-    
+
     def searchTail(self, node):
         tail = node.char
         while node.children:
@@ -67,7 +72,7 @@ class Trie(object):
         for child in node.children.values():
             self.dfs(child, "")
         return self.output
-    
+
     def querySingle(self, query):
         node = self.root
         idx = 0

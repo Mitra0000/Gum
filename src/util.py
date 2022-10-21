@@ -16,10 +16,12 @@ import re
 
 from trie import Trie
 
+
 class TextDecorators:
     BOLD = '\033[1m'
     UNDERLINE = '\033[4m'
     ENDC = '\033[0m'
+
 
 class Color:
     Black = "\u001b[30m"
@@ -32,7 +34,11 @@ class Color:
     White = "\u001b[37m"
     Reset = "\u001b[0m"
 
-def formatText(*args, bold: bool = False, underline: bool = False, color: str = Color.White):
+
+def formatText(*args,
+               bold: bool = False,
+               underline: bool = False,
+               color: str = Color.White):
     output = []
     if bold:
         output.append(TextDecorators.BOLD)
@@ -46,11 +52,14 @@ def formatText(*args, bold: bool = False, underline: bool = False, color: str = 
     output.append(f"{TextDecorators.ENDC}{Color.Reset}")
     return "".join(output)
 
+
 def decodeFormattedText(text: str) -> str:
     return re.compile(r'\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])').sub('', text)
 
-def abbreviateText(text, length = 20):
+
+def abbreviateText(text, length=20):
     return text if len(text) <= length else text[:length - 3] + "..."
+
 
 def getPrefixesForCommits(commits):
     """ Returns a dictionary populated as follows. { prefix: suffix }"""
@@ -58,6 +67,7 @@ def getPrefixesForCommits(commits):
     for commit in commits:
         trie.insert(commit)
     return trie.query()
+
 
 def getUniqueCommitPrefixes(commits):
     trie = Trie()

@@ -19,6 +19,7 @@ import unittest
 
 from integration import IntegrationTest
 
+
 # Integration tests for the `gm sync` command.
 class SyncTest(IntegrationTest):
 
@@ -33,13 +34,17 @@ class SyncTest(IntegrationTest):
         newContents = "This is data from remote."
         self.modifyFile("test.txt", newContents)
         self.runCommand("git add -A")
-        print(self.runCommand("git commit --author=\"Committer<another@committer.com>\" -m 'Update_test.txt'"))
+        print(
+            self.runCommand(
+                "git commit --author=\"Committer<another@committer.com>\" -m 'Update_test.txt'"
+            ))
 
         self.useLocalRepository()
         self.runCommand(f"{self.GUM} sync")
         contents = self.readFile("test.txt")
         print(self.runCommand(f"{self.GUM} xl"))
         self.assertEqual(newContents, contents)
+
 
 if __name__ == '__main__':
     unittest.main()

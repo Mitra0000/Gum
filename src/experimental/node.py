@@ -12,7 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+
 class Node:
+
     def __init__(self, branch, commit, parent, children, is_owned):
         self.branch = branch
         self.commit = commit

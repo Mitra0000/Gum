@@ -12,10 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+
 class TextDecorators:
     BOLD = '\033[1m'
     UNDERLINE = '\033[4m'
     ENDC = '\033[0m'
+
 
 class Color:
     Black = "\u001b[30m"
@@ -28,8 +30,13 @@ class Color:
     White = "\u001b[37m"
     Reset = "\u001b[0m"
 
-def format(*args, bold: bool = False, underline: bool = False, color: str = Color.White):
-    output = (TextDecorators.BOLD if bold else "") + (TextDecorators.UNDERLINE if underline else "") + color
+
+def format(*args,
+           bold: bool = False,
+           underline: bool = False,
+           color: str = Color.White):
+    output = (TextDecorators.BOLD if bold else
+              "") + (TextDecorators.UNDERLINE if underline else "") + color
     for i in args:
         output += i + " "
     output += TextDecorators.ENDC + Color.Reset

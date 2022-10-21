@@ -18,10 +18,14 @@ import subprocess
 
 from node import Node
 
+
 def run(command: str) -> str:
-    process = subprocess.Popen(command.split(), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    process = subprocess.Popen(command.split(),
+                               stdout=subprocess.PIPE,
+                               stderr=subprocess.PIPE)
     out, err = process.communicate()
     return out.decode("utf-8")
+
 
 def getAllBranches():
     """ Gets a list of all branches with the current branch at the end. """
@@ -40,6 +44,7 @@ def getAllBranches():
         output.append(current)
     return output
 
+
 def generateTree():
     branches = getAllBranches()
     tree = {}
@@ -51,12 +56,15 @@ def generateTree():
         is_owned = isBranchOwned(branch)
         tree[branch] = Node(branch, commit, parent, children, is_owned)
     for branch in tree:
-        tree[branch].parent = tree[tree[branch].parent] if tree[branch].parent else None
+        tree[branch].parent = tree[
+            tree[branch].parent] if tree[branch].parent else None
         tree[branch].children = [tree[i] for i in tree[branch].children]
     return tree
 
+
 def getCommitForBranch(branch):
     return run(f"git rev-parse {branch}")[:-1]
+
 
 def generateParentsAndCommits(branches):
     commits = set()
@@ -88,11 +96,17 @@ def generateParentsAndCommits(branches):
         commitsToParents[branch] = commitsToBranches[parent]
     return commitsToParents, parentsToCommits
 
+
 def getDateForCommit(commitHash: str) -> str:
-    return "".join(run(f"git show --no-patch --no-notes {commitHash} --pretty=format:%ci").split()[:-1])
+    return "".join(
+        run(f"git show --no-patch --no-notes {commitHash} --pretty=format:%ci").
+        split()[:-1])
+
 
 def isBranchOwned(reference: str) -> str:
-        return run(f"git show --no-patch --no-notes {reference} --format=%ce")[:-1] == run("git config user.email")[:-1]
+    return run(f"git show --no-patch --no-notes {reference} --format=%ce"
+              )[:-1] == run("git config user.email")[:-1]
+
 
 class TreePrinter:
     output = []
@@ -102,7 +116,7 @@ class TreePrinter:
         cls.output = []
         cls.output.append("~")
         cls.F(tree["head"], "| ", "")
-    
+
     @classmethod
     def F(cls, node, bP, tP):
         cls.output.append(bP)
@@ -161,6 +175,7 @@ class LumberJack:
             cls.trunk.add(best.branch)
             best.level = 0
             cls.getTrunk(best)
+
 
 if __name__ == "__main__":
     tree = generateTree()

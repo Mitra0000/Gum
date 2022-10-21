@@ -15,6 +15,7 @@
 import json
 import os
 
+
 class Cacher:
     """
         A simple helper class to handle all interaction with a cache stored on 
@@ -63,7 +64,7 @@ class Cacher:
         if not cls._INSTANCE:
             cls._INSTANCE = Cacher()
         return cls._INSTANCE
-    
+
     def _init(self):
         """ Initialises the cache in the event it may have been deleted. """
         if not os.path.exists(self.PATH):
@@ -72,7 +73,13 @@ class Cacher:
                 f.write("cache.json")
         if not os.path.exists(self.CACHE_JSON):
             with open(self.CACHE_JSON, "w") as f:
-                json.dump({self.CL_NUMBERS: {}, self.TREE: {}, self.TREE_HASH: {}, self.NEXT_BRANCH: "aaaaa"}, f)
+                json.dump(
+                    {
+                        self.CL_NUMBERS: {},
+                        self.TREE: {},
+                        self.TREE_HASH: {},
+                        self.NEXT_BRANCH: "aaaaa"
+                    }, f)
 
     def _getCachedKey(self, key: str):
         """
@@ -94,7 +101,7 @@ class Cacher:
         cache[key] = data
         with open(self.CACHE_JSON, "w") as f:
             json.dump(cache, f)
-    
+
     def _invalidateKey(self, key: str):
         """ Deletes any data associated with the given key. """
         if not os.path.exists(self.CACHE_JSON):

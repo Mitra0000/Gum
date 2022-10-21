@@ -12,8 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+
 class Node:
-    def __init__(self, branch, commit, parent, children, is_owned, commitPrefix, commitSuffix):
+
+    def __init__(self, branch, commit, parent, children, is_owned, commitPrefix,
+                 commitSuffix):
         # The branch name eg. "aaaaa".
         self.branch = branch
         # The full commit hash.

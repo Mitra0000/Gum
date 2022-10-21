@@ -16,12 +16,24 @@ import context
 
 from cacher import Cacher
 
+
 class CacherForTesting(Cacher):
+
     def __init__(self):
-        self._cache = {Cacher.CL_NUMBERS: {}, Cacher.TREE: {}, Cacher.TREE_HASH: {}, Cacher.NEXT_BRANCH: "aaaaa"}
+        self._cache = {
+            Cacher.CL_NUMBERS: {},
+            Cacher.TREE: {},
+            Cacher.TREE_HASH: {},
+            Cacher.NEXT_BRANCH: "aaaaa"
+        }
 
     def _init(self):
-        self._cache = {Cacher.CL_NUMBERS: {}, Cacher.TREE: {}, Cacher.TREE_HASH: {}, Cacher.NEXT_BRANCH: "aaaaa"}
+        self._cache = {
+            Cacher.CL_NUMBERS: {},
+            Cacher.TREE: {},
+            Cacher.TREE_HASH: {},
+            Cacher.NEXT_BRANCH: "aaaaa"
+        }
 
     def _getCachedKey(self, key: str):
         """
@@ -33,7 +45,7 @@ class CacherForTesting(Cacher):
     def _cacheKey(self, key: str, data):
         """ Stores the given data along with its key in the cache. """
         self._cache[key] = data
-    
+
     def _invalidateKey(self, key: str):
         """ Deletes any data associated with the given key. """
         self._cache[key] = None

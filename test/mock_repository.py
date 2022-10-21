@@ -19,21 +19,24 @@ from node import Node
 OWNED_EMAIL = "user@example.com"
 ANOTHER_EMAIL = "someone.else@example.com"
 
+
 class MockRepository:
+
     def __init__(self):
         self.tree = {"head": Node("head", "0", None, [], False, "0", "")}
         self.nextBranch = 1
         self.currentBranch = "head"
-    
-    def createNewBranch(self, name, commit = None):
+
+    def createNewBranch(self, name, commit=None):
         commit = commit if commit else str(self.nextBranch)
-        self.tree[name] = Node(name, commit, self.tree[self.currentBranch], [], True, commit, "")
+        self.tree[name] = Node(name, commit, self.tree[self.currentBranch], [],
+                               True, commit, "")
         self.tree[self.currentBranch].children.append(self.tree[name])
-    
+
     def setCurrentBranch(self, branchName):
         assert branchName in self.tree, f"Couldn't find branch {branchName}"
         self.currentBranch = branchName
-    
+
     def removeBranch(self, branchName):
         assert branchName in self.tree, f"Couldn't find branch {branchName}"
         for child in self.tree[branchName].children:
@@ -41,7 +44,7 @@ class MockRepository:
         if self.tree[branchName].parent:
             self.tree[branchName].parent.children.remove(self.tree[branchName])
         del self.tree[branchName]
-    
+
     def processCommand(self, command):
         # Commands for branches.py
         if command == "git branch":
@@ -59,7 +62,8 @@ class MockRepository:
             return branch + "\n"
         elif command.startswith("git show --no-patch --no-notes"):
             branch = command.split()[4]
-            return (OWNED_EMAIL if self.tree[branch].is_owned else ANOTHER_EMAIL) + "\n"
+            return (OWNED_EMAIL
+                    if self.tree[branch].is_owned else ANOTHER_EMAIL) + "\n"
         elif command == "git config user.email":
             return OWNED_EMAIL + "\n"
         # Commands for commits.py

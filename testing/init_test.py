@@ -16,12 +16,14 @@ import unittest
 
 from integration import IntegrationTest
 
+
 # Integration tests for the `gm init` command.
 class InitTest(IntegrationTest):
+
     def testInitCommandOnEmptyRepository(self):
         branches = self.runCommand("git branch")
         self.assertEqual(branches, "* head\n")
-    
+
     def testInitCommandOnRepositoryWithBranches(self):
         self.runCommand("git checkout -b testBranch")
         self.runCommand("git checkout -b otherBranch")
@@ -31,6 +33,7 @@ class InitTest(IntegrationTest):
         self.runCommand(f"{self.GUM} init")
         branches = self.runCommand("git branch")
         self.assertEqual(branches, "* head\n")
+
 
 if __name__ == '__main__':
     unittest.main()

@@ -16,8 +16,10 @@ import unittest
 
 from integration import IntegrationTest
 
+
 # Integration tests for the `gm status` command.
 class StatusTest(IntegrationTest):
+
     def testEmptyStatusShowsNothing(self):
         status = self.runCommand(f"{self.GUM} status")
         self.assertEqual(status, "")
@@ -28,7 +30,7 @@ class StatusTest(IntegrationTest):
         status = self.runCommand(f"{self.GUM} status")
         status = self.decodeFormattedText(status)
         self.assertEqual(status, f"? {filename}\n")
-    
+
     def testAddedFileShowsAdded(self):
         filename = "added_file.txt"
         self.createFile(filename, "This is an added file.")
@@ -36,21 +38,21 @@ class StatusTest(IntegrationTest):
         status = self.runCommand(f"{self.GUM} status")
         status = self.decodeFormattedText(status)
         self.assertEqual(status, f"A {filename}\n")
-    
+
     def testDeletedFileShowsDeleted(self):
         filename = "test.txt"
         self.runCommand(f"rm {filename}")
         status = self.runCommand(f"{self.GUM} status")
         status = self.decodeFormattedText(status)
         self.assertEqual(status, f"D {filename}\n")
-    
+
     def testModifiedFileShowsModified(self):
         filename = "test.txt"
         self.modifyFile(filename, "This file has been modified.")
         status = self.runCommand(f"{self.GUM} status")
         status = self.decodeFormattedText(status)
         self.assertEqual(status, f"M {filename}\n")
-    
+
     def testMultipleStatuses(self):
         self.createFile("added_file.txt", "This is an added file.")
         self.runCommand("rm test.txt")

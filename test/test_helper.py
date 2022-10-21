@@ -20,17 +20,20 @@ from test_command_runner import TestCommandRunner
 
 import main
 
+
 class TestHelper:
+
     def __init__(self):
         self.resetRepository()
-    
+
     def resetRepository(self):
         self.repository = MockRepository()
         self.commandRunner = TestCommandRunner(self.repository)
         runner.swapInstance(self.commandRunner)
-    
+
     def addChanges(self, changes):
         self.repository.addChanges(changes)
-    
+
     def getHashForBranch(self, branchName):
-        return self.repository.commitTree.branchesToCommits[branchName].commitHash
+        return self.repository.commitTree.branchesToCommits[
+            branchName].commitHash

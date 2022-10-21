@@ -15,6 +15,7 @@
 import os
 import subprocess
 
+
 class CommandRunner:
     _instance = None
 
@@ -29,25 +30,29 @@ class CommandRunner:
         cls._instance = instance
 
     def run(self, command: str, isModifying: bool = False) -> str:
-        process = subprocess.Popen(command.split(), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        process = subprocess.Popen(command.split(),
+                                   stdout=subprocess.PIPE,
+                                   stderr=subprocess.PIPE)
         out, err = process.communicate()
         return out.decode("utf-8")
-    
+
     def runInProcess(self, command: str):
         os.system(command)
-    
+
     def runInProcessWithReturnCode(self, command: str):
         process = subprocess.run(command, shell=True)
         return process.returncode
 
+
 class VerboseRunner(CommandRunner):
+
     def _log(self, log: str):
         print(f"Verbose Runner: {log}")
 
     def run(self, command: str, isModifying: bool = False) -> str:
         self._log(f"Running `{command}`")
         return super().run(command)
-    
+
     def runInProcess(self, command: str):
         self._log(f"Running `{command}`")
         super().runInProcess(command)
@@ -56,7 +61,9 @@ class VerboseRunner(CommandRunner):
         self._log(f"Running `{command}`")
         return super().runInProcessWithReturnCode(command)
 
+
 class DryRunner(CommandRunner):
+
     def _log(self, log: str):
         print(f"Dry Runner: {log}")
 
@@ -65,7 +72,7 @@ class DryRunner(CommandRunner):
             self._log(f"Run `{command}`")
         else:
             return super().run(command)
-    
+
     def runInProcess(self, command: str):
         self._log(f"Run `{command}`")
 

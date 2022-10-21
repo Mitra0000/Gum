@@ -21,8 +21,10 @@ from test_helper import TestHelper
 import branches
 from cacher import Cacher
 
+
 # Unit tests for the functions found in src/branches.py.
 class BranchesTest(unittest.TestCase):
+
     @classmethod
     def setUpClass(self):
         self.helper = TestHelper()
@@ -100,6 +102,7 @@ class BranchesTest(unittest.TestCase):
         self.repo.createNewBranch("testBranch")
         self.repo.tree["testBranch"].is_owned = False
         self.assertFalse(branches.isBranchOwned("testBranch"))
+
 
 if __name__ == '__main__':
     unittest.main()
