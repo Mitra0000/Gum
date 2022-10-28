@@ -66,10 +66,11 @@ class IntegrationTest(unittest.TestCase):
 
     # Util functions for other tests.
     def runCommand(self, command: str) -> str:
-        process = subprocess.Popen(command.split(),
+        process = subprocess.Popen(command,
                                    stdout=subprocess.PIPE,
                                    stderr=subprocess.PIPE,
-                                   cwd=self._currentRepository)
+                                   cwd=self._currentRepository,
+                                   shell=True)
         out, err = process.communicate()
         process.wait()
         return out.decode("utf-8")

@@ -34,16 +34,26 @@ class SyncTest(IntegrationTest):
         newContents = "This is data from remote."
         self.modifyFile("test.txt", newContents)
         self.runCommand("git add -A")
-        print(
-            self.runCommand(
-                "git commit --author=\"Committer<another@committer.com>\" -m 'Update_test.txt'"
-            ))
+        self.commitAsPerson("Committer", "another@committer.com",
+                            "Update_test.txt")
 
         self.useLocalRepository()
         self.runCommand(f"{self.GUM} sync")
         contents = self.readFile("test.txt")
-        print(self.runCommand(f"{self.GUM} xl"))
         self.assertEqual(newContents, contents)
+
+        commits = self.runCommand("git log -2 --pretty=oneline").split("\n")
+        self.assertTrue(commits[0].endswith("first_commit"))
+        self.assertTrue(commits[1].endswith("Update_test.txt"))
+
+    def commitAsPerson(self, name: str, email: str, commitMessage: str):
+        originalName = self.runCommand("git config --global user.name")[:-1]
+        originalEmail = self.runCommand("git config --global user.email")[:-1]
+        self.runCommand(f"git config --global user.name \"{name}\"")
+        self.runCommand(f"git config --global user.email \"{email}\"")
+        self.runCommand(f"git commit -m \"{commitMessage}\"")
+        self.runCommand(f"git config --global user.name \"{originalName}\"")
+        self.runCommand(f"git config --global user.email \"{originalEmail}\"")
 
 
 if __name__ == '__main__':

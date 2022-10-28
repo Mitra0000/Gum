@@ -22,12 +22,16 @@ from integration import IntegrationTest
 class XlTest(IntegrationTest):
 
     def testXlOnEmptyRepository(self):
+        pattern = "@ * Author: * \n| Initial_commit.\n~\n"
         output = self.runCommand(f"{self.GUM} xl")
         output = self.decodeFormattedText(output)
-        self.assertTrue(
-            fnmatch.fnmatch(output, "@ * Author: * \n| 'Initial_commit.'\n~\n"))
+        # Used to aid in updating golden.
+        # print(repr(output))
+        # print(repr(pattern))
+        self.assertTrue(fnmatch.fnmatch(output, pattern))
 
     def testXlOnTwoLinearCommits(self):
+        pattern = "@ * Author: You \n| Child_commit\no * Author: * \n| Initial_commit.\n~\n"
         self.runCommand("git checkout -b newBranch")
         self.runCommand("git branch --set-upstream-to=head")
         self.createFile("newfile.txt", "This is a new file.")
@@ -36,13 +40,14 @@ class XlTest(IntegrationTest):
 
         output = self.runCommand(f"{self.GUM} xl")
         output = self.decodeFormattedText(output)
-        self.assertTrue(
-            fnmatch.fnmatch(
-                output,
-                "@ * Author: You \n| 'Child_commit'\no * Author: * \n| 'Initial_commit.'\n~\n"
-            ))
+        # Used to aid in updating golden.
+        # print(repr(output))
+        # print(repr(pattern))
+        self.assertTrue(fnmatch.fnmatch(output, pattern))
 
     def testXlOnParentWithTwoChildren(self):
+        pattern1 = "o * Author: You \n| First_child_commit\n| @ * Author: You \n|/  Second_child_commit\no * Author: * \n| Initial_commit.\n~\n"
+        pattern2 = "@ * Author: You \n| Second_child_commit\n| o * Author: You \n|/  First_child_commit\no * Author: * \n| Initial_commit.\n~\n"
         self.runCommand("git checkout -b firstChild")
         self.runCommand("git branch --set-upstream-to=head")
         self.createFile("newfile.txt", "This is a new file.")
@@ -58,14 +63,13 @@ class XlTest(IntegrationTest):
 
         output = self.runCommand(f"{self.GUM} xl")
         output = self.decodeFormattedText(output)
+        # Used to aid in updating golden.
+        # print(repr(output))
+        # print(repr(pattern1))
+        # print(repr(pattern2))
         self.assertTrue(
-            fnmatch.fnmatch(
-                output,
-                "o * Author: You \n| 'First_child_commit'\n| @ * Author: You \n|/  'Second_child_commit'\no * Author: * \n| 'Initial_commit.'\n~\n"
-            ) or fnmatch.fnmatch(
-                output,
-                "@ * Author: You \n| 'Second_child_commit'\n| o * Author: You \n|/  'First_child_commit'\no * Author: * \n| 'Initial_commit.'\n~\n"
-            ))
+            fnmatch.fnmatch(output, pattern1) or
+            fnmatch.fnmatch(output, pattern2))
 
     def testXlWithTwoBranchesPointingToSameCommit(self):
         self.runCommand("git checkout -b firstChild")
@@ -104,7 +108,7 @@ class XlTest(IntegrationTest):
         self.assertTrue(
             fnmatch.fnmatch(
                 output,
-                "@ * Author: You \n| 'Second_child_commit'\no * Author: You \n| 'First_child_commit'\no * Author: * \n| 'Initial_commit.'\n~\n"
+                "@ * Author: You \n| Second_child_commit\no * Author: You \n| First_child_commit\no * Author: * \n| Initial_commit.\n~\n"
             ))
         branches = self.runCommand(f"git branch").split("\n")
         self.assertEqual(len([b for b in branches if b != ""]), 3)
