@@ -19,8 +19,35 @@ from integration import IntegrationTest
 
 # Integration tests for the `gm amend` command.
 class AmendTest(IntegrationTest):
-    pass
+    def testAmendOnAuthoredCommit(self):
+        originalContents = "This file will be used for amends."
+        newContents = "These are new contents."
+        self.createFile("amend.txt", originalContents)
+        self.runCommand("git add -A")
+        self.runCommand(f"{self.GUM} commit -m 'Authored_commit'")
+        self.modifyFile("amend.txt", newContents)
+        self.runCommand(f"{self.GUM} amend")
 
+        # Check amend was successful.
+        self.assertEqual(self.runCommand("git status --porcelain"), "")
+        self.assertEqual(self.readFile("amend.txt"), newContents)
+
+    def testAmendOnUnauthoredCommitFails(self):
+        self.useRemoteRepository()
+        contents = "This is data from remote."
+        self.modifyFile("test.txt", contents)
+        self.runCommand("git add -A")
+        self.commitAsPerson("Committer", "another@committer.com",
+                            "Update_test.txt")
+
+        self.useLocalRepository()
+        self.runCommand("git pull --rebase")
+        newContents = "This is new data being overwritten"
+        self.modifyFile("test.txt", newContents)
+        self.runCommand(f"{self.GUM} amend")
+        self.runCommand("git reset --hard HEAD")
+
+        self.assertEqual(self.readFile("test.txt"), contents)
 
 if __name__ == '__main__':
     unittest.main()

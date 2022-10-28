@@ -108,6 +108,15 @@ class IntegrationTest(unittest.TestCase):
         with open(os.path.join(self._currentRepository, filename), "r") as f:
             return f.read()
 
+    def commitAsPerson(self, name: str, email: str, commitMessage: str):
+        originalName = self.runCommand("git config --global user.name")[:-1]
+        originalEmail = self.runCommand("git config --global user.email")[:-1]
+        self.runCommand(f"git config --global user.name \"{name}\"")
+        self.runCommand(f"git config --global user.email \"{email}\"")
+        self.runCommand(f"git commit -m \"{commitMessage}\"")
+        self.runCommand(f"git config --global user.name \"{originalName}\"")
+        self.runCommand(f"git config --global user.email \"{originalEmail}\"")
+
     def decodeFormattedText(self, text: str) -> str:
         return re.compile(r'\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])').sub(
             '', text)

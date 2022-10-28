@@ -46,15 +46,6 @@ class SyncTest(IntegrationTest):
         self.assertTrue(commits[0].endswith("first_commit"))
         self.assertTrue(commits[1].endswith("Update_test.txt"))
 
-    def commitAsPerson(self, name: str, email: str, commitMessage: str):
-        originalName = self.runCommand("git config --global user.name")[:-1]
-        originalEmail = self.runCommand("git config --global user.email")[:-1]
-        self.runCommand(f"git config --global user.name \"{name}\"")
-        self.runCommand(f"git config --global user.email \"{email}\"")
-        self.runCommand(f"git commit -m \"{commitMessage}\"")
-        self.runCommand(f"git config --global user.name \"{originalName}\"")
-        self.runCommand(f"git config --global user.email \"{originalEmail}\"")
-
 
 if __name__ == '__main__':
     unittest.main()
