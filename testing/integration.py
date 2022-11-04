@@ -46,7 +46,7 @@ class IntegrationTest(unittest.TestCase):
         )
         self.assertTrue(os.path.exists(self.TEST_REPOSITORY))
         self.useLocalRepository()
-        self.runCommand(f"{self.GUM} init")
+        self.runCommand(f"{self.GUM} init -f")
 
     def tearDown(self):
         shutil.rmtree(self.REMOVE_WHEN_DONE)

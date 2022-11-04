@@ -103,11 +103,12 @@ def main(args):
         runner.get().runInProcess(f"git rm --cached {' '.join(files)}")
 
     elif command == "init":
-        userContinue = input(
-            "This will delete all current changes in your repository. " +
-            "Do you wish to continue (y/N)? ")
-        if userContinue.lower() != "y":
-            return
+        if not args.force:
+            userContinue = input(
+                "This will delete all current changes in your repository. " +
+                "Do you wish to continue (y/N)? ")
+            if userContinue.lower() != "y":
+                return
         runner.get().run("git branch -D head", True)
         runner.get().run("git checkout -b head", True)
         runner.get().run("git branch --set-upstream-to=origin/main head", True)

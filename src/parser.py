@@ -50,6 +50,12 @@ def getArgs():
         help=
         "Initialise a repository to be Gum compatible. This will delete any existing changes."
     )
+    init_parser.add_argument(
+        "-f",
+        "--force",
+        help=
+        "Skip the warning message and run the init command (may delete local changes).",
+        action="store_true")
 
     patch_parser = subparsers.add_parser(
         "patch",

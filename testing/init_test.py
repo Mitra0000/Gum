@@ -30,7 +30,7 @@ class InitTest(IntegrationTest):
         self.createFile("newfile.txt", "This is a new file.")
         self.runCommand("git add -A")
         self.runCommand("git commit -m 'Second_commit'")
-        self.runCommand(f"{self.GUM} init")
+        self.runCommand(f"{self.GUM} init -f")
         branches = self.runCommand("git branch")
         self.assertEqual(branches, "* head\n")
 
