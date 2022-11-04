@@ -19,6 +19,7 @@ from integration import IntegrationTest
 
 # Integration tests for the `gm amend` command.
 class AmendTest(IntegrationTest):
+
     def testAmendOnAuthoredCommit(self):
         originalContents = "This file will be used for amends."
         newContents = "These are new contents."
@@ -48,6 +49,7 @@ class AmendTest(IntegrationTest):
         self.runCommand("git reset --hard HEAD")
 
         self.assertEqual(self.readFile("test.txt"), contents)
+
 
 if __name__ == '__main__':
     unittest.main()
