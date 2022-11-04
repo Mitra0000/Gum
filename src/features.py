@@ -1,9 +1,14 @@
 class Feature:
+
     def __init__(self, enabled: bool):
         self.enabled = enabled
-    
+
+    def __bool__(self):
+        return self.enabled
+
     def __str__(self):
         return str(self.enabled)
+
 
 class Features:
     # List feature flags here.
