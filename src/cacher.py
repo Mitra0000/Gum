@@ -41,7 +41,7 @@ class Cacher:
 
     @classmethod
     def init(cls) -> None:
-        cls._get._init()
+        cls._get()._init()
 
     @classmethod
     def getCachedKey(cls, key):
