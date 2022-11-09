@@ -15,7 +15,7 @@
 import argparse
 
 
-def getArgs():
+def getParser():
     parser = argparse.ArgumentParser(
         prog="gm", description="Gum: A Mercurial Style Git Wrapper.")
     subparsers = parser.add_subparsers(dest="command")
@@ -134,6 +134,4 @@ def getArgs():
         action="store_true",
         help="Display the Git commands but don't actually run them.")
 
-    args = parser.parse_known_args()
-    args = parser.parse_args(args[1], args[0])
-    return args
+    return parser

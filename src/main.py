@@ -25,7 +25,11 @@ from tree_printer import TreePrinter
 from util import *
 
 
-def main(args):
+def main():
+    argparser = parser.getParser()
+    args = argparser.parse_known_args()
+    args = argparser.parse_args(args[1], args[0])
+
     command = args.command
 
     if command != "continue" and (
@@ -256,7 +260,7 @@ def main(args):
         TreePrinter.print(tree["head"])
 
     else:
-        return "Unknown gum command"
+        argparser.print_help()
 
 
 def updateHead():
@@ -284,6 +288,6 @@ def updateHead():
 
 
 if __name__ == '__main__':
-    result = main(parser.getArgs())
+    result = main()
     if result is not None:
         print(result)
