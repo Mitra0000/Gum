@@ -220,6 +220,7 @@ def main():
         branchName = commits.getBranchForCommit(args.commit)
         if branchName is None:
             return "Could not find specified commit hash."
+        print("Processing file changes...")
         runner.get().run(f"git checkout {branchName}", True)
         return f"Updated to {args.commit}"
 
