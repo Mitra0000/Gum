@@ -19,8 +19,18 @@ from integration import IntegrationTest
 
 # Integration tests for the `gm commit` command.
 class CommitTest(IntegrationTest):
-    pass
 
+    def testCommitCreatesNewBranch(self):
+        currentBranch = self.runCommand("git branch --show-current")
+        self.modifyFile("test.txt", "This has been modified.")
+        self.runCommand(f"{self.GUM} commit -m 'new_commit'")
+        newBranch = self.runCommand("git branch --show-current")
+        self.assertNotEqual(currentBranch, newBranch)
+
+    def testCommitShowsInGitLog(self):
+        self.modifyFile("test.txt", "This has been modified.")
+        self.runCommand(f"{self.GUM} commit -m 'new_commit'")
+        self.assertEqual(self.runCommand("git log --oneline").split()[1], "new_commit")
 
 if __name__ == '__main__':
     unittest.main()
