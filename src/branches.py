@@ -145,4 +145,4 @@ def rebaseBranches(queue: "list[str]", originalBranch: str) -> None:
 
 def isRebaseInProgress() -> bool:
     """ Returns true if a rebase is currently in progress. """
-    return runner.get().run("git status").startswith("rebase in progress;")
+    return bool(runner.get().run("git rebase --show-current-patch"))
