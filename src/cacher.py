@@ -15,6 +15,8 @@
 import json
 import os
 
+from features import Features
+from granola import Granola
 
 class Cacher:
     """
@@ -37,6 +39,7 @@ class Cacher:
 
     PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "tmp")
     CACHE_JSON = os.path.join(PATH, "cache.json")
+    TREE_PROTO = os.path.join(PATH, "tree.bin")
     _INSTANCE = None
 
     @classmethod
@@ -45,10 +48,14 @@ class Cacher:
 
     @classmethod
     def getCachedKey(cls, key):
+        if key == cls.TREE and Features.USE_PROTO_FOR_TREE_CACHE:
+            return cls._get()._getCachedProto()
         return cls._get()._getCachedKey(key)
 
     @classmethod
     def cacheKey(cls, key: str, data):
+        if key == cls.TREE and Features.USE_PROTO_FOR_TREE_CACHE:
+            return cls._get()._cacheProto(data)
         return cls._get()._cacheKey(key, data)
 
     @classmethod
@@ -80,32 +87,53 @@ class Cacher:
                         self.TREE_HASH: {},
                         self.NEXT_BRANCH: "aaaaa"
                     }, f)
+        if not os.path.exists(self.TREE_PROTO):
+            with open(self.TREE_PROTO, "wb") as f:
+                f.write(bytearray())
 
     def _getCachedKey(self, key: str):
         """
-            Returns the value associated with a given key or None if it doens't 
+            Returns the value associated with a given key or None if it doesn't 
             exist in the cache.
         """
         if not os.path.exists(self.CACHE_JSON):
-            self.init()
+            self._init()
         with open(self.CACHE_JSON, "r") as f:
             cache = json.load(f)
         return cache[key] if key in cache else None
 
+    def _getCachedProto(self):
+        """
+            Gets the tree as a cached proto and converts it to the correct 
+            dictionary format.
+        """
+        if not os.path.exists(self.TREE_PROTO):
+            self._init()
+        with open(self.TREE_PROTO, "rb") as f:
+            tree = Granola.deserialize(f.read())
+        return tree
+
     def _cacheKey(self, key: str, data):
         """ Stores the given data along with its key in the cache. """
         if not os.path.exists(self.CACHE_JSON):
-            self.init()
+            self._init()
         with open(self.CACHE_JSON, "r") as f:
             cache = json.load(f)
         cache[key] = data
         with open(self.CACHE_JSON, "w") as f:
             json.dump(cache, f)
 
+    def _cacheProto(self, data):
+        """ Stores the given tree as a serialized protobuf. """
+        if not os.path.exists(self.TREE_PROTO):
+            self._init()
+        with open(self.TREE_PROTO, "wb") as f:
+            f.write(Granola.serialize(data))
+
     def _invalidateKey(self, key: str):
         """ Deletes any data associated with the given key. """
         if not os.path.exists(self.CACHE_JSON):
-            self.init()
+            self._init()
         with open(self.CACHE_JSON, "r") as f:
             cache = json.load(f)
         cache[key] = None
