@@ -61,6 +61,7 @@ def abbreviateText(text, length=20):
     return text if len(text) <= length else text[:length - 3] + "..."
 
 
+# Deprecated 
 def getPrefixesForCommits(commits):
     """ Returns a dictionary populated as follows. { prefix: suffix }"""
     trie = Trie()
