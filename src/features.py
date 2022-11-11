@@ -12,7 +12,8 @@ class Feature:
 
 class Features:
     # List feature flags here.
-    USE_PROTO_FOR_TREE_CACHE = Feature(False)
+    SHOULD_CACHE_TREE = Feature(False)
+    USE_PROTO_FOR_TREE_CACHE = Feature(True)
 
     @classmethod
     def enableFeaturesForTesting(cls, *features):

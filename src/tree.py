@@ -18,6 +18,7 @@ from collections import defaultdict, deque
 import branches
 from cacher import Cacher
 import commits
+from features import Features
 from node import Node
 from runner import CommandRunner as runner
 from util import *
@@ -30,19 +31,18 @@ class Tree:
     def get(cls):
         if cls._tree:
             return cls._tree
-        tree = Cacher.getCachedKey(Cacher.TREE)
-        if len(tree) == 0:
-            return cls._generateTree()
+        if not Features.SHOULD_CACHE_TREE:
+            cls._tree = cls._generateTree()
+            return cls._tree
         cachedHash = Cacher.getCachedKey(Cacher.TREE_HASH)
         currentHash = cls._getTreeHash()
         if currentHash == cachedHash:
-            cls._tree = tree
+            cls._tree = Cacher.getCachedKey(Cacher.TREE)
             return cls._tree
 
         Cacher.cacheKey(Cacher.TREE_HASH, currentHash)
-        tree = cls._generateTree()
-        Cacher.cacheKey(Cacher.TREE, tree)
-        cls._tree = tree
+        cls._tree = cls._generateTree()
+        Cacher.cacheKey(Cacher.TREE, cls._tree)
         return cls._tree
 
     @classmethod
