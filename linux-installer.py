@@ -19,6 +19,8 @@ mainPath = os.path.join(current, "src", "main.py")
 home = os.path.expanduser("~")
 bashrc = os.path.join(home, ".bashrc")
 
+print("Writing shortcut to bashrc.")
 with open(bashrc, "a") as f:
     f.write(f"\nalias gm='python3 {mainPath}'\n")
 os.system(f"source {bashrc}")
+print("Finished, type `gm -h` to check if installation was successful.")
