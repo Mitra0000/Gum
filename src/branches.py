@@ -47,7 +47,7 @@ def getAllBranches() -> "list[str]":
 
 def getCurrentBranch() -> str:
     """ Returns the current branch name. """
-    return runner.get().run("git rev-parse --abbrev-ref HEAD")[:-1]
+    return runner.get().run("git branch --show-current")[:-1]
 
 
 def getNextBranch() -> str:
