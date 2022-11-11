@@ -128,7 +128,7 @@ def main():
         )
 
     elif command == "prune":
-        commit = commits.getCommitForPrefix(args.commit)
+        commit = commits.getSingleCommitForPrefix(args.commit)
         if commit != None:
             args.commit = commit
         branchName = commits.getBranchForCommit(args.commit)
@@ -137,9 +137,9 @@ def main():
         runner.get().run(f"git branch -D {branchName}", True)
 
     elif command == "rebase":
-        destinationCommit = commits.getCommitForPrefix(args.destination)
-        sourceCommit = commits.getCommitForPrefix(args.source)
-        if sourceCommit == "" or destinationCommit == "":
+        destinationCommit = commits.getSingleCommitForPrefix(args.destination)
+        sourceCommit = commits.getSingleCommitForPrefix(args.source)
+        if sourceCommit is None or destinationCommit is None:
             return f"Could not find specified commit: {args.source if sourceCommit == '' else args.destination}"
         sourceBranch = commits.getBranchForCommit(sourceCommit)
         destinationBranch = commits.getBranchForCommit(destinationCommit)
