@@ -25,4 +25,33 @@ import trie
 class TrieTest(unittest.TestCase):
 
     def setUp(self):
+        self.helper = TestHelper()
+        self.repo = self.helper.repository
         self.trie = trie.Trie()
+
+    def testEmptyTrie(self):
+        self.assertIsNone(self.trie.querySingle("anything"))
+
+    def testQuerySingleWithOneMatch(self):
+        self.trie.insert("foo")
+        self.trie.insert("bar")
+        self.trie.insert("lorem")
+        self.trie.insert("ipsum")
+        self.assertEqual(self.trie.querySingle("f"), "foo")
+
+    def testQueryWholeWordWithOneMatch(self):
+        self.trie.insert("foo")
+        self.trie.insert("bar")
+        self.trie.insert("lorem")
+        self.trie.insert("ipsum")
+        self.assertEqual(self.trie.querySingle("lore"), "lorem")
+
+    def testQueryWithTwoMatches(self):
+        self.trie.insert("foo")
+        self.trie.insert("bar")
+        self.trie.insert("baz")
+        self.assertIsNone(self.trie.querySingle("ba"))
+
+
+if __name__ == "__main__":
+    unittest.main()

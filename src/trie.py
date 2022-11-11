@@ -44,16 +44,33 @@ class Trie(object):
 
         node.is_end = True
 
-    def dfs(self, node, prefix):
+    def querySingle(self, query):
+        node = self.root
+        idx = 0
+        while node.children and idx < len(query):
+            if query[idx] not in node.children:
+                break
+            node = node.children[query[idx]]
+            idx += 1
+        else:
+            if len(node.children) <= 1:
+                tail = self._searchTail(node)
+                if not tail:
+                    return None
+                query = query[:-1] + tail
+                return runner.get().run(f"git rev-parse --short {query}")[:-1]
+        return None
+
+    def _dfs(self, node, prefix):
         if node.counter == 1:
-            self.output[prefix + node.char] = self.searchTail(
+            self.output[prefix + node.char] = self._searchTail(
                 list(node.children.values())[0])
             return
 
         for child in node.children.values():
-            self.dfs(child, prefix + node.char)
+            self._dfs(child, prefix + node.char)
 
-    def searchTail(self, node):
+    def _searchTail(self, node):
         tail = node.char
         while node.children:
             if len(node.children) > 1:
@@ -70,22 +87,5 @@ class Trie(object):
         self.output = {}
         node = self.root
         for child in node.children.values():
-            self.dfs(child, "")
+            self._dfs(child, "")
         return self.output
-
-    def querySingle(self, query):
-        node = self.root
-        idx = 0
-        while node.children and idx < len(query):
-            if query[idx] not in node.children:
-                break
-            node = node.children[query[idx]]
-            idx += 1
-        else:
-            if len(node.children) <= 1:
-                tail = self.searchTail(node)
-                if not tail:
-                    return None
-                query = query[:-1] + tail
-                return runner.get().run(f"git rev-parse --short {query}")[:-1]
-        return None
