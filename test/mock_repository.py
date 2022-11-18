@@ -53,6 +53,8 @@ class MockRepository:
                 result += "* " if branch == self.currentBranch else "  "
                 result += branch + "\n"
             return result
+        elif command == "git branch --show-current":
+            return self.currentBranch + "\n"
         elif command == "git rev-parse --abbrev-ref HEAD":
             return self.currentBranch + "\n"
         elif command.startswith("git rev-parse --short"):
@@ -72,3 +74,5 @@ class MockRepository:
             for branch in self.tree:
                 s += self.tree[branch].commit + "\n"
             return s
+        else:
+            raise Exception("Command not implemented in Mock Repository.")
