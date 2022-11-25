@@ -83,6 +83,8 @@ class PruneTest(IntegrationTest):
         self.runCommand("git pull --rebase")
         commitToPrune = self.runCommand("git rev-parse --short HEAD")
         parentCommit = self.runCommand("git rev-parse --short HEAD^")
+        # TODO(29): Find a better way to create the parent node.
+        self.runCommand("gm xl")
         """
             We now have a tree like:
             @ 84805ab Author: You 
