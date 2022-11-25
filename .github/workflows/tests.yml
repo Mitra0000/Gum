@@ -1,0 +1,11 @@
+name: run-tests
+on: [push]
+jobs:
+  install-deps:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v2.3.3
+      - run: git -v
+      - run: python3 --version
+      - run: python3 test/test_runner.py
