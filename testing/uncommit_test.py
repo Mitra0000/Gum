@@ -16,6 +16,7 @@ import unittest
 
 from integration import IntegrationTest
 
+
 # Integration tests for the `gm uncommit` command
 class UncommitTest(IntegrationTest):
 
@@ -33,7 +34,9 @@ class UncommitTest(IntegrationTest):
         self.modifyFile("test.txt", "This has been modified again!")
         self.runCommand(f"{self.GUM} commit -m 'second_commit'")
         self.runCommand(f"{self.GUM} uncommit")
-        self.assertEqual(self.runCommand("git log --oneline").split()[1], "first_commit")
+        self.assertEqual(
+            self.runCommand("git log --oneline").split()[1], "first_commit")
+
 
 if __name__ == '__main__':
     unittest.main()

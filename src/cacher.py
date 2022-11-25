@@ -18,6 +18,7 @@ import os
 from features import Features
 from granola import Granola
 
+
 class Cacher:
     """
         A simple helper class to handle all interaction with a cache stored on 
