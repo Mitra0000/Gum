@@ -9,3 +9,4 @@ jobs:
       - run: git -v
       - run: python3 --version
       - run: python3 test/test_runner.py
+      - run: python3 testing/test_runner.py
