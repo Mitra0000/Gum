@@ -65,7 +65,7 @@ class Tree:
         tree = {}
         branchesToParents, parentsToBranches, uniqueHashes = cls._generateParentsAndBranches(
             branchNames)
-        # Regenerate branch names as _generateParentsAndBranches may have 
+        # Regenerate branch names as _generateParentsAndBranches may have
         # created new branches.
         branchNames = branches.getAllBranches()
         for branch in branchNames:
