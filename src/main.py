@@ -124,8 +124,12 @@ def main():
     elif command == "patch":
         newbranch = branches.getNextBranch()
         runner.get().runInProcess(
-            f"git cl patch -b {newbranch} {args.cl} {'--force' if not args.copy else ''}"
+            f"git cl patch -b {newbranch} {args.cl} --force"
         )
+        if args.copy:
+            # Resets the issue number so that uploading doesn't overwrite the 
+            # patched CL.
+            runner.get().run("git cl issue 0")
 
     elif command == "prune":
         commit = commits.getSingleCommitForPrefix(args.commit)
