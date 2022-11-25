@@ -65,6 +65,9 @@ class Tree:
         tree = {}
         branchesToParents, parentsToBranches, uniqueHashes = cls._generateParentsAndBranches(
             branchNames)
+        # Regenerate branch names as _generateParentsAndBranches may have 
+        # created new branches.
+        branchNames = branches.getAllBranches()
         for branch in branchNames:
             commit = branches.getCommitForBranch(branch)
             parent = branchesToParents[branch]
@@ -108,10 +111,10 @@ class Tree:
                 branchesToParents["head"] = None
                 continue
             parent = branches.getCommitForBranch(f"{branch}^")
-            # Orphan change
             if parent in commitSet:
                 parentsToBranches[commitsToBranches[parent]].add(branch)
                 branchesToParents[branch] = commitsToBranches[parent]
+            # Orphan change
             elif branches.isBranchOwned(branch):
                 # Create a new unowned branch for the new parent.
                 newBranch = branches.createNewBranchAt(parent)
@@ -126,9 +129,9 @@ class Tree:
                     unownedCommits.insert(pos, (parentDate, parent))
 
                 branchesToParents[branch] = newBranch
-                branchesToParents[newBranch] = skipParent
+                branchesToParents[newBranch] = commitsToBranches[skipParent]
                 parentsToBranches[newBranch].add(branch)
-                parentsToBranches[skipParent].add(newBranch)
+                parentsToBranches[commitsToBranches[skipParent]].add(newBranch)
             else:
                 # This is an unowned node, we just want to insert it in the right place.
                 parentDate = commits.getDateForCommit(parent)
