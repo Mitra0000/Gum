@@ -124,10 +124,9 @@ def main():
     elif command == "patch":
         newbranch = branches.getNextBranch()
         runner.get().runInProcess(
-            f"git cl patch -b {newbranch} {args.cl} --force"
-        )
+            f"git cl patch -b {newbranch} {args.cl} --force")
         if args.copy:
-            # Resets the issue number so that uploading doesn't overwrite the 
+            # Resets the issue number so that uploading doesn't overwrite the
             # patched CL.
             runner.get().run("git cl issue 0")
 
@@ -143,6 +142,7 @@ def main():
         if branchName == "head":
             return "Cannot prune head."
         runner.get().run(f"git branch -D {branchName}", True)
+        Tree.cleanup()
 
     elif command == "rebase":
         destinationCommit = commits.getSingleCommitForPrefix(args.destination)

@@ -52,7 +52,8 @@ class PruneTest(IntegrationTest):
         self.runCommand("git checkout head")
 
         headCommit = self.runCommand("git rev-parse head")[:-1]
-        allCommits = self.runCommand("git rev-parse --branches=*")[:-1].split("\n")
+        allCommits = self.runCommand("git rev-parse --branches=*")[:-1].split(
+            "\n")
         commitToPrune = None
         self.assertEqual(len(allCommits), 2)
         for commit in allCommits:
@@ -62,9 +63,52 @@ class PruneTest(IntegrationTest):
         self.runCommand(f"{self.GUM} prune {commitToPrune}")
         self.assertEqual(self.runCommand("git branch"), "* head\n")
 
+    def testPruningAllChildrenRemovesUnownedParent(self):
+        self.createFile("old.txt", "This is an old file")
+        self.runCommand("git add -A")
+        self.runCommand(f"{self.GUM} commit -m 'old_commit'")
+
+        self.useRemoteRepository()
+        self.createFile("remote.txt", "This is a file from remote.")
+        self.runCommand("git add -A")
+        self.commitAsPerson("Committer", "another@committer.com",
+                            "remote_commit")
+
+        self.useLocalRepository()
+        self.runCommand("git checkout head")
+        self.createFile("new.txt", "This is a new file")
+        self.runCommand("git add -A")
+        self.runCommand(f"{self.GUM} commit -m 'new_commit'")
+        self.runCommand("git branch --set-upstream-to=origin/main")
+        self.runCommand("git pull --rebase")
+        commitToPrune = self.runCommand("git rev-parse --short HEAD")
+        parentCommit = self.runCommand("git rev-parse --short HEAD^")
+        """
+            We now have a tree like:
+            @ 84805ab Author: You 
+            | new_commit
+            o 6d49ed2 Author: another@committer.com 
+            | remote_commit
+            | o 59c3be4 Author: You 
+            |/  old_commit
+            o 654cb4d Author: you@committer.com 
+            | Initial_commit.
+            ~
+        """
+
+        self.runCommand("git checkout head")
+        self.runCommand(f"{self.GUM} prune {commitToPrune}")
+        for branch in self.runCommand("git branch").split("\n"):
+            if branch == "":
+                continue
+            self.assertNotEqual(
+                parentCommit,
+                self.runCommand(f"git rev-parse --short {branch}"))
+
     def testPruneParentRemovesChildTracking(self):
         # TODO(5): Write test and logic for this to work.
         pass
+
 
 if __name__ == '__main__':
     unittest.main()
