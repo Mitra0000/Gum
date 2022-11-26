@@ -143,6 +143,7 @@ def main():
             return "Cannot prune head."
         runner.get().run(f"git branch -D {branchName}", True)
         Tree.cleanup()
+        updateHead()
 
     elif command == "rebase":
         destinationCommit = commits.getSingleCommitForPrefix(args.destination)
@@ -206,7 +207,7 @@ def main():
         updateHead()
 
     elif command == "test":
-        return commits.getSingleCommitForPrefix(input())
+        updateHead()
 
     elif command == "unamend":
         runner.get().run("git reset --soft HEAD@{1}")
@@ -289,10 +290,11 @@ def updateHead():
 
     newHead = unownedBranches[1]
     currentBranch = branches.getCurrentBranch()
-    runner.get().run("git checkout head", True)
-    runner.get().run(f"git pull origin {commits.getFullCommitHash(newHead)}",
-                     True)
-    runner.get().run(f"git branch -D {newHead}", True)
+    if currentBranch == "head":
+        currentBranch = newHead
+    runner.get().run(f"git checkout {newHead}", True)
+    runner.get().run(f"git branch -D head", True)
+    runner.get().run(f"git branch -m {newHead} head")
     runner.get().run(f"git checkout {currentBranch}", True)
 
 
