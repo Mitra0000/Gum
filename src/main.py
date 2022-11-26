@@ -221,7 +221,7 @@ def main():
         runner.get().run(f"git branch -D {currentBranch}", True)
 
     elif command == "update":
-        if status.getStatus() is not None:
+        if runner.get().run("git status -uno --porcelain") != "":
             return "Cannot update with uncommitted changes.\nPlease commit/restore the changes and try again."
         commit = commits.getSingleCommitForPrefix(args.commit)
         if commit != None:
