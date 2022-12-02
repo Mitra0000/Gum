@@ -1,4 +1,4 @@
-class Feature:
+class BoolFeature:
 
     def __init__(self, enabled: bool):
         self.enabled = enabled
@@ -11,9 +11,10 @@ class Feature:
 
 
 class Features:
-    # List feature flags here.
-    SHOULD_CACHE_TREE = Feature(False)
-    USE_PROTO_FOR_TREE_CACHE = Feature(True)
+    # List feature flags here. Should be alphabetical.
+    SHOULD_CACHE_TREE = BoolFeature(False)
+    SYNC_FOR_UNOWNED_BRANCHES = BoolFeature(False)
+    USE_PROTO_FOR_TREE_CACHE = BoolFeature(True)
 
     @classmethod
     def enableFeaturesForTesting(cls, *features):
