@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import os
+
 import branches
 from cacher import Cacher
 import commits
@@ -100,6 +102,11 @@ def main():
 
     elif command == "fix":
         runner.get().runInProcess("git cl format")
+        if os.path.exists(
+                os.path.join("tools", "android", "checkstyle",
+                             "remove_unused_imports.py")):
+            runner.get().runInProcess(
+                "tools/android/checkstyle/remove_unused_imports.py")
 
     elif command == "forget":
         # Flatten the parsed filenames.
