@@ -37,7 +37,8 @@ def main():
 
     if command != "continue" and (
             branches.isRebaseInProgress() or
-            Cacher.getCachedKey("REBASE_QUEUE") is not None):
+            Cacher.getCachedKey("REBASE_QUEUE") is not None or
+            Cacher.getCachedKey("SYNC_REBASE_QUEUE") is not None):
         return "Cannot perform tasks until current rebase is complete. \nPlease resolve conflicts and then run `gm continue`."
 
     if args.verbose:
@@ -96,7 +97,10 @@ def main():
         originalBranch = Cacher.getCachedKey("ORIGINAL_REBASE_BRANCH")
         if queue is not None:
             branches.rebaseBranches(queue, originalBranch)
-        return
+        queue = Cacher.getCachedKey("SYNC_REBASE_QUEUE")
+        originalBranch = Cacher.getCachedKey("ORIGINAL_SYNC_REBASE_BRANCH")
+        if queue is not None:
+            branches.doRebase(queue, originalBranch)
 
     elif command == "diff":
         runner.get().runInProcess("git diff")
