@@ -46,6 +46,12 @@ class SyncTest(IntegrationTest):
         self.assertTrue(commits[0].endswith("first_commit"))
         self.assertTrue(commits[1].endswith("Update_test.txt"))
 
+# TODO: Implement the following test cases.
+# Parent-Child, call sync on the child.
+# Parent-Child, call sync on the parent.
+# Parent < 2 Children, call sync on the parent.
+# Sync an unowned node.
+# Parent-Child-Grandchild, call sync on the child.
 
 if __name__ == '__main__':
     unittest.main()

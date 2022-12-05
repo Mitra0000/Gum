@@ -143,6 +143,18 @@ def rebaseBranches(queue: "list[str]", originalBranch: str) -> None:
     runner.get().run(f"git checkout {originalBranch}", True)
 
 
+def doRebase(queue: "list[str]", originalBranch: str) -> None:
+    for child, parent in queue:
+        runner.get().runInProcess(f"git rebase {parent} {child}")
+        if isRebaseInProgress():
+            Cacher.cacheKey("SYNC_REBASE_QUEUE", queue[i + 1:])
+            Cacher.cacheKey("ORIGINAL_SYNC_REBASE_BRANCH", originalBranch)
+            return
+    Cacher.invalidateKey("SYNC_REBASE_QUEUE")
+    Cacher.invalidateKey("ORIGINAL_SYNC_REBASE_BRANCH")
+    runner.get().run(f"git checkout {originalBranch}", True)
+
+
 def isRebaseInProgress() -> bool:
     """ Returns true if a rebase is currently in progress. """
     return bool(runner.get().run("git rebase --show-current-patch"))

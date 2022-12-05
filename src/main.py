@@ -17,6 +17,7 @@ import os
 import branches
 from cacher import Cacher
 import commits
+from features import Features
 import parser
 from runner import CommandRunner as runner
 from runner import DryRunner
@@ -184,8 +185,6 @@ def main():
 
     elif command == "sync":
         currentBranch = branches.getCurrentBranch()
-        if not branches.isBranchOwned(currentBranch):
-            return "Syncing unowned branches is not implemented yet"
         # Need to traverse and rebase all children.
         newBranch = branches.getNextBranch()
         runner.get().run("git checkout head", True)
@@ -196,6 +195,8 @@ def main():
         runner.get().runInProcess("git pull")
 
         runner.get().run(f"git checkout {currentBranch}", True)
+        # Fetch the tree before the rebase.
+        tree = Tree.get()
 
         if branches.getCommitForBranch(
                 newBranch) == branches.getCommitForBranch("head"):
@@ -203,12 +204,23 @@ def main():
             runner.get().run(f"git branch -D {newBranch}", True)
             return
         # Move commit and children onto new branch.
-        print("Rebasing changes onto new head.")
-        runner.get().run(f"git rebase {newBranch}", True)
+        print("Rebasing changes onto new parent.")
 
-        originalBranch = branches.getCurrentBranch()
-        allChildren = Tree.getRecursiveChildrenFrom(originalBranch)
-        branches.rebaseBranches(allChildren, originalBranch)
+        queue = []
+        allChildren = Tree.getRecursiveChildrenFrom(currentBranch)
+        if branches.isBranchOwned(currentBranch):
+            queue.append((currentBranch, newBranch))
+            allChildren = [
+                (child, tree[child].parent.branch) for child in allChildren
+            ]
+        else:
+            allChildren = [
+                (child, tree[child].parent.branch
+                 if tree[child].parent.branch != currentBranch else newBranch)
+                for child in allChildren
+            ]
+        queue.extend(allChildren)
+        branches.doRebase(queue, currentBranch)
 
         Tree.cleanup()
         updateHead()
