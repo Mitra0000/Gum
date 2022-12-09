@@ -1,6 +1,24 @@
 # Gum
 A Mercurial style wrapper for Git.
 
+## Introduction
+Gum is a tool designed for use with the Chromium project. Its aim is to simplify the task of creating, modifying and uploading CLs with [Chromium's Gerrit](https://chromium-review.googlesource.com/) tool. A simple example is wanting to make changes to an existing CL checked out on a branch. Once the new changes have been made, a Git user would have to run:
+```
+$ git cl format
+$ git add -A
+$ git commit --amend
+# Exit the editor which pops up.
+$ git cl upload
+# Write a patchset title and hit enter.
+```
+The same in Gum is simplified to:
+```
+$ gm fix
+$ gm amend
+$ gm uploadchain
+```
+Gum also changes how commits and branches work on a fundamental level to make it easier to see how different CLs relate to each other. Support for creating and maintaining chains of dependent CLs is baked into Gum and the `gm xl` command is the best way to see this visually.
+
 ### Test Structure
 Unit tests can be found under the test/ directory. These are split into a test file per source file (under src/) and should call the functions in the source file directly using context.py to gain visibility.
 
