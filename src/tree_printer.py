@@ -26,7 +26,7 @@ class TreePrinter:
         cls._output = []
         cls._currentBranch = branches.getCurrentBranch()
         cls._clNumbers = Cacher.getCachedKey(Cacher.CL_NUMBERS)
-        if len(cls._clNumbers) == 0:
+        if not cls._clNumbers or len(cls._clNumbers) == 0:
             cls._clNumbers = branches.getUrlsForBranches()
         cls._output.append("~")
         cls._appendNode(root, "| ", "")
