@@ -271,7 +271,7 @@ def main():
             branch = commits.getBranchForCommit(commit)
             runner.get().run(f"git checkout {branch}", True)
             returnCode = runner.get().runInProcessWithReturnCode(
-                "git cl upload -f")
+                "git cl upload -T")
             if returnCode == 0:
                 urls.append(commit)
         if len(urls) == 0:
@@ -286,7 +286,7 @@ def main():
 
     elif command == "uploadtree" or command == "ut":
         Cacher.invalidateKey(Cacher.CL_NUMBERS)
-        runner.get().runInProcess("git cl upload -f --dependencies")
+        runner.get().runInProcess("git cl upload -T --dependencies")
 
     elif command == "xl":
         tree = Tree.get()
