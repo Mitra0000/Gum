@@ -151,9 +151,8 @@ def main():
             return "Could not find specified commit hash."
         if branchName == branches.getCurrentBranch():
             return "Cannot prune current commit. Please update elsewhere first."
-        if branchName == "head":
-            return "Cannot prune head."
-        runner.get().run(f"git branch -D {branchName}", True)
+        if branchName != "head":
+            runner.get().run(f"git branch -D {branchName}", True)
         Tree.cleanup()
         updateHead()
 
