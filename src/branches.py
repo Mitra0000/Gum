@@ -144,7 +144,7 @@ def rebaseBranches(queue: "list[str]", originalBranch: str) -> None:
 
 
 def doRebase(queue: "list[str]", originalBranch: str) -> None:
-    for child, parent in queue:
+    for i, (child, parent) in enumerate(queue):
         runner.get().runInProcess(f"git rebase {parent} {child}")
         if isRebaseInProgress():
             Cacher.cacheKey("SYNC_REBASE_QUEUE", queue[i + 1:])
