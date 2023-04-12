@@ -61,15 +61,6 @@ def abbreviateText(text, length=20):
     return text if len(text) <= length else text[:length - 3] + "..."
 
 
-# Deprecated
-def getPrefixesForCommits(commits):
-    """ Returns a dictionary populated as follows. { prefix: suffix }"""
-    trie = Trie()
-    for commit in commits:
-        trie.insert(commit)
-    return trie.query()
-
-
 def getUniqueCommitPrefixes(commits):
     trie = Trie()
     for commit in commits:

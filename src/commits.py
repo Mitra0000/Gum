@@ -77,16 +77,6 @@ def createCommitMessage() -> str:
     return "\n".join(commitMessage)
 
 
-# DEPRECATED: Use getSingleCommitForPrefix instead.
-def getCommitForPrefix(prefix: str) -> str:
-    """ Returns a full commit hash given a unique commit hash prefix. """
-    results = getPrefixesForCommits(
-        [branches.getCommitForBranch(b) for b in branches.getAllBranches()])
-    if prefix not in results:
-        return prefix
-    return prefix + results[prefix]
-
-
 def getSingleCommitForPrefix(prefix: str) -> str:
     """ Returns a full commit hash given a unique commit hash prefix. """
     trie = Trie()
