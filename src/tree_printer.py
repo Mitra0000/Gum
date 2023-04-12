@@ -13,7 +13,7 @@
 # limitations under the License.
 
 import branches
-from cacher import Cacher
+from config.cacher import Cacher
 import commits
 from util import *
 

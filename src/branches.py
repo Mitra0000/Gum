@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from cacher import Cacher
+from config.cacher import Cacher
 from runner import CommandRunner as runner
 from util import *
 

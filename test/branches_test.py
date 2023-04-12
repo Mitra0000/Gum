@@ -19,7 +19,7 @@ from cacher_for_testing import CacherForTesting
 from test_helper import TestHelper
 
 import branches
-from cacher import Cacher
+from config.cacher import Cacher
 
 
 # Unit tests for the functions found in src/branches.py.

@@ -16,7 +16,7 @@ import json
 import os
 
 from features import Features
-from granola import Granola
+from config.granola import Granola
 
 
 class Cacher:

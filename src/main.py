@@ -16,7 +16,7 @@
 import os
 
 import branches
-from cacher import Cacher
+from config.cacher import Cacher
 import commits
 import option_parser
 from runner import CommandRunner as runner
