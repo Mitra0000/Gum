@@ -18,8 +18,7 @@ import os
 import branches
 from cacher import Cacher
 import commits
-from features import Features
-import parser
+import option_parser
 from runner import CommandRunner as runner
 from runner import DryRunner
 from runner import VerboseRunner
@@ -30,7 +29,7 @@ from util import *
 
 
 def main():
-    argparser = parser.getParser()
+    argparser = option_parser.getParser()
     args = argparser.parse_known_args()
     args = argparser.parse_args(args[1], args[0])
 
