@@ -73,6 +73,7 @@ class Tree:
             parent = branchesToParents[branch]
             children = parentsToBranches[branch]
             is_owned = branches.isBranchOwned(branch)
+            # TODO: Add check for empty commit
             tree[branch] = Node(branch, commit, parent, children, is_owned,
                                 *uniqueHashes[commit])
         for branch in tree:

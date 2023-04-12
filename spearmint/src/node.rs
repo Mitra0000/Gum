@@ -1,22 +1,23 @@
-pub struct Node<'a> {
-    pub branch: String,
-    pub commit: String,
-    pub parent: Option<&'a Node<'a>>,
-    pub children: Vec<&'a Node<'a>>,
+#[derive(Hash, PartialEq, Eq, Debug)]
+pub struct Node {
+    pub branch: &'static str,
+    pub commit: &'static str,
+    pub parent: Option<&'static str>,
+    pub children: Vec<&'static str>,
     pub is_owned: bool,
-    pub commit_prefix: String,
-    pub commit_suffix: String,
+    pub commit_prefix: &'static str,
+    pub commit_suffix: &'static str,
 }
 
-impl<'a> Node <'a> {
+impl Node {
     pub fn new (
-        branch: String,
-        commit: String,
-        parent: Option<&'a Node>,
-        children: Vec<&'a Node>,
+        branch: &'static str,
+        commit: &'static str,
+        parent: Option<&'static str>,
+        children: Vec<&'static str>,
         is_owned: bool,
-        commit_prefix: String,
-        commit_suffix: String) -> Self {
+        commit_prefix: &'static str,
+        commit_suffix: &'static str) -> Self {
             Node { branch, commit, parent, children, is_owned, commit_prefix, commit_suffix }
         }
 }
