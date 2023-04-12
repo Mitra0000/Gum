@@ -12,21 +12,19 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import subprocess
-
-from cl import CL
-from xanthan import Xanthan
+from runner import CommandRunner as runner
+from xanthan.cl import CL
+from xanthan.xanthan import Xanthan
 
 
 class ChromiumGerrit(Xanthan):
 
     def __init__(self):
         self._branchesToCLs: dict[str, CL] = {}
-        self._initGitCl()
 
     def _updateState(self):
         self._branchesToCLs = {}
-        output = self._runGitCommand("git cl status --no-branch-color")
+        output = runner.get().run("git cl status --no-branch-color")
         output = output.split("\n")[1:]
         for i in range(len(output)):
             if output[i] == "":
@@ -46,11 +44,4 @@ class ChromiumGerrit(Xanthan):
 
     # Override
     def uploadChanges(self) -> None:
-        self._runGitCommand("git cl upload -T")
-
-    def _runGitCommand(self, command: str):
-        process = subprocess.Popen(command.split(),
-                                   stdout=subprocess.PIPE,
-                                   stderr=subprocess.PIPE)
-        out, _ = process.communicate()
-        return out.decode("utf-8")
+        runner.get().runInProcess("git cl upload -T")
