@@ -23,13 +23,13 @@ class Xanthan:
     def __init__(self):
         raise NotImplemented("Xanthan method not implemented.")
     
-    def getCLForBranch(branchName: str) -> CL:
+    def getCLForBranch(self, branchName: str) -> CL:
         """
             Returns a CL object representing the CL on the branch: branchName.
         """
         raise NotImplemented("Xanthan method not implemented.")
 
-    def uploadChanges() -> None:
+    def uploadChanges(self) -> None:
         """
             Uploads the current working commit(s) to the code review tool.
         """
