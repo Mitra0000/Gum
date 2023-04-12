@@ -21,7 +21,6 @@ import commits
 from features import Features
 from node import Node
 from runner import CommandRunner as runner
-from trie import Trie
 from util import *
 
 
@@ -236,13 +235,5 @@ class Tree:
             branchesToParents[commitsToBranches[entry]] = commitsToBranches[
                 commitsToParents[entry]] if commitsToParents[entry] else None
 
-        uniqueHashes = cls._getUniqueCommitPrefixes(commitsToParents.keys())
+        uniqueHashes = getUniqueCommitPrefixes(commitsToParents.keys())
         return branchesToParents, parentsToBranches, uniqueHashes
-
-    @classmethod
-    def _getUniqueCommitPrefixes(cls, commits):
-        trie = Trie()
-        for commit in commits:
-            trie.insert(commit)
-        result = trie.query()
-        return {k + v: (k, v) for k, v in result.items()}
