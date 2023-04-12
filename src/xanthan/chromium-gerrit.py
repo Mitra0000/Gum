@@ -17,11 +17,13 @@ import subprocess
 from cl import CL
 from xanthan import Xanthan
 
+
 class ChromiumGerrit(Xanthan):
+
     def __init__(self):
         self._branchesToCLs: dict[str, CL] = {}
         self._initGitCl()
-    
+
     def _updateState(self):
         self._branchesToCLs = {}
         output = self._runGitCommand("git cl status --no-branch-color")
@@ -35,7 +37,7 @@ class ChromiumGerrit(Xanthan):
                 data = data[2:]
             data = data.split()
             self._branchesToCLs[data[0]] = CL(data[2], data[3][1:-1])
-        
+
     # Override
     # Nullable
     def getCLForBranch(self, branchName: str) -> CL:
@@ -45,7 +47,7 @@ class ChromiumGerrit(Xanthan):
     # Override
     def uploadChanges(self) -> None:
         self._runGitCommand("git cl upload -T")
-        
+
     def _runGitCommand(self, command: str):
         process = subprocess.Popen(command.split(),
                                    stdout=subprocess.PIPE,

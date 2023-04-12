@@ -15,6 +15,7 @@
 from dataclasses import dataclass
 from enum import Enum
 
+
 class Status(Enum):
     # The CL has not been sent for review yet.
     DRAFT = 0
@@ -25,7 +26,8 @@ class Status(Enum):
     # The CL is no longer active and the changes have been abandoned.
     ABANDONED = 3
 
-@dataclass(frozen = True)
+
+@dataclass(frozen=True)
 class CL:
     url: str
     status: Status
