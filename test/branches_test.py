@@ -18,7 +18,7 @@ import context
 from cacher_for_testing import CacherForTesting
 from test_helper import TestHelper
 
-import branches
+import git.branches as branches
 from config.cacher import Cacher
 
 

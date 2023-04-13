@@ -17,7 +17,7 @@ import unittest
 import context
 from test_helper import TestHelper
 
-import commits
+import git.commits as commits
 
 
 # Unit tests for the CommitManager class.

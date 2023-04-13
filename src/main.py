@@ -15,8 +15,8 @@
 
 import os
 
-import branches
-import commits
+import git.branches as branches
+import git.commits as commits
 from config.cacher import Cacher
 from format import *
 import option_parser

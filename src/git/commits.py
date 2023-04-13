@@ -15,7 +15,7 @@
 import os
 import tempfile
 
-import branches
+import git.branches as branches
 from format import *
 from runner import CommandRunner as runner
 import status

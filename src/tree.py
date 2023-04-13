@@ -15,9 +15,9 @@
 import bisect
 from collections import defaultdict, deque
 
-import branches
+import git.branches as branches
 from config.cacher import Cacher
-import commits
+import git.commits as commits
 from features import Features
 from node import Node
 from runner import CommandRunner as runner

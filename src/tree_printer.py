@@ -12,8 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import branches
-import commits
+import git.branches as branches
+import git.commits as commits
 from config.cacher import Cacher
 from format import *
 
