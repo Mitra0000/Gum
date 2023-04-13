@@ -13,9 +13,9 @@
 # limitations under the License.
 
 import branches
-from config.cacher import Cacher
 import commits
-from util import *
+from config.cacher import Cacher
+from format import *
 
 
 class TreePrinter:

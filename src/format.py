@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import re
+
 
 class TextDecorators:
     BOLD = '\033[1m'
@@ -31,13 +33,27 @@ class Color:
     Reset = "\u001b[0m"
 
 
-def format(*args,
-           bold: bool = False,
-           underline: bool = False,
-           color: str = Color.White):
-    output = (TextDecorators.BOLD if bold else
-              "") + (TextDecorators.UNDERLINE if underline else "") + color
-    for i in args:
-        output += i + " "
-    output += TextDecorators.ENDC + Color.Reset
-    return output
+def formatText(*args,
+               bold: bool = False,
+               underline: bool = False,
+               color: str = Color.White):
+    output = []
+    if bold:
+        output.append(TextDecorators.BOLD)
+    if underline:
+        output.append(TextDecorators.UNDERLINE)
+    output.append(color)
+    message = []
+    for arg in args:
+        message.append(arg)
+    output.append(" ".join(message))
+    output.append(f"{TextDecorators.ENDC}{Color.Reset}")
+    return "".join(output)
+
+
+def decodeFormattedText(text: str) -> str:
+    return re.compile(r'\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])').sub('', text)
+
+
+def abbreviateText(text, length=20):
+    return text if len(text) <= length else text[:length - 3] + "..."

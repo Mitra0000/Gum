@@ -16,8 +16,9 @@
 import os
 
 import branches
-from config.cacher import Cacher
 import commits
+from config.cacher import Cacher
+from format import *
 import option_parser
 from runner import CommandRunner as runner
 from runner import DryRunner
@@ -25,7 +26,6 @@ from runner import VerboseRunner
 import status
 from tree import Tree
 from tree_printer import TreePrinter
-from util import *
 
 
 def main():
