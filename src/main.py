@@ -23,7 +23,7 @@ import option_parser
 from runner import CommandRunner as runner
 from runner import DryRunner
 from runner import VerboseRunner
-import status
+import git.status as status
 from tree import Tree
 from tree_printer import TreePrinter
 
