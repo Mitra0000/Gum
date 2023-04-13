@@ -18,8 +18,8 @@ import context
 from cacher_for_testing import CacherForTesting
 from test_helper import TestHelper
 
-import git.branches as branches
 from config.cacher import Cacher
+import git.branches as branches
 
 
 # Unit tests for the functions found in src/branches.py.

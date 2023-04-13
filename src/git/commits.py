@@ -15,11 +15,11 @@
 import os
 import tempfile
 
-import git.branches as branches
 from format import *
-from runner import CommandRunner as runner
+import git.branches as branches
 import git.status as status
 from repository.trie import Trie
+from runner import CommandRunner as runner
 
 
 def createCommitMessage() -> str:

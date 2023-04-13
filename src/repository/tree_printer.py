@@ -12,10 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import git.branches as branches
-import git.commits as commits
 from config.cacher import Cacher
 from format import *
+import git.branches as branches
+import git.commits as commits
 
 
 class TreePrinter:

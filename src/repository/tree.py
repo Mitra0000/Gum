@@ -15,13 +15,13 @@
 import bisect
 from collections import defaultdict, deque
 
-import git.branches as branches
 from config.cacher import Cacher
-import git.commits as commits
 from features import Features
+import git.branches as branches
+import git.commits as commits
 from repository.node import Node
-from runner import CommandRunner as runner
 from repository.trie import Trie
+from runner import CommandRunner as runner
 
 
 class Tree:

@@ -15,10 +15,10 @@
 import context
 
 from mock_repository import MockRepository
-from runner import CommandRunner as runner
 from test_command_runner import TestCommandRunner
 
 import main
+from runner import CommandRunner as runner
 
 
 class TestHelper:

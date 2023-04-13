@@ -15,17 +15,17 @@
 
 import os
 
-import git.branches as branches
-import git.commits as commits
 from config.cacher import Cacher
 from format import *
+import git.branches as branches
+import git.commits as commits
+import git.status as status
 import option_parser
+from repository.tree import Tree
+from repository.tree_printer import TreePrinter
 from runner import CommandRunner as runner
 from runner import DryRunner
 from runner import VerboseRunner
-import git.status as status
-from repository.tree import Tree
-from repository.tree_printer import TreePrinter
 
 
 def main():
