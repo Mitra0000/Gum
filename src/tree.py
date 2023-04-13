@@ -21,7 +21,7 @@ import commits
 from features import Features
 from node import Node
 from runner import CommandRunner as runner
-from util import *
+from trie import Trie
 
 
 class Tree:

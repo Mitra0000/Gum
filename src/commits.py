@@ -18,6 +18,7 @@ import tempfile
 import branches
 from runner import CommandRunner as runner
 import status
+from trie import Trie
 from util import *
 
 

@@ -14,8 +14,6 @@
 
 import re
 
-from trie import Trie
-
 
 class TextDecorators:
     BOLD = '\033[1m'
