@@ -59,11 +59,3 @@ def decodeFormattedText(text: str) -> str:
 
 def abbreviateText(text, length=20):
     return text if len(text) <= length else text[:length - 3] + "..."
-
-
-def getUniqueCommitPrefixes(commits):
-    trie = Trie()
-    for commit in commits:
-        trie.insert(commit)
-    result = trie.query()
-    return {k + v: (k, v) for k, v in result.items()}
