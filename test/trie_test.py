@@ -18,7 +18,7 @@ import context
 
 from test_helper import TestHelper
 
-import trie
+from repository.trie import Trie
 
 
 # Unit tests for the Trie class.
@@ -27,7 +27,7 @@ class TrieTest(unittest.TestCase):
     def setUp(self):
         self.helper = TestHelper()
         self.repo = self.helper.repository
-        self.trie = trie.Trie()
+        self.trie = Trie()
 
     def testEmptyTrie(self):
         self.assertIsNone(self.trie.querySingle("anything"))

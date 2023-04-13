@@ -19,9 +19,9 @@ import git.branches as branches
 from config.cacher import Cacher
 import git.commits as commits
 from features import Features
-from node import Node
+from repository.node import Node
 from runner import CommandRunner as runner
-from trie import Trie
+from repository.trie import Trie
 
 
 class Tree:

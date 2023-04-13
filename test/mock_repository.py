@@ -14,7 +14,7 @@
 
 import context
 
-from node import Node
+from repository.node import Node
 
 OWNED_EMAIL = "user@example.com"
 ANOTHER_EMAIL = "someone.else@example.com"

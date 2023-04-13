@@ -19,7 +19,7 @@ import git.branches as branches
 from format import *
 from runner import CommandRunner as runner
 import git.status as status
-from trie import Trie
+from repository.trie import Trie
 
 
 def createCommitMessage() -> str:

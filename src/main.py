@@ -24,8 +24,8 @@ from runner import CommandRunner as runner
 from runner import DryRunner
 from runner import VerboseRunner
 import git.status as status
-from tree import Tree
-from tree_printer import TreePrinter
+from repository.tree import Tree
+from repository.tree_printer import TreePrinter
 
 
 def main():

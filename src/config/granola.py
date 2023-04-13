@@ -14,7 +14,7 @@
 
 import sys
 
-from node import Node
+from repository.node import Node
 
 
 class Granola:
