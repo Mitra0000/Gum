@@ -256,7 +256,8 @@ def main():
             return "Could not find specified commit hash."
         print("Processing file changes...")
         runner.get().run(f"git checkout {branchName}", True)
-        return f"Updated to {args.commit}"
+        runner.get().runInProcess(
+            "git log -1 HEAD --pretty=\"Updated to %C(Yellow)%h%Creset: %s\"")
 
     elif command == "uploadchain" or command == "uc":
         Cacher.invalidateKey(Cacher.CL_NUMBERS)
