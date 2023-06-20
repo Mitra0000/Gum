@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from enum import Enum
+
 from xanthan.cl import CL
 
 
@@ -22,6 +24,20 @@ class Xanthan:
         given code review tool (like Github or Gerrit).
     """
 
+    _instance = None
+
+    @classmethod
+    def get(cls):
+        return cls._instance
+
+    @classmethod
+    def set(cls, instance):
+        cls._instance = instance
+
+    class UploadResponse(Enum):
+        SUCCESS = 0
+        UNSPECIFIED_FAILURE = 1
+
     def __init__(self):
         raise NotImplemented("Xanthan method not implemented.")
 
@@ -31,7 +47,7 @@ class Xanthan:
         """
         raise NotImplemented("Xanthan method not implemented.")
 
-    def uploadChanges(self) -> None:
+    def uploadChanges(self) -> UploadResponse:
         """
             Uploads the current working commit(s) to the code review tool.
         """

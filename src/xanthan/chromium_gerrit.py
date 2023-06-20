@@ -43,5 +43,8 @@ class ChromiumGerrit(Xanthan):
         return self._branchesToCLs[branchName]
 
     # Override
-    def uploadChanges(self) -> None:
-        runner.get().runInProcess("git cl upload -T")
+    def uploadChanges(self) -> Xanthan.UploadResponse:
+        returnCode = runner.get().runInProcessWithReturnCode("git cl upload -T")
+        if returnCode == 0:
+            return Xanthan.UploadResponse.SUCCESS
+        return Xanthan.UploadResponse.UNSPECIFIED_FAILURE

@@ -26,6 +26,8 @@ from repository.tree_printer import TreePrinter
 from runner import CommandRunner as runner
 from runner import DryRunner
 from runner import VerboseRunner
+from xanthan.chromium_gerrit import ChromiumGerrit
+from xanthan.xanthan import Xanthan
 
 
 def main():
@@ -45,6 +47,7 @@ def main():
         runner.swapInstance(VerboseRunner())
     if args.dry_run:
         runner.swapInstance(DryRunner())
+    Xanthan.set(ChromiumGerrit())
 
     if command == "add":
         # Flatten the parsed filenames.
@@ -229,7 +232,7 @@ def main():
         updateHead()
 
     elif command == "test":
-        updateHead()
+        Xanthan.get().uploadChanges()
 
     elif command == "unamend":
         runner.get().run("git reset --soft HEAD@{1}")
